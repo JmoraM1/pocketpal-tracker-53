@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useBudget } from "@/hooks/useBudget";
+import { useCategories } from "@/hooks/useCategories";
 import { MonthSelector } from "@/components/MonthSelector";
 import { SummaryCards } from "@/components/SummaryCards";
 import { ExpenseList } from "@/components/ExpenseList";
 import { ExpenseCharts } from "@/components/ExpenseCharts";
 import { IncomeEditor } from "@/components/IncomeEditor";
 import { ExportButton } from "@/components/ExportButton";
+import { CategoryManager } from "@/components/CategoryManager";
 import { Button } from "@/components/ui/button";
 import { LogOut, Wallet } from "lucide-react";
 
@@ -22,6 +24,8 @@ export default function Dashboard() {
     cumulativeSavings, updateIncome, updateExpense, addExpense, deleteExpense,
     copyFromPreviousMonth,
   } = useBudget(user?.id, selectedMonth);
+
+  const { categories, addCategory, removeCategory } = useCategories(user?.id);
 
   if (loading) {
     return (
@@ -59,8 +63,9 @@ export default function Dashboard() {
             onChangeMonth={setSelectedMonth}
             onCopyPrevious={copyFromPreviousMonth}
           />
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <IncomeEditor income={Number(budget?.income ?? 0)} onSave={updateIncome} />
+            <CategoryManager categories={categories} onAdd={addCategory} onRemove={removeCategory} />
             <ExportButton
               expenses={expenses}
               income={Number(budget?.income ?? 0)}
@@ -85,6 +90,7 @@ export default function Dashboard() {
 
         <ExpenseList
           expenses={expenses}
+          categories={categories}
           onUpdate={updateExpense}
           onAdd={addExpense}
           onDelete={deleteExpense}

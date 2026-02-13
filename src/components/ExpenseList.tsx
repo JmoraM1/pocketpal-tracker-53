@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { formatCOP, DEFAULT_CATEGORIES } from "@/lib/constants";
+import { formatCOP } from "@/lib/constants";
 import { Pencil, Check, X, Plus, Trash2 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -14,14 +14,13 @@ type Expense = Tables<"expenses">;
 
 interface ExpenseListProps {
   expenses: Expense[];
+  categories: string[];
   onUpdate: (id: string, updates: { amount?: number; description?: string; is_paid?: boolean; category?: string }) => void;
   onAdd: (data: { category: string; amount: number; description: string; is_paid: boolean }) => void;
   onDelete: (id: string) => void;
 }
 
-const ALL_CATEGORIES = [...DEFAULT_CATEGORIES, "Ahorro", "Otro"];
-
-export function ExpenseList({ expenses, onUpdate, onAdd, onDelete }: ExpenseListProps) {
+export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }: ExpenseListProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editAmount, setEditAmount] = useState("");
   const [editDesc, setEditDesc] = useState("");
@@ -29,7 +28,7 @@ export function ExpenseList({ expenses, onUpdate, onAdd, onDelete }: ExpenseList
 
   // Add dialog state
   const [addOpen, setAddOpen] = useState(false);
-  const [newCategory, setNewCategory] = useState(ALL_CATEGORIES[0]);
+  const [newCategory, setNewCategory] = useState(categories[0] ?? "");
   const [newAmount, setNewAmount] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [newPaid, setNewPaid] = useState(false);
@@ -59,7 +58,7 @@ export function ExpenseList({ expenses, onUpdate, onAdd, onDelete }: ExpenseList
       description: newDesc,
       is_paid: newPaid,
     });
-    setNewCategory(ALL_CATEGORIES[0]);
+    setNewCategory(categories[0] ?? "");
     setNewAmount("");
     setNewDesc("");
     setNewPaid(false);
@@ -89,7 +88,7 @@ export function ExpenseList({ expenses, onUpdate, onAdd, onDelete }: ExpenseList
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {ALL_CATEGORIES.map((cat) => (
+                    {categories.map((cat) => (
                       <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                     ))}
                   </SelectContent>
@@ -139,7 +138,7 @@ export function ExpenseList({ expenses, onUpdate, onAdd, onDelete }: ExpenseList
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {ALL_CATEGORIES.map((cat) => (
+                      {categories.map((cat) => (
                         <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                       ))}
                     </SelectContent>

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatCOP } from "@/lib/constants";
-import { DollarSign, TrendingDown, PiggyBank, CheckCircle } from "lucide-react";
+import { DollarSign, TrendingDown, PiggyBank, CheckCircle, Landmark } from "lucide-react";
 
 interface SummaryCardsProps {
   income: number;
@@ -9,14 +9,15 @@ interface SummaryCardsProps {
   available: number;
   paidCount: number;
   totalCount: number;
+  cumulativeSavings: number;
 }
 
-export function SummaryCards({ income, totalExpenses, available, paidCount, totalCount }: SummaryCardsProps) {
+export function SummaryCards({ income, totalExpenses, available, paidCount, totalCount, cumulativeSavings }: SummaryCardsProps) {
   const expenseRatio = income > 0 ? Math.min((totalExpenses / income) * 100, 100) : 0;
   const isHealthy = available >= 0;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
       <Card>
         <CardContent className="flex items-center gap-4 p-5">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -51,6 +52,18 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
             <p className={`text-xl font-bold ${isHealthy ? "text-success" : "text-destructive"}`}>
               {formatCOP(available)}
             </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="flex items-center gap-4 p-5">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <Landmark className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Ahorro acumulado</p>
+            <p className="text-xl font-bold text-primary">{formatCOP(cumulativeSavings)}</p>
           </div>
         </CardContent>
       </Card>

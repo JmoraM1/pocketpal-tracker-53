@@ -6,6 +6,7 @@ import { SummaryCards } from "@/components/SummaryCards";
 import { ExpenseList } from "@/components/ExpenseList";
 import { ExpenseCharts } from "@/components/ExpenseCharts";
 import { IncomeEditor } from "@/components/IncomeEditor";
+import { ExportButton } from "@/components/ExportButton";
 import { Button } from "@/components/ui/button";
 import { LogOut, Wallet } from "lucide-react";
 
@@ -18,7 +19,8 @@ export default function Dashboard() {
 
   const {
     budget, expenses, loading, totalExpenses, available, paidCount,
-    updateIncome, updateExpense, copyFromPreviousMonth,
+    cumulativeSavings, updateIncome, updateExpense, addExpense, deleteExpense,
+    copyFromPreviousMonth,
   } = useBudget(user?.id, selectedMonth);
 
   if (loading) {
@@ -31,7 +33,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-10 border-b bg-card/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
@@ -51,32 +52,43 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Content */}
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
-        {/* Month selector + income editor */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <MonthSelector
             selectedMonth={selectedMonth}
             onChangeMonth={setSelectedMonth}
             onCopyPrevious={copyFromPreviousMonth}
           />
-          <IncomeEditor income={Number(budget?.income ?? 0)} onSave={updateIncome} />
+          <div className="flex items-center gap-2">
+            <IncomeEditor income={Number(budget?.income ?? 0)} onSave={updateIncome} />
+            <ExportButton
+              expenses={expenses}
+              income={Number(budget?.income ?? 0)}
+              selectedMonth={selectedMonth}
+              totalExpenses={totalExpenses}
+              available={available}
+              cumulativeSavings={cumulativeSavings}
+            />
+          </div>
         </div>
 
-        {/* Summary */}
         <SummaryCards
           income={Number(budget?.income ?? 0)}
           totalExpenses={totalExpenses}
           available={available}
           paidCount={paidCount}
           totalCount={expenses.length}
+          cumulativeSavings={cumulativeSavings}
         />
 
-        {/* Charts */}
         <ExpenseCharts expenses={expenses} />
 
-        {/* Expense list */}
-        <ExpenseList expenses={expenses} onUpdate={updateExpense} />
+        <ExpenseList
+          expenses={expenses}
+          onUpdate={updateExpense}
+          onAdd={addExpense}
+          onDelete={deleteExpense}
+        />
       </main>
     </div>
   );

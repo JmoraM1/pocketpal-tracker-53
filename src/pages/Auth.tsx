@@ -5,22 +5,52 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { Wallet } from "lucide-react";
+import { Wallet, AlertCircle } from "lucide-react";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD_LENGTH = 6;
+
+interface FormErrors {
+  email?: string;
+  password?: string;
+}
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
   const { signIn, signUp } = useAuth();
+
+  const validate = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (!email.trim()) {
+      newErrors.email = "El correo electrónico es obligatorio.";
+    } else if (!EMAIL_REGEX.test(email.trim())) {
+      newErrors.email = "El formato del correo no es válido.";
+    }
+
+    if (!password) {
+      newErrors.password = "La contraseña es obligatoria.";
+    } else if (password.length < MIN_PASSWORD_LENGTH) {
+      newErrors.password = `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
+
     setSubmitting(true);
 
     const { error } = isLogin
-      ? await signIn(email, password)
-      : await signUp(email, password);
+      ? await signIn(email.trim(), password)
+      : await signUp(email.trim(), password);
 
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -28,6 +58,14 @@ export default function Auth() {
       toast({ title: "Registro exitoso", description: "Revisa tu correo para confirmar tu cuenta." });
     }
     setSubmitting(false);
+  };
+
+  const clearError = (field: keyof FormErrors) => {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
   };
 
   return (
@@ -43,17 +81,27 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-2">
               <Label htmlFor="email">Correo electrónico</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  clearError("email");
+                }}
                 placeholder="tu@correo.com"
-                required
+                className={errors.email ? "border-destructive focus-visible:ring-destructive" : ""}
+                aria-invalid={!!errors.email}
               />
+              {errors.email && (
+                <p className="flex items-center gap-1 text-sm text-destructive">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {errors.email}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
@@ -61,11 +109,23 @@ export default function Auth() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  clearError("password");
+                }}
                 placeholder="••••••••"
-                required
-                minLength={6}
+                className={errors.password ? "border-destructive focus-visible:ring-destructive" : ""}
+                aria-invalid={!!errors.password}
               />
+              {errors.password && (
+                <p className="flex items-center gap-1 text-sm text-destructive">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {errors.password}
+                </p>
+              )}
+              {!isLogin && !errors.password && (
+                <p className="text-xs text-muted-foreground">Mínimo {MIN_PASSWORD_LENGTH} caracteres.</p>
+              )}
             </div>
             <Button type="submit" className="w-full" size="lg" disabled={submitting}>
               {submitting ? "Cargando..." : isLogin ? "Iniciar sesión" : "Registrarse"}
@@ -74,7 +134,10 @@ export default function Auth() {
           <div className="mt-4 text-center text-sm text-muted-foreground">
             {isLogin ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
             <button
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setErrors({});
+              }}
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
               {isLogin ? "Regístrate" : "Inicia sesión"}

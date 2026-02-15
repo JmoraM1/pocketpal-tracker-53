@@ -16,15 +16,7 @@ export function useCategories(userId: string | undefined) {
       .eq("user_id", userId)
       .order("created_at");
 
-    if (data && data.length > 0) {
-      setCategories(data.map((c) => c.name));
-    } else {
-      // First time: seed with defaults + Ahorro + Otro
-      const defaults = [...DEFAULT_CATEGORIES, "Ahorro", "Otro"];
-      const rows = defaults.map((name) => ({ user_id: userId, name }));
-      await supabase.from("user_categories").insert(rows);
-      setCategories(defaults);
-    }
+    setCategories(data ? data.map((c) => c.name) : []);
 
     setLoading(false);
   }, [userId]);

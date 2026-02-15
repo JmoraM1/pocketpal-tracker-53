@@ -34,18 +34,7 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
         .single();
       budgetData = newBudget;
 
-      // Create default expenses
-      if (budgetData) {
-        const defaultExpenses = DEFAULT_CATEGORIES.map((cat) => ({
-          user_id: userId,
-          budget_id: budgetData!.id,
-          category: cat,
-          amount: 0,
-          description: "",
-          is_paid: false,
-        }));
-        await supabase.from("expenses").insert(defaultExpenses);
-      }
+      // No default expenses — user adds their own categories
     }
 
     if (budgetData) {

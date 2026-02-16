@@ -25,7 +25,7 @@ export default function Dashboard() {
     copyFromPreviousMonth,
   } = useBudget(user?.id, selectedMonth);
 
-  const { categories, addCategory, removeCategory } = useCategories(user?.id);
+  const { categories, addCategory, removeCategory, editCategory } = useCategories(user?.id);
 
   if (loading) {
     return (
@@ -65,7 +65,7 @@ export default function Dashboard() {
           />
           <div className="flex flex-wrap items-center gap-2">
             <IncomeEditor income={Number(budget?.income ?? 0)} onSave={updateIncome} />
-            <CategoryManager categories={categories} onAdd={addCategory} onRemove={removeCategory} />
+            <CategoryManager categories={categories} onAdd={addCategory} onRemove={removeCategory} onEdit={editCategory} />
             <ExportButton
               expenses={expenses}
               income={Number(budget?.income ?? 0)}

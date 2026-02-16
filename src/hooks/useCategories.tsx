@@ -45,5 +45,23 @@ export function useCategories(userId: string | undefined) {
     setCategories((prev) => prev.filter((c) => c !== name));
   };
 
-  return { categories, loading: loading, addCategory, removeCategory };
+  const editCategory = async (oldName: string, newName: string) => {
+    if (!userId || categories.includes(newName)) return;
+    const { error } = await supabase
+      .from("user_categories")
+      .update({ name: newName })
+      .eq("user_id", userId)
+      .eq("name", oldName);
+    if (!error) {
+      setCategories((prev) => prev.map((c) => (c === oldName ? newName : c)));
+      // Also update expenses that use this category
+      await supabase
+        .from("expenses")
+        .update({ category: newName })
+        .eq("user_id", userId)
+        .eq("category", oldName);
+    }
+  };
+
+  return { categories, loading, addCategory, removeCategory, editCategory };
 }

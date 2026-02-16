@@ -29,3 +29,8 @@ export function formatMonthLabel(dateStr: string): string {
   const date = new Date(dateStr + "T12:00:00");
   return date.toLocaleDateString("es-CO", { month: "long", year: "numeric" });
 }
+
+export function isSavingsCategory(name: string): boolean {
+  const normalized = name.toLowerCase().replace(/[^a-záéíóúñü]/g, "");
+  return normalized.includes("ahorr");
+}

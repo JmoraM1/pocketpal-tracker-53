@@ -54,6 +54,19 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
   }, [userId, monthKey]);
 
   const calculateCumulativeSavings = async (uid: string, upToMonth: Date) => {
+    // Get cumulative savings category names
+    const { data: savingsCategories } = await supabase
+      .from("user_categories")
+      .select("name")
+      .eq("user_id", uid)
+      .eq("is_cumulative_savings", true);
+
+    const savingsCatNames = savingsCategories?.map((c) => c.name) ?? [];
+    if (savingsCatNames.length === 0) {
+      setCumulativeSavings(0);
+      return;
+    }
+
     // Get all budgets up to and including this month
     const { data: allBudgets } = await supabase
       .from("monthly_budgets")
@@ -71,9 +84,9 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
     for (const b of allBudgets) {
       const { data: savingsExpenses } = await supabase
         .from("expenses")
-        .select("amount")
+        .select("amount, category")
         .eq("budget_id", b.id)
-        .eq("category", "Ahorro");
+        .in("category", savingsCatNames);
 
       if (savingsExpenses) {
         total += savingsExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
@@ -95,7 +108,6 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
   const updateExpense = async (id: string, updates: { amount?: number; description?: string; is_paid?: boolean; category?: string }) => {
     await supabase.from("expenses").update(updates).eq("id", id);
     setExpenses((prev) => prev.map((e) => (e.id === id ? { ...e, ...updates } : e)));
-    // Recalculate savings if category is Ahorro
     if (userId) {
       await calculateCumulativeSavings(userId, selectedMonth);
     }
@@ -118,17 +130,16 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
 
     if (newExpense) {
       setExpenses((prev) => [...prev, newExpense]);
-      if (data.category === "Ahorro" && userId) {
+      if (userId) {
         await calculateCumulativeSavings(userId, selectedMonth);
       }
     }
   };
 
   const deleteExpense = async (id: string) => {
-    const expense = expenses.find((e) => e.id === id);
     await supabase.from("expenses").delete().eq("id", id);
     setExpenses((prev) => prev.filter((e) => e.id !== id));
-    if (expense?.category === "Ahorro" && userId) {
+    if (userId) {
       await calculateCumulativeSavings(userId, selectedMonth);
     }
   };

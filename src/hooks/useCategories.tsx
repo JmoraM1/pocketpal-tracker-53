@@ -1,9 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { DEFAULT_CATEGORIES } from "@/lib/constants";
+import { isSavingsCategory } from "@/lib/constants";
+
+export interface CategoryInfo {
+  name: string;
+  is_cumulative_savings: boolean;
+}
 
 export function useCategories(userId: string | undefined) {
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadCategories = useCallback(async () => {
@@ -12,11 +17,11 @@ export function useCategories(userId: string | undefined) {
 
     const { data } = await supabase
       .from("user_categories")
-      .select("name")
+      .select("name, is_cumulative_savings")
       .eq("user_id", userId)
       .order("created_at");
 
-    setCategories(data ? data.map((c) => c.name) : []);
+    setCategories(data ? data.map((c) => ({ name: c.name, is_cumulative_savings: c.is_cumulative_savings })) : []);
 
     setLoading(false);
   }, [userId]);
@@ -25,13 +30,13 @@ export function useCategories(userId: string | undefined) {
     loadCategories();
   }, [loadCategories]);
 
-  const addCategory = async (name: string) => {
-    if (!userId || categories.includes(name)) return;
+  const addCategory = async (name: string, is_cumulative_savings = false) => {
+    if (!userId || categories.some((c) => c.name === name)) return;
     const { error } = await supabase
       .from("user_categories")
-      .insert({ user_id: userId, name });
+      .insert({ user_id: userId, name, is_cumulative_savings });
     if (!error) {
-      setCategories((prev) => [...prev, name]);
+      setCategories((prev) => [...prev, { name, is_cumulative_savings }]);
     }
   };
 
@@ -42,19 +47,18 @@ export function useCategories(userId: string | undefined) {
       .delete()
       .eq("user_id", userId)
       .eq("name", name);
-    setCategories((prev) => prev.filter((c) => c !== name));
+    setCategories((prev) => prev.filter((c) => c.name !== name));
   };
 
   const editCategory = async (oldName: string, newName: string) => {
-    if (!userId || categories.includes(newName)) return;
+    if (!userId || categories.some((c) => c.name === newName)) return;
     const { error } = await supabase
       .from("user_categories")
       .update({ name: newName })
       .eq("user_id", userId)
       .eq("name", oldName);
     if (!error) {
-      setCategories((prev) => prev.map((c) => (c === oldName ? newName : c)));
-      // Also update expenses that use this category
+      setCategories((prev) => prev.map((c) => (c.name === oldName ? { ...c, name: newName } : c)));
       await supabase
         .from("expenses")
         .update({ category: newName })
@@ -63,5 +67,19 @@ export function useCategories(userId: string | undefined) {
     }
   };
 
-  return { categories, loading, addCategory, removeCategory, editCategory };
+  const toggleCumulativeSavings = async (name: string, value: boolean) => {
+    if (!userId) return;
+    const { error } = await supabase
+      .from("user_categories")
+      .update({ is_cumulative_savings: value })
+      .eq("user_id", userId)
+      .eq("name", name);
+    if (!error) {
+      setCategories((prev) => prev.map((c) => (c.name === name ? { ...c, is_cumulative_savings: value } : c)));
+    }
+  };
+
+  const categoryNames = categories.map((c) => c.name);
+
+  return { categories, categoryNames, loading, addCategory, removeCategory, editCategory, toggleCumulativeSavings };
 }

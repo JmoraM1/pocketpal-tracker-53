@@ -1,9 +1,11 @@
 import { useAuth } from "@/hooks/useAuth";
+import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
 import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
 
 const Index = () => {
   const { user, loading } = useAuth();
+  useInactivityTimeout();
 
   if (loading) {
     return (

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isSavingsCategory } from "@/lib/constants";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 
 export interface CategoryInfo {
   name: string;
@@ -25,6 +26,8 @@ export function useCategories(userId: string | undefined) {
 
     setLoading(false);
   }, [userId]);
+
+  useNetworkStatus(loadCategories);
 
   useEffect(() => {
     loadCategories();

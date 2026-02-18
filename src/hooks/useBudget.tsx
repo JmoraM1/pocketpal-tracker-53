@@ -1,10 +1,26 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_CATEGORIES, getMonthKey } from "@/lib/constants";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Budget = Tables<"monthly_budgets">;
 type Expense = Tables<"expenses">;
+
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 2000;
+
+async function withRetry<T>(fn: () => Promise<T>, retries = MAX_RETRIES): Promise<T> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise((r) => setTimeout(r, RETRY_DELAY_MS * (i + 1)));
+    }
+  }
+  throw new Error("Max retries reached");
+}
 
 export function useBudget(userId: string | undefined, selectedMonth: Date) {
   const [budget, setBudget] = useState<Budget | null>(null);
@@ -14,7 +30,7 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
 
   const monthKey = getMonthKey(selectedMonth);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (isRetry = false) => {
     if (!userId) return;
     setLoading(true);
 
@@ -94,6 +110,9 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
     }
     setCumulativeSavings(total);
   };
+
+  // Reconnect handler
+  useNetworkStatus(loadData);
 
   useEffect(() => {
     loadData();

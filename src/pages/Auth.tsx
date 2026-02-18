@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { Wallet, AlertCircle, ArrowLeft } from "lucide-react";
+import { Wallet, AlertCircle, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -23,6 +23,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [forgotSent, setForgotSent] = useState(false);
   const { signIn, signUp } = useAuth();
@@ -181,15 +182,25 @@ export default function Auth() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
-                placeholder="••••••••"
-                className={errors.password ? "border-destructive focus-visible:ring-destructive" : ""}
-                aria-invalid={!!errors.password}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
+                  placeholder="••••••••"
+                  className={errors.password ? "border-destructive focus-visible:ring-destructive pr-10" : "pr-10"}
+                  aria-invalid={!!errors.password}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
               {errors.password && (
                 <p className="flex items-center gap-1 text-sm text-destructive">
                   <AlertCircle className="h-3.5 w-3.5" />

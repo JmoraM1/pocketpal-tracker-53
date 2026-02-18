@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { useWebAuthn, isWebAuthnSupported } from "@/hooks/useWebAuthn";
 import { toast } from "@/hooks/use-toast";
-import { Wallet, AlertCircle, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Wallet, AlertCircle, ArrowLeft, Eye, EyeOff, Fingerprint } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -27,6 +28,7 @@ export default function Auth() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [forgotSent, setForgotSent] = useState(false);
   const { signIn, signUp } = useAuth();
+  const { loading: webauthnLoading, authenticateWithPasskey, isSupported: webauthnSupported } = useWebAuthn();
 
   const validate = (emailOnly = false): boolean => {
     const newErrors: FormErrors = {};
@@ -222,9 +224,28 @@ export default function Auth() {
                 </button>
               </div>
             )}
-            <Button type="submit" className="w-full" size="lg" disabled={submitting}>
+            <Button type="submit" className="w-full" size="lg" disabled={submitting || webauthnLoading}>
               {submitting ? "Cargando..." : view === "login" ? "Iniciar sesión" : "Registrarse"}
             </Button>
+            {view === "login" && webauthnSupported && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                size="lg"
+                disabled={webauthnLoading || submitting || !email.trim()}
+                onClick={async () => {
+                  if (!email.trim()) {
+                    toast({ title: "Correo requerido", description: "Ingresa tu correo para usar biometría.", variant: "destructive" });
+                    return;
+                  }
+                  await authenticateWithPasskey(email.trim());
+                }}
+              >
+                <Fingerprint className="h-5 w-5" />
+                {webauthnLoading ? "Verificando..." : "Iniciar con huella / Face ID"}
+              </Button>
+            )}
           </form>
           <div className="mt-4 text-center text-sm text-muted-foreground">
             {view === "login" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}

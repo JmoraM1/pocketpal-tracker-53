@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useBudget } from "@/hooks/useBudget";
 import { useCategories } from "@/hooks/useCategories";
+import { useWebAuthn, isWebAuthnSupported } from "@/hooks/useWebAuthn";
 import { MonthSelector } from "@/components/MonthSelector";
 import { SummaryCards } from "@/components/SummaryCards";
 import { ExpenseList } from "@/components/ExpenseList";
@@ -10,7 +11,7 @@ import { IncomeEditor } from "@/components/IncomeEditor";
 import { ExportButton } from "@/components/ExportButton";
 import { CategoryManager } from "@/components/CategoryManager";
 import { Button } from "@/components/ui/button";
-import { LogOut, Wallet } from "lucide-react";
+import { LogOut, Wallet, Fingerprint } from "lucide-react";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -26,6 +27,7 @@ export default function Dashboard() {
   } = useBudget(user?.id, selectedMonth);
 
   const { categories, categoryNames, addCategory, removeCategory, editCategory, toggleCumulativeSavings } = useCategories(user?.id);
+  const { loading: webauthnLoading, registerPasskey, isSupported: webauthnSupported } = useWebAuthn();
 
   if (loading) {
     return (
@@ -49,6 +51,17 @@ export default function Dashboard() {
             <span className="hidden text-sm text-muted-foreground sm:inline">
               {user?.email}
             </span>
+            {webauthnSupported && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={registerPasskey}
+                disabled={webauthnLoading}
+                title="Registrar huella / Face ID"
+              >
+                <Fingerprint className="h-4 w-4" />
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={signOut}>
               <LogOut className="h-4 w-4" />
             </Button>

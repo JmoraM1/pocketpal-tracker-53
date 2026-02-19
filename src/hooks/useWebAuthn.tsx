@@ -22,6 +22,30 @@ export function isWebAuthnSupported(): boolean {
   return !!(window.PublicKeyCredential && navigator.credentials);
 }
 
+function getWebAuthnErrorMessage(err: any): string | null {
+  if (!err) return "Error desconocido.";
+  
+  switch (err.name) {
+    case "NotAllowedError":
+      return null; // User cancelled, don't show error
+    case "AbortError":
+      return null; // User cancelled
+    case "InvalidStateError":
+      return "Este dispositivo ya tiene una huella registrada.";
+    case "SecurityError":
+      return "Error de seguridad. Asegúrate de estar en una conexión segura (HTTPS).";
+    case "NotSupportedError":
+      return "Tu dispositivo no soporta este tipo de autenticación.";
+    default:
+      return err.message || "No se pudo completar la operación biométrica.";
+  }
+}
+
+function getEdgeFunctionUrl(functionName: string): string {
+  const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+  return `https://${projectId}.supabase.co/functions/v1/${functionName}`;
+}
+
 export function useWebAuthn() {
   const [loading, setLoading] = useState(false);
 
@@ -33,26 +57,27 @@ export function useWebAuthn() {
 
     setLoading(true);
     try {
-      // 1. Get registration options from server
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
-      if (!token) throw new Error("No session");
+      if (!token) throw new Error("No hay sesión activa. Inicia sesión primero.");
 
-      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const optionsRes = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/webauthn-register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({ action: "options" }),
-        }
-      );
+      const apikey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-      if (!optionsRes.ok) throw new Error("Failed to get options");
+      // 1. Get registration options
+      const optionsRes = await fetch(getEdgeFunctionUrl("webauthn-register"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey,
+        },
+        body: JSON.stringify({ action: "options" }),
+      });
+
+      if (!optionsRes.ok) {
+        const errData = await optionsRes.json().catch(() => ({}));
+        throw new Error(errData.error || "No se pudieron obtener las opciones de registro.");
+      }
       const options = await optionsRes.json();
 
       // 2. Create credential using browser API
@@ -78,43 +103,44 @@ export function useWebAuthn() {
         publicKey: publicKeyOptions,
       })) as PublicKeyCredential | null;
 
-      if (!credential) throw new Error("Registration cancelled");
+      if (!credential) throw new Error("Registro cancelado.");
 
       const response = credential.response as AuthenticatorAttestationResponse;
 
       // 3. Send credential to server for verification
-      const verifyRes = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/webauthn-register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      const verifyRes = await fetch(getEdgeFunctionUrl("webauthn-register"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey,
+        },
+        body: JSON.stringify({
+          action: "verify",
+          credential: {
+            id: bufferToBase64Url(credential.rawId),
+            publicKey: bufferToBase64Url(response.getPublicKey()!),
+            counter: 0,
           },
-          body: JSON.stringify({
-            action: "verify",
-            credential: {
-              id: bufferToBase64Url(credential.rawId),
-              publicKey: bufferToBase64Url(response.getPublicKey()!),
-              counter: 0,
-            },
-            deviceName: navigator.userAgent.includes("iPhone") || navigator.userAgent.includes("iPad")
-              ? "iPhone/iPad"
-              : navigator.userAgent.includes("Android")
-                ? "Android"
-                : "Computadora",
-          }),
-        }
-      );
+          deviceName: navigator.userAgent.includes("iPhone") || navigator.userAgent.includes("iPad")
+            ? "iPhone/iPad"
+            : navigator.userAgent.includes("Android")
+              ? "Android"
+              : "Computadora",
+        }),
+      });
 
-      if (!verifyRes.ok) throw new Error("Verification failed");
+      if (!verifyRes.ok) {
+        const errData = await verifyRes.json().catch(() => ({}));
+        throw new Error(errData.error || "No se pudo verificar el registro.");
+      }
 
       toast({ title: "¡Listo!", description: "Huella/Face ID registrado exitosamente." });
       return true;
     } catch (err: any) {
-      if (err.name !== "NotAllowedError") {
-        toast({ title: "Error", description: err.message || "No se pudo registrar la biometría.", variant: "destructive" });
+      const message = getWebAuthnErrorMessage(err);
+      if (message) {
+        toast({ title: "Error de registro", description: message, variant: "destructive" });
       }
       return false;
     } finally {
@@ -130,26 +156,26 @@ export function useWebAuthn() {
 
     setLoading(true);
     try {
-      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const apikey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
       // 1. Get authentication options
-      const optionsRes = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/webauthn-authenticate`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", apikey },
-          body: JSON.stringify({ action: "options", email }),
-        }
-      );
+      const optionsRes = await fetch(getEdgeFunctionUrl("webauthn-authenticate"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey },
+        body: JSON.stringify({ action: "options", email }),
+      });
 
       if (!optionsRes.ok) {
-        const err = await optionsRes.json();
+        const err = await optionsRes.json().catch(() => ({}));
         if (err.error === "No passkeys registered") {
-          toast({ title: "Sin biometría", description: "No tienes huella registrada. Inicia sesión con contraseña y regístrala.", variant: "destructive" });
+          toast({
+            title: "Sin biometría",
+            description: "No tienes huella registrada. Inicia sesión con contraseña y regístrala desde el menú.",
+            variant: "destructive",
+          });
           return false;
         }
-        throw new Error(err.error || "Failed to get options");
+        throw new Error(err.error || "No se pudieron obtener las opciones de autenticación.");
       }
 
       const options = await optionsRes.json();
@@ -170,48 +196,51 @@ export function useWebAuthn() {
         publicKey: publicKeyOptions,
       })) as PublicKeyCredential | null;
 
-      if (!credential) throw new Error("Authentication cancelled");
+      if (!credential) throw new Error("Autenticación cancelada.");
 
       const response = credential.response as AuthenticatorAssertionResponse;
 
       // 3. Verify on server
-      const verifyRes = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/webauthn-authenticate`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", apikey },
-          body: JSON.stringify({
-            action: "verify",
-            email,
-            credential: {
-              id: bufferToBase64Url(credential.rawId),
-              counter: new DataView(response.authenticatorData.slice(33, 37)).getUint32(0),
-            },
-          }),
-        }
-      );
+      const verifyRes = await fetch(getEdgeFunctionUrl("webauthn-authenticate"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey },
+        body: JSON.stringify({
+          action: "verify",
+          email,
+          credential: {
+            id: bufferToBase64Url(credential.rawId),
+            counter: new DataView(response.authenticatorData.slice(33, 37)).getUint32(0),
+          },
+        }),
+      });
 
-      if (!verifyRes.ok) throw new Error("Verification failed");
+      if (!verifyRes.ok) {
+        const errData = await verifyRes.json().catch(() => ({}));
+        throw new Error(errData.error || "No se pudo verificar la huella.");
+      }
 
       const result = await verifyRes.json();
 
       if (result.success && result.token_hash) {
-        // Use the token to sign in
         const { error } = await supabase.auth.verifyOtp({
           token_hash: result.token_hash,
           type: "magiclink",
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error("[webauthn] verifyOtp failed:", error.message);
+          throw new Error("No se pudo iniciar sesión. Intenta con tu contraseña.");
+        }
 
         toast({ title: "¡Bienvenido!", description: "Sesión iniciada con biometría." });
         return true;
       }
 
-      throw new Error("Authentication failed");
+      throw new Error("No se pudo completar la autenticación.");
     } catch (err: any) {
-      if (err.name !== "NotAllowedError") {
-        toast({ title: "Error", description: err.message || "No se pudo autenticar con biometría.", variant: "destructive" });
+      const message = getWebAuthnErrorMessage(err);
+      if (message) {
+        toast({ title: "Error de autenticación", description: message, variant: "destructive" });
       }
       return false;
     } finally {

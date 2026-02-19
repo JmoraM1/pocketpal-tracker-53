@@ -13,15 +13,6 @@ function bufferToBase64Url(buffer: ArrayBuffer): string {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-function base64UrlToBuffer(base64url: string): Uint8Array {
-  const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
-  const binary = atob(padded);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -59,24 +50,22 @@ Deno.serve(async (req) => {
     const userId = claimsData.claims.sub as string;
     const userEmail = claimsData.claims.email as string;
 
-    const { action } = await req.json();
+    // Parse body ONCE and extract all fields
+    const body = await req.json();
+    const { action, credential, deviceName } = body;
 
     if (action === "options") {
-      // Generate registration options
       const challengeBytes = crypto.getRandomValues(new Uint8Array(32));
       const challenge = bufferToBase64Url(challengeBytes);
 
-      // Clean old challenges
       await supabaseAdmin.rpc("cleanup_old_challenges");
 
-      // Store challenge
       await supabaseAdmin.from("webauthn_challenges").insert({
         user_email: userEmail,
         challenge,
         type: "registration",
       });
 
-      // Get existing credentials for exclude list
       const { data: existing } = await supabaseAdmin
         .from("webauthn_credentials")
         .select("credential_id")
@@ -93,8 +82,8 @@ Deno.serve(async (req) => {
           displayName: userEmail,
         },
         pubKeyCredParams: [
-          { type: "public-key", alg: -7 },   // ES256
-          { type: "public-key", alg: -257 },  // RS256
+          { type: "public-key", alg: -7 },
+          { type: "public-key", alg: -257 },
         ],
         timeout: 60000,
         attestation: "none",
@@ -110,15 +99,22 @@ Deno.serve(async (req) => {
         })),
       };
 
+      console.log("[webauthn-register] options generated for user:", userEmail, "rpId:", rpId);
+
       return new Response(JSON.stringify(options), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     if (action === "verify") {
-      const { credential, deviceName } = await req.json().catch(() => ({}));
+      if (!credential?.id || !credential?.publicKey) {
+        console.error("[webauthn-register] verify: missing credential data", JSON.stringify(body));
+        return new Response(JSON.stringify({ error: "Missing credential data" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
-      // Get stored challenge
       const { data: challengeData } = await supabaseAdmin
         .from("webauthn_challenges")
         .select("*")
@@ -129,16 +125,15 @@ Deno.serve(async (req) => {
         .single();
 
       if (!challengeData) {
+        console.error("[webauthn-register] verify: challenge not found for", userEmail);
         return new Response(JSON.stringify({ error: "Challenge expired or not found" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      // Delete used challenge
       await supabaseAdmin.from("webauthn_challenges").delete().eq("id", challengeData.id);
 
-      // Store the credential
       await supabaseAdmin.from("webauthn_credentials").insert({
         user_id: userId,
         credential_id: credential.id,
@@ -146,6 +141,8 @@ Deno.serve(async (req) => {
         counter: credential.counter || 0,
         device_name: deviceName || "Dispositivo",
       });
+
+      console.log("[webauthn-register] credential stored for user:", userEmail, "device:", deviceName);
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -157,6 +154,7 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
+    console.error("[webauthn-register] error:", err.message);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

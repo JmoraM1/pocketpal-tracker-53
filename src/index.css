@@ -40,6 +40,10 @@
 
     --radius: 0.75rem;
 
+    --primary-glow: 250 70% 60%;
+    --accent-warm: 30 90% 55%;
+    --accent-cool: 190 80% 50%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -84,6 +88,10 @@
     --border: 220 20% 20%;
     --input: 220 20% 20%;
     --ring: 220 70% 55%;
+
+    --primary-glow: 250 70% 50%;
+    --accent-warm: 30 85% 50%;
+    --accent-cool: 190 75% 45%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;

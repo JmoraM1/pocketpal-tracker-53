@@ -185,6 +185,7 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
     loading,
     createPlan,
     togglePayment,
+    updatePaymentAmount,
     deletePlan,
     monthlyInstallmentTotal,
     pendingCount,

@@ -15,7 +15,7 @@ interface SummaryCardsProps {
   installmentMonthTotal?: number;
 }
 
-export function SummaryCards({ income, totalExpenses, available, paidCount, totalCount, cumulativeSavings, installmentPending = 0, installmentPendingCount = 0 }: SummaryCardsProps) {
+export function SummaryCards({ income, totalExpenses, available, paidCount, totalCount, cumulativeSavings, installmentPending = 0, installmentPendingCount = 0, installmentMonthTotal = 0 }: SummaryCardsProps) {
   const expenseRatio = income > 0 ? Math.min((totalExpenses / income) * 100, 100) : 0;
   const isHealthy = available >= 0;
 

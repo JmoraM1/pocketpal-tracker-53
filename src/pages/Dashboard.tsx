@@ -3,11 +3,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useBudget } from "@/hooks/useBudget";
 import { useCategories } from "@/hooks/useCategories";
 import { useInstallments } from "@/hooks/useInstallments";
-import { useWebAuthn, isWebAuthnSupported } from "@/hooks/useWebAuthn";
+import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { MonthSelector } from "@/components/MonthSelector";
 import { SummaryCards } from "@/components/SummaryCards";
 import { ExpenseList } from "@/components/ExpenseList";
-import { ExpenseCharts } from "@/components/ExpenseCharts";
 import { IncomeEditor } from "@/components/IncomeEditor";
 import { ExportButton } from "@/components/ExportButton";
 import { CategoryManager } from "@/components/CategoryManager";
@@ -29,8 +28,12 @@ export default function Dashboard() {
   } = useBudget(user?.id, selectedMonth);
 
   const { categories, categoryNames, addCategory, removeCategory, editCategory, toggleCumulativeSavings } = useCategories(user?.id);
-  const { plans, monthPayments, createPlan, togglePayment, deletePlan, pendingTotal, pendingCount } = useInstallments(user?.id, selectedMonth);
+  const { plans, monthPayments, createPlan, togglePayment, updatePaymentAmount, deletePlan, monthlyInstallmentTotal, pendingTotal, pendingCount } = useInstallments(user?.id, selectedMonth);
   const { loading: webauthnLoading, registerPasskey, isSupported: webauthnSupported } = useWebAuthn();
+
+  // Combine regular expenses + monthly installments
+  const combinedTotalExpenses = totalExpenses + monthlyInstallmentTotal;
+  const combinedAvailable = Number(budget?.income ?? 0) - combinedTotalExpenses;
 
   if (loading) {
     return (
@@ -86,8 +89,8 @@ export default function Dashboard() {
               expenses={expenses}
               income={Number(budget?.income ?? 0)}
               selectedMonth={selectedMonth}
-              totalExpenses={totalExpenses}
-              available={available}
+              totalExpenses={combinedTotalExpenses}
+              available={combinedAvailable}
               cumulativeSavings={cumulativeSavings}
             />
           </div>
@@ -95,16 +98,15 @@ export default function Dashboard() {
 
         <SummaryCards
           income={Number(budget?.income ?? 0)}
-          totalExpenses={totalExpenses}
-          available={available}
+          totalExpenses={combinedTotalExpenses}
+          available={combinedAvailable}
           paidCount={paidCount}
           totalCount={expenses.length}
           cumulativeSavings={cumulativeSavings}
           installmentPending={pendingTotal}
           installmentPendingCount={pendingCount}
+          installmentMonthTotal={monthlyInstallmentTotal}
         />
-
-        <ExpenseCharts expenses={expenses} />
 
         <InstallmentTracker
           plans={plans}
@@ -112,6 +114,7 @@ export default function Dashboard() {
           onCreatePlan={createPlan}
           onTogglePayment={togglePayment}
           onDeletePlan={deletePlan}
+          onUpdatePaymentAmount={updatePaymentAmount}
         />
 
         <ExpenseList

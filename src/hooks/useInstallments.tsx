@@ -160,6 +160,15 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
     await loadData();
   };
 
+  const updatePaymentAmount = async (paymentId: string, amount: number) => {
+    if (!userId) return;
+    await supabase
+      .from("installment_payments")
+      .update({ amount })
+      .eq("id", paymentId);
+    await loadData();
+  };
+
   const deletePlan = async (planId: string) => {
     await supabase.from("installment_plans").delete().eq("id", planId);
     await loadData();

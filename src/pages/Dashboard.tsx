@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useBudget } from "@/hooks/useBudget";
 import { useCategories } from "@/hooks/useCategories";
+import { useInstallments } from "@/hooks/useInstallments";
 import { useWebAuthn, isWebAuthnSupported } from "@/hooks/useWebAuthn";
 import { MonthSelector } from "@/components/MonthSelector";
 import { SummaryCards } from "@/components/SummaryCards";
@@ -10,6 +11,7 @@ import { ExpenseCharts } from "@/components/ExpenseCharts";
 import { IncomeEditor } from "@/components/IncomeEditor";
 import { ExportButton } from "@/components/ExportButton";
 import { CategoryManager } from "@/components/CategoryManager";
+import { InstallmentTracker } from "@/components/InstallmentTracker";
 import { Button } from "@/components/ui/button";
 import { LogOut, Wallet, Fingerprint } from "lucide-react";
 

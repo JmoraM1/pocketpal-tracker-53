@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useBudget } from "@/hooks/useBudget";
 import { useCategories } from "@/hooks/useCategories";
+import { useInstallments } from "@/hooks/useInstallments";
 import { useWebAuthn, isWebAuthnSupported } from "@/hooks/useWebAuthn";
 import { MonthSelector } from "@/components/MonthSelector";
 import { SummaryCards } from "@/components/SummaryCards";
@@ -10,6 +11,7 @@ import { ExpenseCharts } from "@/components/ExpenseCharts";
 import { IncomeEditor } from "@/components/IncomeEditor";
 import { ExportButton } from "@/components/ExportButton";
 import { CategoryManager } from "@/components/CategoryManager";
+import { InstallmentTracker } from "@/components/InstallmentTracker";
 import { Button } from "@/components/ui/button";
 import { LogOut, Wallet, Fingerprint } from "lucide-react";
 
@@ -27,6 +29,7 @@ export default function Dashboard() {
   } = useBudget(user?.id, selectedMonth);
 
   const { categories, categoryNames, addCategory, removeCategory, editCategory, toggleCumulativeSavings } = useCategories(user?.id);
+  const { plans, monthPayments, createPlan, togglePayment, deletePlan, pendingTotal, pendingCount } = useInstallments(user?.id, selectedMonth);
   const { loading: webauthnLoading, registerPasskey, isSupported: webauthnSupported } = useWebAuthn();
 
   if (loading) {
@@ -97,9 +100,19 @@ export default function Dashboard() {
           paidCount={paidCount}
           totalCount={expenses.length}
           cumulativeSavings={cumulativeSavings}
+          installmentPending={pendingTotal}
+          installmentPendingCount={pendingCount}
         />
 
         <ExpenseCharts expenses={expenses} />
+
+        <InstallmentTracker
+          plans={plans}
+          monthPayments={monthPayments}
+          onCreatePlan={createPlan}
+          onTogglePayment={togglePayment}
+          onDeletePlan={deletePlan}
+        />
 
         <ExpenseList
           expenses={expenses}

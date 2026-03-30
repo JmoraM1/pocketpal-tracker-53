@@ -58,6 +58,92 @@ export type Database = {
           },
         ]
       }
+      installment_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          due_month: string
+          id: string
+          is_paid: boolean
+          paid_at: string | null
+          payment_number: number
+          plan_id: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          due_month: string
+          id?: string
+          is_paid?: boolean
+          paid_at?: string | null
+          payment_number: number
+          plan_id: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_month?: string
+          id?: string
+          is_paid?: boolean
+          paid_at?: string | null
+          payment_number?: number
+          plan_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "installment_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "installment_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      installment_plans: {
+        Row: {
+          created_at: string
+          id: string
+          installment_amount: number
+          is_completed: boolean
+          name: string
+          num_installments: number
+          paid_installments: number
+          start_date: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          installment_amount?: number
+          is_completed?: boolean
+          name: string
+          num_installments?: number
+          paid_installments?: number
+          start_date?: string
+          total_amount?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          installment_amount?: number
+          is_completed?: boolean
+          name?: string
+          num_installments?: number
+          paid_installments?: number
+          start_date?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       monthly_budgets: {
         Row: {
           created_at: string

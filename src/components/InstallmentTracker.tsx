@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { formatCOP } from "@/lib/constants";
-import { Plus, Trash2, CreditCard, CalendarDays } from "lucide-react";
+import { Plus, Trash2, CreditCard, CalendarDays, Pencil, Check, X } from "lucide-react";
 import type { InstallmentPlan, InstallmentPayment } from "@/hooks/useInstallments";
 
 interface InstallmentTrackerProps {
@@ -16,9 +16,10 @@ interface InstallmentTrackerProps {
   onCreatePlan: (data: { name: string; total_amount: number; num_installments: number; start_date: string }) => void;
   onTogglePayment: (paymentId: string, isPaid: boolean) => void;
   onDeletePlan: (planId: string) => void;
+  onUpdatePaymentAmount: (paymentId: string, amount: number) => void;
 }
 
-export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onTogglePayment, onDeletePlan }: InstallmentTrackerProps) {
+export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onTogglePayment, onDeletePlan, onUpdatePaymentAmount }: InstallmentTrackerProps) {
   const [addOpen, setAddOpen] = useState(false);
   const [name, setName] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
@@ -27,6 +28,10 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   });
+
+  // Editing payment amount
+  const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
+  const [editAmount, setEditAmount] = useState("");
 
   const handleCreate = () => {
     if (!name || !totalAmount || !numInstallments) return;
@@ -48,6 +53,19 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
 
   const activePlans = plans.filter((p) => !p.is_completed);
   const completedPlans = plans.filter((p) => p.is_completed);
+
+  const startEditAmount = (payment: InstallmentPayment) => {
+    setEditingPaymentId(payment.id);
+    setEditAmount(String(payment.amount));
+  };
+
+  const saveEditAmount = (paymentId: string) => {
+    const val = Number(editAmount);
+    if (val > 0) {
+      onUpdatePaymentAmount(paymentId, val);
+    }
+    setEditingPaymentId(null);
+  };
 
   return (
     <div className="space-y-4">
@@ -107,7 +125,7 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
                 </div>
                 {cuotaPreview > 0 && (
                   <div className="rounded-lg border bg-muted/50 p-3 text-sm">
-                    <p className="text-muted-foreground">Valor por cuota:</p>
+                    <p className="text-muted-foreground">Valor estimado por cuota (editable después):</p>
                     <p className="text-lg font-bold text-primary">{formatCOP(cuotaPreview)}</p>
                   </div>
                 )}
@@ -134,13 +152,40 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
                 <div className="flex-1">
                   <p className="text-sm font-semibold">{payment.plan_name}</p>
                   <p className="text-xs text-muted-foreground">
-                    Cuota {payment.payment_number} • {formatCOP(Number(payment.amount))}
+                    Cuota {payment.payment_number}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold tabular-nums">
-                    {formatCOP(Number(payment.amount))}
-                  </span>
+                  {editingPaymentId === payment.id ? (
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        value={editAmount}
+                        onChange={(e) => setEditAmount(e.target.value)}
+                        className="h-8 w-28 text-sm"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveEditAmount(payment.id);
+                          if (e.key === "Escape") setEditingPaymentId(null);
+                        }}
+                      />
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => saveEditAmount(payment.id)}>
+                        <Check className="h-3.5 w-3.5 text-success" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingPaymentId(null)}>
+                        <X className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-bold tabular-nums">
+                        {formatCOP(Number(payment.amount))}
+                      </span>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEditAmount(payment)}>
+                        <Pencil className="h-3 w-3 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  )}
                   <div className="flex items-center gap-1.5">
                     <Switch
                       checked={payment.is_paid}
@@ -177,7 +222,7 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
                     <div>
                       <p className="font-semibold">{plan.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatCOP(Number(plan.total_amount))} en {plan.num_installments} cuotas de {formatCOP(Number(plan.installment_amount))}
+                        {formatCOP(Number(plan.total_amount))} en {plan.num_installments} cuotas
                       </p>
                     </div>
                     <Button size="icon" variant="ghost" onClick={() => onDeletePlan(plan.id)}>

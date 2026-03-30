@@ -12,9 +12,10 @@ interface SummaryCardsProps {
   cumulativeSavings: number;
   installmentPending?: number;
   installmentPendingCount?: number;
+  installmentMonthTotal?: number;
 }
 
-export function SummaryCards({ income, totalExpenses, available, paidCount, totalCount, cumulativeSavings, installmentPending = 0, installmentPendingCount = 0 }: SummaryCardsProps) {
+export function SummaryCards({ income, totalExpenses, available, paidCount, totalCount, cumulativeSavings, installmentPending = 0, installmentPendingCount = 0, installmentMonthTotal = 0 }: SummaryCardsProps) {
   const expenseRatio = income > 0 ? Math.min((totalExpenses / income) * 100, 100) : 0;
   const isHealthy = available >= 0;
 
@@ -40,6 +41,9 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
           <div>
             <p className="text-sm text-muted-foreground">Total gastos</p>
             <p className="text-xl font-bold">{formatCOP(totalExpenses)}</p>
+            {installmentMonthTotal > 0 && (
+              <p className="text-xs text-muted-foreground">Incluye {formatCOP(installmentMonthTotal)} en cuotas</p>
+            )}
           </div>
         </CardContent>
       </Card>

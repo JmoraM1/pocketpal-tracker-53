@@ -106,6 +106,14 @@ export default function Dashboard() {
 
         <ExpenseCharts expenses={expenses} />
 
+        <InstallmentTracker
+          plans={plans}
+          monthPayments={monthPayments}
+          onCreatePlan={createPlan}
+          onTogglePayment={togglePayment}
+          onDeletePlan={deletePlan}
+        />
+
         <ExpenseList
           expenses={expenses}
           categories={categoryNames}

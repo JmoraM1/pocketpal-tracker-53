@@ -87,6 +87,19 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
           </p>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardContent className="flex items-center gap-4 p-5">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-warning/10">
+            <CreditCard className="h-6 w-6 text-warning" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Cuotas pendientes</p>
+            <p className="text-xl font-bold text-warning">{formatCOP(installmentPending)}</p>
+            <p className="text-xs text-muted-foreground">{installmentPendingCount} cuota{installmentPendingCount !== 1 ? "s" : ""} por pagar</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

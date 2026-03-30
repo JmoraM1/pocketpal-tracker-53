@@ -100,6 +100,8 @@ export default function Dashboard() {
           paidCount={paidCount}
           totalCount={expenses.length}
           cumulativeSavings={cumulativeSavings}
+          installmentPending={pendingTotal}
+          installmentPendingCount={pendingCount}
         />
 
         <ExpenseCharts expenses={expenses} />

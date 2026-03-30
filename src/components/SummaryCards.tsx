@@ -41,6 +41,9 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
           <div>
             <p className="text-sm text-muted-foreground">Total gastos</p>
             <p className="text-xl font-bold">{formatCOP(totalExpenses)}</p>
+            {installmentMonthTotal > 0 && (
+              <p className="text-xs text-muted-foreground">Incluye {formatCOP(installmentMonthTotal)} en cuotas</p>
+            )}
           </div>
         </CardContent>
       </Card>

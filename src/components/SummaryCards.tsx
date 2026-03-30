@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatCOP } from "@/lib/constants";
-import { DollarSign, TrendingDown, PiggyBank, CheckCircle, Landmark } from "lucide-react";
+import { DollarSign, TrendingDown, PiggyBank, CheckCircle, Landmark, CreditCard } from "lucide-react";
 
 interface SummaryCardsProps {
   income: number;
@@ -10,6 +10,8 @@ interface SummaryCardsProps {
   paidCount: number;
   totalCount: number;
   cumulativeSavings: number;
+  installmentPending?: number;
+  installmentPendingCount?: number;
 }
 
 export function SummaryCards({ income, totalExpenses, available, paidCount, totalCount, cumulativeSavings }: SummaryCardsProps) {

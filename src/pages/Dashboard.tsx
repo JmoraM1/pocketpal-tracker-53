@@ -29,6 +29,7 @@ export default function Dashboard() {
   } = useBudget(user?.id, selectedMonth);
 
   const { categories, categoryNames, addCategory, removeCategory, editCategory, toggleCumulativeSavings } = useCategories(user?.id);
+  const { plans, monthPayments, createPlan, togglePayment, deletePlan, pendingTotal, pendingCount } = useInstallments(user?.id, selectedMonth);
   const { loading: webauthnLoading, registerPasskey, isSupported: webauthnSupported } = useWebAuthn();
 
   if (loading) {

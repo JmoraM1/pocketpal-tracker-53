@@ -12,6 +12,7 @@ interface SummaryCardsProps {
   cumulativeSavings: number;
   installmentPending?: number;
   installmentPendingCount?: number;
+  installmentMonthTotal?: number;
 }
 
 export function SummaryCards({ income, totalExpenses, available, paidCount, totalCount, cumulativeSavings, installmentPending = 0, installmentPendingCount = 0 }: SummaryCardsProps) {

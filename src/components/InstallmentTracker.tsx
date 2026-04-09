@@ -216,28 +216,32 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
               const paidAmount = Number(plan.installment_amount) * plan.paid_installments;
               const totalAmount = Number(plan.total_amount);
               const progress = totalAmount > 0 ? Math.min((paidAmount / totalAmount) * 100, 100) : 0;
+              const remaining = totalAmount - paidAmount;
               return (
-                <div key={plan.id} className="rounded-lg border p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">{plan.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Cuota {plan.paid_installments}/{plan.num_installments} · {formatCOP(Number(plan.installment_amount))}/mes
-                      </p>
+                <div key={plan.id} className="rounded-xl border bg-card/50 backdrop-blur-sm p-5 space-y-4 shadow-sm">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="text-base font-bold">{plan.name}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                          Cuota {plan.paid_installments} de {plan.num_installments}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          · {formatCOP(Number(plan.installment_amount))}/mes
+                        </span>
+                      </div>
                     </div>
-                    <Button size="icon" variant="ghost" onClick={() => onDeletePlan(plan.id)}>
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onDeletePlan(plan.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Progress value={progress} className="h-2 flex-1" />
-                    <span className="text-sm font-bold tabular-nums">
-                      {formatCOP(paidAmount)}
-                    </span>
+                  <div className="space-y-2">
+                    <Progress value={progress} className="h-3" />
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-semibold text-primary">{formatCOP(paidAmount)} <span className="font-normal text-muted-foreground">pagado</span></span>
+                      <span className="font-semibold text-destructive">{formatCOP(remaining)} <span className="font-normal text-muted-foreground">restante</span></span>
+                    </div>
                   </div>
-                  <p className="text-xs text-right text-muted-foreground">
-                    de {formatCOP(totalAmount)}
-                  </p>
                 </div>
               );
             })}

@@ -49,12 +49,21 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
     const loadedPlans = (plansData ?? []) as unknown as InstallmentPlan[];
     setPlans(loadedPlans);
 
-    // Load payments for current month
-    const { data: paymentsData } = await supabase
+    // Load payments for current month, excluding completed plans
+    const completedPlanIds = loadedPlans.filter((p) => p.is_completed).map((p) => p.id);
+    
+    let paymentsQuery = supabase
       .from("installment_payments")
       .select("*")
       .eq("user_id", userId)
       .eq("due_month", monthKey);
+
+    // Filter out payments from completed plans
+    if (completedPlanIds.length > 0) {
+      paymentsQuery = paymentsQuery.not("plan_id", "in", `(${completedPlanIds.join(",")})`);
+    }
+
+    const { data: paymentsData } = await paymentsQuery;
 
     const payments = (paymentsData ?? []) as unknown as InstallmentPayment[];
     
@@ -166,6 +175,16 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
       .from("installment_payments")
       .update({ amount })
       .eq("id", paymentId);
+
+    // Also update the plan's installment_amount so the active debts dashboard reflects it
+    const payment = monthPayments.find((p) => p.id === paymentId);
+    if (payment) {
+      await supabase
+        .from("installment_plans")
+        .update({ installment_amount: amount })
+        .eq("id", payment.plan_id);
+    }
+
     await loadData();
   };
 

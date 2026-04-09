@@ -213,16 +213,16 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
           </CardHeader>
           <CardContent className="space-y-3 p-4 pt-0">
             {activePlans.map((plan) => {
-              const progress = plan.num_installments > 0
-                ? (plan.paid_installments / plan.num_installments) * 100
-                : 0;
+              const paidAmount = Number(plan.installment_amount) * plan.paid_installments;
+              const totalAmount = Number(plan.total_amount);
+              const progress = totalAmount > 0 ? Math.min((paidAmount / totalAmount) * 100, 100) : 0;
               return (
                 <div key={plan.id} className="rounded-lg border p-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold">{plan.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatCOP(Number(plan.total_amount))} en {plan.num_installments} cuotas
+                        Cuota {plan.paid_installments}/{plan.num_installments} · {formatCOP(Number(plan.installment_amount))}/mes
                       </p>
                     </div>
                     <Button size="icon" variant="ghost" onClick={() => onDeletePlan(plan.id)}>
@@ -232,9 +232,12 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
                   <div className="flex items-center gap-3">
                     <Progress value={progress} className="h-2 flex-1" />
                     <span className="text-sm font-bold tabular-nums">
-                      {plan.paid_installments}/{plan.num_installments}
+                      {formatCOP(paidAmount)}
                     </span>
                   </div>
+                  <p className="text-xs text-right text-muted-foreground">
+                    de {formatCOP(totalAmount)}
+                  </p>
                 </div>
               );
             })}
@@ -242,7 +245,7 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
         </Card>
       )}
 
-      {/* Completed */}
+      {/* Completed - only shown if there are completed plans passed */}
       {completedPlans.length > 0 && (
         <Card>
           <CardHeader>

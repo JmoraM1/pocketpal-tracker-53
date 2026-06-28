@@ -48,9 +48,10 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="goals" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="goals"><Target className="mr-2 h-4 w-4" />Metas</TabsTrigger>
             <TabsTrigger value="savings"><PiggyBank className="mr-2 h-4 w-4" />Ahorros</TabsTrigger>
+            <TabsTrigger value="debts"><CreditCard className="mr-2 h-4 w-4" />Deudas</TabsTrigger>
           </TabsList>
 
           {/* METAS */}

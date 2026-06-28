@@ -8,16 +8,17 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy } from "lucide-react";
+import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy, CreditCard } from "lucide-react";
 import { formatCOP } from "@/lib/constants";
 import { useSavings } from "@/hooks/useSavings";
 
 interface Props {
   userId: string | undefined;
   selectedMonth: Date;
+  debtsContent?: ReactNode;
 }
 
-export function SavingsModule({ userId, selectedMonth }: Props) {
+export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
   const s = useSavings(userId, selectedMonth);
   const [newGoalName, setNewGoalName] = useState("");
   const [newGoalTarget, setNewGoalTarget] = useState("");

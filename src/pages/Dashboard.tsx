@@ -11,6 +11,7 @@ import { IncomeEditor } from "@/components/IncomeEditor";
 import { ExportButton } from "@/components/ExportButton";
 import { CategoryManager } from "@/components/CategoryManager";
 import { InstallmentTracker } from "@/components/InstallmentTracker";
+import { SavingsModule } from "@/components/SavingsModule";
 import { Button } from "@/components/ui/button";
 import { LogOut, Wallet, Fingerprint } from "lucide-react";
 

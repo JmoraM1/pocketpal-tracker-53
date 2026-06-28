@@ -157,6 +157,13 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
               ))}
             </div>
           </TabsContent>
+
+          {/* DEUDAS */}
+          <TabsContent value="debts" className="space-y-4">
+            {debtsContent ?? (
+              <p className="text-center text-sm text-muted-foreground py-4">No hay deudas para mostrar.</p>
+            )}
+          </TabsContent>
         </Tabs>
       </CardContent>
     </Card>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,16 +8,17 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy } from "lucide-react";
+import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy, CreditCard } from "lucide-react";
 import { formatCOP } from "@/lib/constants";
 import { useSavings } from "@/hooks/useSavings";
 
 interface Props {
   userId: string | undefined;
   selectedMonth: Date;
+  debtsContent?: ReactNode;
 }
 
-export function SavingsModule({ userId, selectedMonth }: Props) {
+export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
   const s = useSavings(userId, selectedMonth);
   const [newGoalName, setNewGoalName] = useState("");
   const [newGoalTarget, setNewGoalTarget] = useState("");
@@ -47,9 +48,10 @@ export function SavingsModule({ userId, selectedMonth }: Props) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="goals" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="goals"><Target className="mr-2 h-4 w-4" />Metas</TabsTrigger>
             <TabsTrigger value="savings"><PiggyBank className="mr-2 h-4 w-4" />Ahorros</TabsTrigger>
+            <TabsTrigger value="debts"><CreditCard className="mr-2 h-4 w-4" />Deudas</TabsTrigger>
           </TabsList>
 
           {/* METAS */}
@@ -154,6 +156,13 @@ export function SavingsModule({ userId, selectedMonth }: Props) {
                 />
               ))}
             </div>
+          </TabsContent>
+
+          {/* DEUDAS */}
+          <TabsContent value="debts" className="space-y-4">
+            {debtsContent ?? (
+              <p className="text-center text-sm text-muted-foreground py-4">No hay deudas para mostrar.</p>
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>

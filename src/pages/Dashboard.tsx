@@ -109,16 +109,20 @@ export default function Dashboard() {
           installmentMonthTotal={monthlyInstallmentTotal}
         />
 
-        <InstallmentTracker
-          plans={plans}
-          monthPayments={monthPayments}
-          onCreatePlan={createPlan}
-          onTogglePayment={togglePayment}
-          onDeletePlan={deletePlan}
-          onUpdatePaymentAmount={updatePaymentAmount}
+        <SavingsModule
+          userId={user?.id}
+          selectedMonth={selectedMonth}
+          debtsContent={
+            <InstallmentTracker
+              plans={plans}
+              monthPayments={monthPayments}
+              onCreatePlan={createPlan}
+              onTogglePayment={togglePayment}
+              onDeletePlan={deletePlan}
+              onUpdatePaymentAmount={updatePaymentAmount}
+            />
+          }
         />
-
-        <SavingsModule userId={user?.id} selectedMonth={selectedMonth} />
 
         <ExpenseList
           expenses={expenses}

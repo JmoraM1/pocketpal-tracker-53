@@ -118,6 +118,8 @@ export default function Dashboard() {
           onUpdatePaymentAmount={updatePaymentAmount}
         />
 
+        <SavingsModule userId={user?.id} selectedMonth={selectedMonth} />
+
         <ExpenseList
           expenses={expenses}
           categories={categoryNames}

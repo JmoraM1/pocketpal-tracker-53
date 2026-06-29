@@ -22,20 +22,22 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
   const s = useSavings(userId, selectedMonth);
   const [newGoalName, setNewGoalName] = useState("");
   const [newGoalTarget, setNewGoalTarget] = useState("");
+  const [newGoalInitial, setNewGoalInitial] = useState("");
   const [newSavingName, setNewSavingName] = useState("");
+  const [newSavingInitial, setNewSavingInitial] = useState("");
   const [openGoal, setOpenGoal] = useState(false);
   const [openSaving, setOpenSaving] = useState(false);
 
   const handleCreateGoal = async () => {
     if (!newGoalName.trim() || !newGoalTarget) return;
-    await s.createGoal(newGoalName.trim(), Number(newGoalTarget));
-    setNewGoalName(""); setNewGoalTarget(""); setOpenGoal(false);
+    await s.createGoal(newGoalName.trim(), Number(newGoalTarget), Number(newGoalInitial || 0));
+    setNewGoalName(""); setNewGoalTarget(""); setNewGoalInitial(""); setOpenGoal(false);
   };
 
   const handleCreateSaving = async () => {
     if (!newSavingName.trim()) return;
-    await s.createFreeSaving(newSavingName.trim());
-    setNewSavingName(""); setOpenSaving(false);
+    await s.createFreeSaving(newSavingName.trim(), Number(newSavingInitial || 0));
+    setNewSavingName(""); setNewSavingInitial(""); setOpenSaving(false);
   };
 
   return (
@@ -43,15 +45,18 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <PiggyBank className="h-5 w-5 text-primary" />
-          Ahorros y Metas
+          Gestión Financiera
         </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Administra tus ahorros, metas y deudas desde un solo lugar.
+        </p>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="goals" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="goals"><Target className="mr-2 h-4 w-4" />Metas</TabsTrigger>
-            <TabsTrigger value="savings"><PiggyBank className="mr-2 h-4 w-4" />Ahorros</TabsTrigger>
-            <TabsTrigger value="debts"><CreditCard className="mr-2 h-4 w-4" />Deudas</TabsTrigger>
+            <TabsTrigger value="goals">Metas</TabsTrigger>
+            <TabsTrigger value="savings">Ahorros</TabsTrigger>
+            <TabsTrigger value="debts">Deudas</TabsTrigger>
           </TabsList>
 
           {/* METAS */}
@@ -71,6 +76,10 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
                     <div>
                       <Label>Valor objetivo</Label>
                       <Input type="number" value={newGoalTarget} onChange={(e) => setNewGoalTarget(e.target.value)} placeholder="0" />
+                    </div>
+                    <div>
+                      <Label>Monto inicial (opcional)</Label>
+                      <Input type="number" value={newGoalInitial} onChange={(e) => setNewGoalInitial(e.target.value)} placeholder="0" />
                     </div>
                   </div>
                   <DialogFooter>
@@ -126,9 +135,15 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader><DialogTitle>Nuevo ahorro</DialogTitle></DialogHeader>
-                  <div>
-                    <Label>Nombre</Label>
-                    <Input value={newSavingName} onChange={(e) => setNewSavingName(e.target.value)} placeholder="Ej: Ahorro libre" />
+                  <div className="space-y-3">
+                    <div>
+                      <Label>Nombre</Label>
+                      <Input value={newSavingName} onChange={(e) => setNewSavingName(e.target.value)} placeholder="Ej: Ahorro libre" />
+                    </div>
+                    <div>
+                      <Label>Monto inicial (opcional)</Label>
+                      <Input type="number" value={newSavingInitial} onChange={(e) => setNewSavingInitial(e.target.value)} placeholder="0" />
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button onClick={handleCreateSaving}>Crear</Button>

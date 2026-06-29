@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
@@ -98,11 +99,9 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
                 </div>
                 <div className="space-y-2">
                   <Label>Monto total</Label>
-                  <Input
-                    type="number"
+                  <MoneyInput
                     value={totalAmount}
-                    onChange={(e) => setTotalAmount(e.target.value)}
-                    placeholder="0"
+                    onChange={(v) => setTotalAmount(v)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -158,11 +157,10 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
                 <div className="flex items-center gap-3">
                   {editingPaymentId === payment.id ? (
                     <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
+                      <MoneyInput
                         value={editAmount}
-                        onChange={(e) => setEditAmount(e.target.value)}
-                        className="h-8 w-28 text-sm"
+                        onChange={(v) => setEditAmount(v)}
+                        className="h-8 w-32 text-sm"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === "Enter") saveEditAmount(payment.id);

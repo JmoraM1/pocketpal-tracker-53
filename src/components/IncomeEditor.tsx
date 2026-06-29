@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Pencil, Check } from "lucide-react";
 
 interface IncomeEditorProps {
@@ -20,10 +20,9 @@ export function IncomeEditor({ income, onSave }: IncomeEditorProps) {
   if (editing) {
     return (
       <div className="flex items-center gap-2">
-        <Input
-          type="number"
+        <MoneyInput
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(v) => setValue(v)}
           className="h-9 w-48"
           autoFocus
           onKeyDown={(e) => e.key === "Enter" && handleSave()}

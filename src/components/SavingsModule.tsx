@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -75,11 +76,11 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
                     </div>
                     <div>
                       <Label>Valor objetivo</Label>
-                      <Input type="number" value={newGoalTarget} onChange={(e) => setNewGoalTarget(e.target.value)} placeholder="0" />
+                      <MoneyInput value={newGoalTarget} onChange={(v) => setNewGoalTarget(v)} />
                     </div>
                     <div>
                       <Label>Monto inicial (opcional)</Label>
-                      <Input type="number" value={newGoalInitial} onChange={(e) => setNewGoalInitial(e.target.value)} placeholder="0" />
+                      <MoneyInput value={newGoalInitial} onChange={(v) => setNewGoalInitial(v)} />
                     </div>
                   </div>
                   <DialogFooter>
@@ -142,7 +143,7 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
                     </div>
                     <div>
                       <Label>Monto inicial (opcional)</Label>
-                      <Input type="number" value={newSavingInitial} onChange={(e) => setNewSavingInitial(e.target.value)} placeholder="0" />
+                      <MoneyInput value={newSavingInitial} onChange={(v) => setNewSavingInitial(v)} />
                     </div>
                   </div>
                   <DialogFooter>
@@ -212,7 +213,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
               <DialogHeader><DialogTitle>Editar meta</DialogTitle></DialogHeader>
               <div className="space-y-3">
                 <div><Label>Nombre</Label><Input value={editName} onChange={(e) => setEditName(e.target.value)} /></div>
-                <div><Label>Valor objetivo</Label><Input type="number" value={editTarget} onChange={(e) => setEditTarget(e.target.value)} /></div>
+                <div><Label>Valor objetivo</Label><MoneyInput value={editTarget} onChange={(v) => setEditTarget(v)} /></div>
               </div>
               <DialogFooter>
                 <Button onClick={async () => { await onUpdate(goal.id, { name: editName, target_amount: Number(editTarget) }); setEditOpen(false); }}>Guardar</Button>
@@ -235,7 +236,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
       <div className="flex items-end gap-2 pt-2 border-t">
         <div className="flex-1">
           <Label className="text-xs">Aporte de este mes</Label>
-          <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" />
+          <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
         </div>
         <Button size="sm" onClick={() => onSetMonth(goal.id, Number(amount || 0))}>
           <Check className="mr-1 h-4 w-4" />Guardar
@@ -305,7 +306,7 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
       <div className="flex items-end gap-2 pt-2 border-t">
         <div className="flex-1">
           <Label className="text-xs">Aporte de este mes</Label>
-          <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" />
+          <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
         </div>
         <Button size="sm" onClick={() => onSetMonth(saving.id, Number(amount || 0))}>
           <Check className="mr-1 h-4 w-4" />Guardar

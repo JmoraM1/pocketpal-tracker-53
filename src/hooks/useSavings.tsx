@@ -56,9 +56,21 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
   useEffect(() => { loadData(); }, [loadData]);
 
   // --- GOALS ---
-  const createGoal = async (name: string, target: number) => {
+  const createGoal = async (name: string, target: number, initial: number = 0) => {
     if (!userId) return;
-    await supabase.from("savings_goals").insert({ user_id: userId, name, target_amount: target });
+    const { data } = await supabase
+      .from("savings_goals")
+      .insert({ user_id: userId, name, target_amount: target })
+      .select()
+      .single();
+    if (data && initial > 0) {
+      await supabase.from("savings_goal_contributions").insert({
+        user_id: userId, goal_id: data.id, month: monthKey, amount: initial,
+      });
+      if (initial >= target && target > 0) {
+        await supabase.from("savings_goals").update({ is_completed: true }).eq("id", data.id);
+      }
+    }
     await loadData();
   };
 
@@ -101,9 +113,18 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
   };
 
   // --- FREE SAVINGS ---
-  const createFreeSaving = async (name: string) => {
+  const createFreeSaving = async (name: string, initial: number = 0) => {
     if (!userId) return;
-    await supabase.from("free_savings").insert({ user_id: userId, name });
+    const { data } = await supabase
+      .from("free_savings")
+      .insert({ user_id: userId, name })
+      .select()
+      .single();
+    if (data && initial > 0) {
+      await supabase.from("free_savings_contributions").insert({
+        user_id: userId, saving_id: data.id, month: monthKey, amount: initial,
+      });
+    }
     await loadData();
   };
 

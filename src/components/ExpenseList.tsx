@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -96,11 +97,9 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
               </div>
               <div className="space-y-2">
                 <Label>Valor</Label>
-                <Input
-                  type="number"
+                <MoneyInput
                   value={newAmount}
-                  onChange={(e) => setNewAmount(e.target.value)}
-                  placeholder="0"
+                  onChange={(v) => setNewAmount(v)}
                 />
               </div>
               <div className="space-y-2">
@@ -143,10 +142,9 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
                       ))}
                     </SelectContent>
                   </Select>
-                  <Input
-                    type="number"
+                  <MoneyInput
                     value={editAmount}
-                    onChange={(e) => setEditAmount(e.target.value)}
+                    onChange={(v) => setEditAmount(v)}
                     placeholder="Monto"
                     className="h-9"
                   />

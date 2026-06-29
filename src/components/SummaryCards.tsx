@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatCOP } from "@/lib/constants";
-import { DollarSign, TrendingDown, PiggyBank, CheckCircle, Landmark, CreditCard } from "lucide-react";
+import { DollarSign, TrendingDown, PiggyBank, CheckCircle } from "lucide-react";
 
 interface SummaryCardsProps {
   income: number;
@@ -15,12 +15,12 @@ interface SummaryCardsProps {
   installmentMonthTotal?: number;
 }
 
-export function SummaryCards({ income, totalExpenses, available, paidCount, totalCount, cumulativeSavings, installmentPending = 0, installmentPendingCount = 0, installmentMonthTotal = 0 }: SummaryCardsProps) {
+export function SummaryCards({ income, totalExpenses, available, paidCount, totalCount, installmentMonthTotal = 0 }: SummaryCardsProps) {
   const expenseRatio = income > 0 ? Math.min((totalExpenses / income) * 100, 100) : 0;
   const isHealthy = available >= 0;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {/* Ingreso */}
       <Card className="border-l-4 border-l-primary">
         <CardContent className="p-6">
@@ -73,21 +73,6 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
         </CardContent>
       </Card>
 
-      {/* Ahorro acumulado */}
-      <Card className="border-l-4 border-l-primary">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-              <Landmark className="h-7 w-7 text-primary" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-muted-foreground">Ahorro acumulado</p>
-              <p className="mt-1 text-2xl font-bold tracking-tight text-primary">{formatCOP(cumulativeSavings)}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Pagados + progreso */}
       <Card className="border-l-4 border-l-primary">
         <CardContent className="p-6">
@@ -104,24 +89,6 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
           <p className="mt-2 text-xs text-muted-foreground">
             {expenseRatio.toFixed(0)}% del ingreso comprometido
           </p>
-        </CardContent>
-      </Card>
-
-      {/* Cuotas pendientes */}
-      <Card className="border-l-4 border-l-warning">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-warning/10">
-              <CreditCard className="h-7 w-7 text-warning" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-muted-foreground">Cuotas pendientes</p>
-              <p className="mt-1 text-2xl font-bold tracking-tight text-warning">{formatCOP(installmentPending)}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {installmentPendingCount} cuota{installmentPendingCount !== 1 ? "s" : ""} por pagar
-              </p>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

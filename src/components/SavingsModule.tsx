@@ -8,6 +8,17 @@ import { Progress } from "@/components/ui/progress";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy, CreditCard } from "lucide-react";
 import { formatCOP } from "@/lib/constants";
@@ -118,8 +129,14 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
                 <div className="space-y-2">
                   {s.completedGoals.map((g) => (
                     <div key={g.id} className="flex items-center justify-between rounded-md bg-muted/50 p-2 text-sm">
-                      <span className="font-medium">{g.name}</span>
-                      <span className="text-primary font-semibold">{formatCOP(s.goalTotal(g.id))} / {formatCOP(Number(g.target_amount))}</span>
+                      <div>
+                        <p className="font-medium">{g.name}</p>
+                        <p className="text-xs text-muted-foreground">Meta completada</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-primary font-semibold">{formatCOP(s.goalTotal(g.id))} / {formatCOP(Number(g.target_amount))}</span>
+                        <ConfirmDeleteButton onConfirm={() => s.deleteGoal(g.id)} />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -220,9 +237,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => onDelete(goal.id)}>
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+          <ConfirmDeleteButton onConfirm={() => onDelete(goal.id)} className="h-7 w-7" />
         </div>
       </div>
 
@@ -297,9 +312,7 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => onDelete(saving.id)}>
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+          <ConfirmDeleteButton onConfirm={() => onDelete(saving.id)} className="h-7 w-7" />
         </div>
       </div>
 
@@ -337,5 +350,31 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
         </Dialog>
       )}
     </div>
+  );
+}
+
+function ConfirmDeleteButton({ onConfirm, className = "h-8 w-8" }: { onConfirm: () => void; className?: string }) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size="icon" variant="ghost" className={`text-destructive ${className}`}>
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Eliminar meta</AlertDialogTitle>
+          <AlertDialogDescription>
+            ¿Estás seguro de que deseas eliminar esta meta? Esta acción no se puede deshacer.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={onConfirm}>
+            Eliminar
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

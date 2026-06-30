@@ -171,11 +171,6 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
     // Update plan's paid count
     const payment = monthPayments.find((p) => p.id === paymentId);
     if (payment) {
-      const { data: allPayments } = await supabase
-        .from("installment_payments")
-        .select("is_paid")
-        .eq("plan_id", payment.plan_id);
-
       // Recalculate since we already updated
       const { data: freshPayments } = await supabase
         .from("installment_payments")

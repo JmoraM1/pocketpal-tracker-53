@@ -7,6 +7,17 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { formatCOP } from "@/lib/constants";
 import { Plus, Trash2, CreditCard, CalendarDays, Pencil, Check, X } from "lucide-react";
 import type { InstallmentPlan, InstallmentPayment } from "@/hooks/useInstallments";
@@ -229,9 +240,7 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
                         </span>
                       </div>
                     </div>
-                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onDeletePlan(plan.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />
                   </div>
                   <div className="space-y-2">
                     <Progress value={progress} className="h-3" />
@@ -262,14 +271,38 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
                     {formatCOP(Number(plan.total_amount))} — {plan.num_installments} cuotas
                   </p>
                 </div>
-                <Button size="icon" variant="ghost" onClick={() => onDeletePlan(plan.id)}>
-                  <Trash2 className="h-4 w-4 text-muted-foreground" />
-                </Button>
+                <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />
               </div>
             ))}
           </CardContent>
         </Card>
       )}
     </div>
+  );
+}
+
+function ConfirmDeleteButton({ onConfirm }: { onConfirm: () => void }) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Eliminar meta</AlertDialogTitle>
+          <AlertDialogDescription>
+            ¿Estás seguro de que deseas eliminar esta meta? Esta acción no se puede deshacer.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={onConfirm}>
+            Eliminar
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

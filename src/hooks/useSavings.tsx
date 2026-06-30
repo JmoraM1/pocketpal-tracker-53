@@ -76,6 +76,17 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
 
   const updateGoal = async (id: string, updates: Partial<Pick<SavingsGoal, "name" | "target_amount">>) => {
     await supabase.from("savings_goals").update(updates).eq("id", id);
+
+    if (updates.target_amount !== undefined && Number(updates.target_amount) > 0) {
+      const totalForGoal = goalContribs
+        .filter((c) => c.goal_id === id)
+        .reduce((sum, c) => sum + Number(c.amount), 0);
+
+      if (totalForGoal >= Number(updates.target_amount)) {
+        await supabase.from("savings_goals").update({ is_completed: true }).eq("id", id);
+      }
+    }
+
     await loadData();
   };
 
@@ -101,8 +112,6 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
     const goal = goals.find((g) => g.id === goalId);
     if (goal && !goal.is_completed && totalForGoal >= Number(goal.target_amount) && Number(goal.target_amount) > 0) {
       await supabase.from("savings_goals").update({ is_completed: true }).eq("id", goalId);
-    } else if (goal && goal.is_completed && totalForGoal < Number(goal.target_amount)) {
-      await supabase.from("savings_goals").update({ is_completed: false }).eq("id", goalId);
     }
     await loadData();
   };
@@ -168,8 +177,13 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
   const freeMonthAmount = (savingId: string) =>
     Number(freeContribs.find((c) => c.saving_id === savingId && c.month === monthKey)?.amount ?? 0);
 
-  const activeGoals = goals.filter((g) => !g.is_completed);
-  const completedGoals = goals.filter((g) => g.is_completed);
+  const isGoalCompleted = (goal: SavingsGoal) => {
+    const target = Number(goal.target_amount);
+    return goal.is_completed || (target > 0 && goalTotal(goal.id) >= target);
+  };
+
+  const activeGoals = goals.filter((g) => !isGoalCompleted(g));
+  const completedGoals = goals.filter((g) => isGoalCompleted(g));
 
   return {
     loading,

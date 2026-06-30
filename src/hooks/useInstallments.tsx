@@ -176,10 +176,6 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
         .select("is_paid")
         .eq("plan_id", payment.plan_id);
 
-      const paidCount = (allPayments ?? []).filter((p: any) =>
-        p.id === paymentId ? isPaid : p.is_paid
-      ).length;
-
       // Recalculate since we already updated
       const { data: freshPayments } = await supabase
         .from("installment_payments")
@@ -193,7 +189,7 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
         .from("installment_plans")
         .update({
           paid_installments: freshPaid,
-          is_completed: plan ? freshPaid >= plan.num_installments : false,
+          ...(plan && freshPaid >= plan.num_installments ? { is_completed: true } : {}),
         })
         .eq("id", payment.plan_id);
     }

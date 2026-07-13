@@ -321,10 +321,13 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
 
       <div className="flex items-end gap-2 pt-2 border-t">
         <div className="flex-1">
-          <Label className="text-xs">Aporte de este mes</Label>
+          <Label className="text-xs">Nuevo aporte</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
+          {monthAmount > 0 && (
+            <p className="text-xs text-muted-foreground mt-1">Aportado este mes: {formatCOP(monthAmount)}</p>
+          )}
         </div>
-        <Button size="sm" onClick={() => onSetMonth(saving.id, Number(amount || 0))}>
+        <Button size="sm" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(saving.id, Number(amount)); setAmount(""); } }}>
           <Check className="mr-1 h-4 w-4" />Guardar
         </Button>
       </div>
@@ -332,7 +335,7 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
       {contributions.length > 0 && (
         <Dialog open={histOpen} onOpenChange={setHistOpen}>
           <DialogTrigger asChild>
-            <Button variant="link" size="sm" className="px-0 h-auto">Ver historial ({contributions.length} meses)</Button>
+            <Button variant="link" size="sm" className="px-0 h-auto">Ver historial ({contributions.length} aportes)</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Historial — {saving.name}</DialogTitle></DialogHeader>

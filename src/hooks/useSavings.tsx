@@ -96,18 +96,13 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
   };
 
   const setGoalContribution = async (goalId: string, amount: number) => {
-    if (!userId) return;
-    const existing = goalContribs.find((c) => c.goal_id === goalId && c.month === monthKey);
-    if (existing) {
-      await supabase.from("savings_goal_contributions").update({ amount }).eq("id", existing.id);
-    } else {
-      await supabase.from("savings_goal_contributions").insert({
-        user_id: userId, goal_id: goalId, month: monthKey, amount,
-      });
-    }
+    if (!userId || amount <= 0) return;
+    await supabase.from("savings_goal_contributions").insert({
+      user_id: userId, goal_id: goalId, month: monthKey, amount,
+    });
     // Check completion
     const totalForGoal = goalContribs
-      .filter((c) => c.goal_id === goalId && c.id !== existing?.id)
+      .filter((c) => c.goal_id === goalId)
       .reduce((s, c) => s + Number(c.amount), 0) + amount;
     const goal = goals.find((g) => g.id === goalId);
     if (goal && !goal.is_completed && totalForGoal >= Number(goal.target_amount) && Number(goal.target_amount) > 0) {

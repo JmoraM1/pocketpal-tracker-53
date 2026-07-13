@@ -291,7 +291,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
 // ---------------- FREE SAVING CARD ----------------
 function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, onDelete, onSetMonth, onDeleteContrib }: any) {
   const [editName, setEditName] = useState(saving.name);
-  const [amount, setAmount] = useState(String(monthAmount || ""));
+  const [amount, setAmount] = useState("");
   const [editOpen, setEditOpen] = useState(false);
   const [histOpen, setHistOpen] = useState(false);
 

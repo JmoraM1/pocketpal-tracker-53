@@ -264,7 +264,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
       {contributions.length > 0 && (
         <Dialog open={histOpen} onOpenChange={setHistOpen}>
           <DialogTrigger asChild>
-            <Button variant="link" size="sm" className="px-0 h-auto">Ver historial ({contributions.length} meses)</Button>
+            <Button variant="link" size="sm" className="px-0 h-auto">Ver historial ({contributions.length} aportes)</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Historial — {goal.name}</DialogTitle></DialogHeader>

@@ -143,15 +143,10 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
   };
 
   const setFreeContribution = async (savingId: string, amount: number) => {
-    if (!userId) return;
-    const existing = freeContribs.find((c) => c.saving_id === savingId && c.month === monthKey);
-    if (existing) {
-      await supabase.from("free_savings_contributions").update({ amount }).eq("id", existing.id);
-    } else {
-      await supabase.from("free_savings_contributions").insert({
-        user_id: userId, saving_id: savingId, month: monthKey, amount,
-      });
-    }
+    if (!userId || amount <= 0) return;
+    await supabase.from("free_savings_contributions").insert({
+      user_id: userId, saving_id: savingId, month: monthKey, amount,
+    });
     await loadData();
   };
 

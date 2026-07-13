@@ -159,13 +159,15 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
     goalContribs.filter((c) => c.goal_id === goalId).reduce((s, c) => s + Number(c.amount), 0);
 
   const goalMonthAmount = (goalId: string) =>
-    Number(goalContribs.find((c) => c.goal_id === goalId && c.month === monthKey)?.amount ?? 0);
+    goalContribs.filter((c) => c.goal_id === goalId && c.month === monthKey)
+      .reduce((s, c) => s + Number(c.amount), 0);
 
   const freeTotal = (savingId: string) =>
     freeContribs.filter((c) => c.saving_id === savingId).reduce((s, c) => s + Number(c.amount), 0);
 
   const freeMonthAmount = (savingId: string) =>
-    Number(freeContribs.find((c) => c.saving_id === savingId && c.month === monthKey)?.amount ?? 0);
+    freeContribs.filter((c) => c.saving_id === savingId && c.month === monthKey)
+      .reduce((s, c) => s + Number(c.amount), 0);
 
   const isGoalCompleted = (goal: SavingsGoal) => {
     const target = Number(goal.target_amount);

@@ -207,7 +207,7 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
 function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete, onSetMonth, onDeleteContrib }: any) {
   const [editName, setEditName] = useState(goal.name);
   const [editTarget, setEditTarget] = useState(String(goal.target_amount));
-  const [amount, setAmount] = useState(String(monthAmount || ""));
+  const [amount, setAmount] = useState("");
   const [editOpen, setEditOpen] = useState(false);
   const [histOpen, setHistOpen] = useState(false);
 

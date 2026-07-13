@@ -96,18 +96,13 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
   };
 
   const setGoalContribution = async (goalId: string, amount: number) => {
-    if (!userId) return;
-    const existing = goalContribs.find((c) => c.goal_id === goalId && c.month === monthKey);
-    if (existing) {
-      await supabase.from("savings_goal_contributions").update({ amount }).eq("id", existing.id);
-    } else {
-      await supabase.from("savings_goal_contributions").insert({
-        user_id: userId, goal_id: goalId, month: monthKey, amount,
-      });
-    }
+    if (!userId || amount <= 0) return;
+    await supabase.from("savings_goal_contributions").insert({
+      user_id: userId, goal_id: goalId, month: monthKey, amount,
+    });
     // Check completion
     const totalForGoal = goalContribs
-      .filter((c) => c.goal_id === goalId && c.id !== existing?.id)
+      .filter((c) => c.goal_id === goalId)
       .reduce((s, c) => s + Number(c.amount), 0) + amount;
     const goal = goals.find((g) => g.id === goalId);
     if (goal && !goal.is_completed && totalForGoal >= Number(goal.target_amount) && Number(goal.target_amount) > 0) {
@@ -148,15 +143,10 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
   };
 
   const setFreeContribution = async (savingId: string, amount: number) => {
-    if (!userId) return;
-    const existing = freeContribs.find((c) => c.saving_id === savingId && c.month === monthKey);
-    if (existing) {
-      await supabase.from("free_savings_contributions").update({ amount }).eq("id", existing.id);
-    } else {
-      await supabase.from("free_savings_contributions").insert({
-        user_id: userId, saving_id: savingId, month: monthKey, amount,
-      });
-    }
+    if (!userId || amount <= 0) return;
+    await supabase.from("free_savings_contributions").insert({
+      user_id: userId, saving_id: savingId, month: monthKey, amount,
+    });
     await loadData();
   };
 
@@ -169,13 +159,15 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
     goalContribs.filter((c) => c.goal_id === goalId).reduce((s, c) => s + Number(c.amount), 0);
 
   const goalMonthAmount = (goalId: string) =>
-    Number(goalContribs.find((c) => c.goal_id === goalId && c.month === monthKey)?.amount ?? 0);
+    goalContribs.filter((c) => c.goal_id === goalId && c.month === monthKey)
+      .reduce((s, c) => s + Number(c.amount), 0);
 
   const freeTotal = (savingId: string) =>
     freeContribs.filter((c) => c.saving_id === savingId).reduce((s, c) => s + Number(c.amount), 0);
 
   const freeMonthAmount = (savingId: string) =>
-    Number(freeContribs.find((c) => c.saving_id === savingId && c.month === monthKey)?.amount ?? 0);
+    freeContribs.filter((c) => c.saving_id === savingId && c.month === monthKey)
+      .reduce((s, c) => s + Number(c.amount), 0);
 
   const isGoalCompleted = (goal: SavingsGoal) => {
     const target = Number(goal.target_amount);

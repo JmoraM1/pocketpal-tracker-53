@@ -230,52 +230,7 @@ function MoreView({
 }
 
 
-function MoreView({
-  userEmail,
-  categoryManager,
-  exportButton,
-  biometricButton,
-  onSignOut,
-}: {
-  userEmail?: string;
-  categoryManager: React.ReactNode;
-  exportButton: React.ReactNode;
-  biometricButton: React.ReactNode;
-  onSignOut: () => void;
-}) {
-  return (
-    <div className="space-y-5">
-      <Card className="rounded-2xl border shadow-sm">
-        <CardContent className="p-5">
-          <p className="text-xs text-muted-foreground">Sesión activa</p>
-          <p className="mt-1 font-semibold truncate">{userEmail}</p>
-        </CardContent>
-      </Card>
 
-      <Card className="rounded-2xl border shadow-sm">
-        <CardContent className="p-2">
-          <Row label="Categorías" action={categoryManager} />
-          <Row label="Exportar datos" action={exportButton} />
-          {biometricButton && <Row label="Biometría" action={biometricButton} />}
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-2xl border shadow-sm">
-        <CardContent className="p-2">
-          <button
-            onClick={onSignOut}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-destructive hover:bg-destructive/5"
-          >
-            <span className="flex items-center gap-3 font-medium">
-              <LogOut className="h-4 w-4" /> Cerrar sesión
-            </span>
-            <ChevronRight className="h-4 w-4 opacity-60" />
-          </button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
 
 function Row({ label, action }: { label: string; action: React.ReactNode }) {
   return (

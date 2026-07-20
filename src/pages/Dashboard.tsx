@@ -186,7 +186,9 @@ export default function Dashboard() {
         )}
       </main>
 
-      <BottomNav active={view} onChange={setView} />
+      <div className="md:hidden">
+        <BottomNav active={view} onChange={setView} />
+      </div>
     </div>
   );
 }

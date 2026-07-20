@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,14 +20,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy, CreditCard } from "lucide-react";
+import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy } from "lucide-react";
 import { formatCOP } from "@/lib/constants";
 import { useSavings } from "@/hooks/useSavings";
 
 interface Props {
   userId: string | undefined;
   selectedMonth: Date;
-  debtsContent?: ReactNode;
+  mode: "goals" | "savings";
 }
 
 export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {

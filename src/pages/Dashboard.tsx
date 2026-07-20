@@ -50,6 +50,7 @@ export default function Dashboard() {
   const titleMap: Record<AppView, string> = {
     home: "Mis Finanzas",
     goals: "Metas",
+    savings: "Ahorros",
     expenses: "Gastos",
     debts: "Deudas",
     more: "Más",
@@ -95,8 +96,17 @@ export default function Dashboard() {
               onChangeMonth={setSelectedMonth}
               onCopyPrevious={copyFromPreviousMonth}
             />
-            {view === "expenses" && (
+            {view === "home" && (
               <IncomeEditor income={income} onSave={updateIncome} />
+            )}
+            {view === "expenses" && (
+              <CategoryManager
+                categories={categories}
+                onAdd={addCategory}
+                onRemove={removeCategory}
+                onEdit={editCategory}
+                onToggleCumulative={toggleCumulativeSavings}
+              />
             )}
           </div>
         )}
@@ -114,20 +124,11 @@ export default function Dashboard() {
         )}
 
         {view === "goals" && (
-          <SavingsModule
-            userId={user?.id}
-            selectedMonth={selectedMonth}
-            debtsContent={
-              <InstallmentTracker
-                plans={plans}
-                monthPayments={monthPayments}
-                onCreatePlan={createPlan}
-                onTogglePayment={togglePayment}
-                onDeletePlan={deletePlan}
-                onUpdatePaymentAmount={updatePaymentAmount}
-              />
-            }
-          />
+          <SavingsModule userId={user?.id} selectedMonth={selectedMonth} mode="goals" />
+        )}
+
+        {view === "savings" && (
+          <SavingsModule userId={user?.id} selectedMonth={selectedMonth} mode="savings" />
         )}
 
         {view === "expenses" && (
@@ -154,15 +155,6 @@ export default function Dashboard() {
         {view === "more" && (
           <MoreView
             userEmail={user?.email}
-            categoryManager={
-              <CategoryManager
-                categories={categories}
-                onAdd={addCategory}
-                onRemove={removeCategory}
-                onEdit={editCategory}
-                onToggleCumulative={toggleCumulativeSavings}
-              />
-            }
             exportButton={
               <ExportButton
                 expenses={expenses}
@@ -195,13 +187,11 @@ export default function Dashboard() {
 
 function MoreView({
   userEmail,
-  categoryManager,
   exportButton,
   biometricButton,
   onSignOut,
 }: {
   userEmail?: string;
-  categoryManager: React.ReactNode;
   exportButton: React.ReactNode;
   biometricButton: React.ReactNode;
   onSignOut: () => void;
@@ -217,7 +207,6 @@ function MoreView({
 
       <Card className="rounded-2xl border shadow-sm">
         <CardContent className="p-2">
-          <Row label="Categorías" action={categoryManager} />
           <Row label="Exportar datos" action={exportButton} />
           {biometricButton && <Row label="Biometría" action={biometricButton} />}
         </CardContent>
@@ -239,6 +228,9 @@ function MoreView({
     </div>
   );
 }
+
+
+
 
 function Row({ label, action }: { label: string; action: React.ReactNode }) {
   return (

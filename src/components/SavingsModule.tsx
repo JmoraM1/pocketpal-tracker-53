@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,17 +20,17 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy, CreditCard } from "lucide-react";
+import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy } from "lucide-react";
 import { formatCOP } from "@/lib/constants";
 import { useSavings } from "@/hooks/useSavings";
 
 interface Props {
   userId: string | undefined;
   selectedMonth: Date;
-  debtsContent?: ReactNode;
+  mode: "goals" | "savings";
 }
 
-export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
+export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   const s = useSavings(userId, selectedMonth);
   const [newGoalName, setNewGoalName] = useState("");
   const [newGoalTarget, setNewGoalTarget] = useState("");
@@ -52,60 +52,56 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
     setNewSavingName(""); setNewSavingInitial(""); setOpenSaving(false);
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <PiggyBank className="h-5 w-5 text-primary" />
-          Gestión Financiera
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Administra tus ahorros, metas y deudas desde un solo lugar.
-        </p>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="goals" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="goals">Metas</TabsTrigger>
-            <TabsTrigger value="savings">Ahorros</TabsTrigger>
-            <TabsTrigger value="debts">Deudas</TabsTrigger>
-          </TabsList>
+  if (mode === "goals") {
+    return (
+      <Card className="rounded-2xl border shadow-sm">
+        <CardHeader className="flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              Metas
+            </CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Define objetivos y registra aportes múltiples cada mes.
+            </p>
+          </div>
+          <Dialog open={openGoal} onOpenChange={setOpenGoal}>
+            <DialogTrigger asChild>
+              <Button size="sm"><Plus className="mr-1 h-4 w-4" />Nueva meta</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Nueva meta de ahorro</DialogTitle></DialogHeader>
+              <div className="space-y-3">
+                <div>
+                  <Label>Nombre</Label>
+                  <Input value={newGoalName} onChange={(e) => setNewGoalName(e.target.value)} placeholder="Ej: Viaje a la costa" />
+                </div>
+                <div>
+                  <Label>Valor objetivo</Label>
+                  <MoneyInput value={newGoalTarget} onChange={(v) => setNewGoalTarget(v)} />
+                </div>
+                <div>
+                  <Label>Monto inicial (opcional)</Label>
+                  <MoneyInput value={newGoalInitial} onChange={(v) => setNewGoalInitial(v)} />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleCreateGoal}>Crear</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="active" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="active">Activas ({s.activeGoals.length})</TabsTrigger>
+              <TabsTrigger value="completed">Completadas ({s.completedGoals.length})</TabsTrigger>
+            </TabsList>
 
-          {/* METAS */}
-          <TabsContent value="goals" className="space-y-4">
-            <div className="flex justify-end">
-              <Dialog open={openGoal} onOpenChange={setOpenGoal}>
-                <DialogTrigger asChild>
-                  <Button size="sm"><Plus className="mr-1 h-4 w-4" />Nueva meta</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader><DialogTitle>Nueva meta de ahorro</DialogTitle></DialogHeader>
-                  <div className="space-y-3">
-                    <div>
-                      <Label>Nombre</Label>
-                      <Input value={newGoalName} onChange={(e) => setNewGoalName(e.target.value)} placeholder="Ej: Viaje a la costa" />
-                    </div>
-                    <div>
-                      <Label>Valor objetivo</Label>
-                      <MoneyInput value={newGoalTarget} onChange={(v) => setNewGoalTarget(v)} />
-                    </div>
-                    <div>
-                      <Label>Monto inicial (opcional)</Label>
-                      <MoneyInput value={newGoalInitial} onChange={(v) => setNewGoalInitial(v)} />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button onClick={handleCreateGoal}>Crear</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            {s.activeGoals.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-4">Aún no tienes metas activas.</p>
-            )}
-
-            <div className="space-y-3">
+            <TabsContent value="active" className="space-y-3 pt-4">
+              {s.activeGoals.length === 0 && (
+                <p className="text-center text-sm text-muted-foreground py-6">Aún no tienes metas activas.</p>
+              )}
               {s.activeGoals.map((g) => (
                 <GoalCard
                   key={g.id}
@@ -119,89 +115,91 @@ export function SavingsModule({ userId, selectedMonth, debtsContent }: Props) {
                   onDeleteContrib={s.deleteGoalContribution}
                 />
               ))}
-            </div>
+            </TabsContent>
 
-            {s.completedGoals.length > 0 && (
-              <div className="pt-4 border-t">
-                <h4 className="mb-2 text-sm font-semibold text-muted-foreground flex items-center gap-1">
-                  <Trophy className="h-4 w-4" /> Metas completadas
-                </h4>
-                <div className="space-y-2">
-                  {s.completedGoals.map((g) => (
-                    <div key={g.id} className="flex items-center justify-between rounded-md bg-muted/50 p-2 text-sm">
-                      <div>
-                        <p className="font-medium">{g.name}</p>
-                        <p className="text-xs text-muted-foreground">Meta completada</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-primary font-semibold">{formatCOP(s.goalTotal(g.id))} / {formatCOP(Number(g.target_amount))}</span>
-                        <ConfirmDeleteButton onConfirm={() => s.deleteGoal(g.id)} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </TabsContent>
-
-          {/* AHORROS */}
-          <TabsContent value="savings" className="space-y-4">
-            <div className="flex justify-end">
-              <Dialog open={openSaving} onOpenChange={setOpenSaving}>
-                <DialogTrigger asChild>
-                  <Button size="sm"><Plus className="mr-1 h-4 w-4" />Nuevo ahorro</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader><DialogTitle>Nuevo ahorro</DialogTitle></DialogHeader>
-                  <div className="space-y-3">
+            <TabsContent value="completed" className="space-y-2 pt-4">
+              {s.completedGoals.length === 0 && (
+                <p className="text-center text-sm text-muted-foreground py-6">Aún no tienes metas completadas.</p>
+              )}
+              {s.completedGoals.map((g) => (
+                <div key={g.id} className="flex items-center justify-between rounded-xl border bg-muted/40 p-3">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-4 w-4 text-primary" />
                     <div>
-                      <Label>Nombre</Label>
-                      <Input value={newSavingName} onChange={(e) => setNewSavingName(e.target.value)} placeholder="Ej: Ahorro libre" />
-                    </div>
-                    <div>
-                      <Label>Monto inicial (opcional)</Label>
-                      <MoneyInput value={newSavingInitial} onChange={(v) => setNewSavingInitial(v)} />
+                      <p className="font-medium text-sm">{g.name}</p>
+                      <p className="text-xs text-muted-foreground">Meta completada</p>
                     </div>
                   </div>
-                  <DialogFooter>
-                    <Button onClick={handleCreateSaving}>Crear</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            {s.freeSavings.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-4">Aún no tienes ahorros registrados.</p>
-            )}
-
-            <div className="space-y-3">
-              {s.freeSavings.map((f) => (
-                <FreeSavingCard
-                  key={f.id}
-                  saving={f}
-                  total={s.freeTotal(f.id)}
-                  monthAmount={s.freeMonthAmount(f.id)}
-                  contributions={s.freeContribs.filter((c) => c.saving_id === f.id)}
-                  onUpdate={s.updateFreeSaving}
-                  onDelete={s.deleteFreeSaving}
-                  onSetMonth={s.setFreeContribution}
-                  onDeleteContrib={s.deleteFreeContribution}
-                />
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary font-semibold text-sm">{formatCOP(s.goalTotal(g.id))} / {formatCOP(Number(g.target_amount))}</span>
+                    <ConfirmDeleteButton onConfirm={() => s.deleteGoal(g.id)} />
+                  </div>
+                </div>
               ))}
-            </div>
-          </TabsContent>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    );
+  }
 
-          {/* DEUDAS */}
-          <TabsContent value="debts" className="space-y-4">
-            {debtsContent ?? (
-              <p className="text-center text-sm text-muted-foreground py-4">No hay deudas para mostrar.</p>
-            )}
-          </TabsContent>
-        </Tabs>
+  // mode === "savings"
+  return (
+    <Card className="rounded-2xl border shadow-sm">
+      <CardHeader className="flex-row items-center justify-between space-y-0">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <PiggyBank className="h-5 w-5 text-primary" />
+            Ahorros
+          </CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">
+            Registra aportes libres y consulta el total acumulado.
+          </p>
+        </div>
+        <Dialog open={openSaving} onOpenChange={setOpenSaving}>
+          <DialogTrigger asChild>
+            <Button size="sm"><Plus className="mr-1 h-4 w-4" />Nuevo ahorro</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Nuevo ahorro</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div>
+                <Label>Nombre</Label>
+                <Input value={newSavingName} onChange={(e) => setNewSavingName(e.target.value)} placeholder="Ej: Ahorro libre" />
+              </div>
+              <div>
+                <Label>Monto inicial (opcional)</Label>
+                <MoneyInput value={newSavingInitial} onChange={(v) => setNewSavingInitial(v)} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={handleCreateSaving}>Crear</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {s.freeSavings.length === 0 && (
+          <p className="text-center text-sm text-muted-foreground py-6">Aún no tienes ahorros registrados.</p>
+        )}
+        {s.freeSavings.map((f) => (
+          <FreeSavingCard
+            key={f.id}
+            saving={f}
+            total={s.freeTotal(f.id)}
+            monthAmount={s.freeMonthAmount(f.id)}
+            contributions={s.freeContribs.filter((c) => c.saving_id === f.id)}
+            onUpdate={s.updateFreeSaving}
+            onDelete={s.deleteFreeSaving}
+            onSetMonth={s.setFreeContribution}
+            onDeleteContrib={s.deleteFreeContribution}
+          />
+        ))}
       </CardContent>
     </Card>
   );
 }
+
 
 // ---------------- GOAL CARD ----------------
 function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete, onSetMonth, onDeleteContrib }: any) {

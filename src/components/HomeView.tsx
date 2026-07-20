@@ -14,6 +14,13 @@ interface HomeViewProps {
   onNavigate: (v: AppView) => void;
 }
 
+const TINT: Record<string, { bg: string; text: string }> = {
+  primary: { bg: "bg-primary/10", text: "text-primary" },
+  success: { bg: "bg-success/10", text: "text-success" },
+  destructive: { bg: "bg-destructive/10", text: "text-destructive" },
+  warning: { bg: "bg-warning/10", text: "text-warning" },
+};
+
 export function HomeView({ userEmail, income, totalExpenses, available, paidCount, totalCount, onNavigate }: HomeViewProps) {
   const spentPct = income > 0 ? Math.min(Math.round((totalExpenses / income) * 100), 100) : 0;
   const savings = Math.max(available, 0);
@@ -26,12 +33,12 @@ export function HomeView({ userEmail, income, totalExpenses, available, paidCoun
   const name = userEmail ? userEmail.split("@")[0] : "";
 
   const stats = [
-    { label: "Ingreso del mes", value: income, icon: DollarSign, tint: "primary" },
-    { label: "Total gastos", value: totalExpenses, icon: TrendingDown, tint: "destructive" },
-    { label: "Disponible ahorro", value: available, icon: PiggyBank, tint: available >= 0 ? "success" : "destructive" },
+    { label: "Ingreso del mes", value: income, icon: DollarSign, tint: "primary" as const, valueClass: "" },
+    { label: "Total gastos", value: totalExpenses, icon: TrendingDown, tint: "destructive" as const, valueClass: "" },
+    { label: "Disponible ahorro", value: available, icon: PiggyBank, tint: (available >= 0 ? "success" : "destructive") as "success" | "destructive", valueClass: available >= 0 ? "text-success" : "text-destructive" },
   ];
 
-  const quick: { label: string; icon: typeof Plus; view: AppView; tint: string }[] = [
+  const quick: { label: string; icon: typeof Plus; view: AppView; tint: keyof typeof TINT }[] = [
     { label: "Nueva meta", icon: Target, view: "goals", tint: "primary" },
     { label: "Nuevo gasto", icon: Plus, view: "expenses", tint: "success" },
     { label: "Ver deudas", icon: CreditCard, view: "debts", tint: "destructive" },
@@ -42,7 +49,7 @@ export function HomeView({ userEmail, income, totalExpenses, available, paidCoun
     <div className="space-y-5">
       {name && (
         <div>
-          <h2 className="text-2xl font-bold capitalize">Hola {name} <span className="wave">👋</span></h2>
+          <h2 className="text-2xl font-bold capitalize">Hola {name} 👋</h2>
           <p className="text-sm text-muted-foreground">Este es tu resumen financiero</p>
         </div>
       )}
@@ -51,16 +58,15 @@ export function HomeView({ userEmail, income, totalExpenses, available, paidCoun
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {stats.map((s) => {
           const Icon = s.icon;
-          const isPositive = s.tint === "success";
-          const isNegative = s.tint === "destructive";
+          const t = TINT[s.tint];
           return (
             <Card key={s.label} className="rounded-2xl border shadow-sm">
               <CardContent className="p-4">
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-${s.tint}/10`}>
-                  <Icon className={`h-4 w-4 text-${s.tint}`} />
+                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${t.bg}`}>
+                  <Icon className={`h-4 w-4 ${t.text}`} />
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">{s.label}</p>
-                <p className={`mt-0.5 text-lg font-bold tracking-tight ${isPositive ? "text-success" : isNegative && s.label !== "Total gastos" ? "text-destructive" : ""}`}>
+                <p className={`mt-0.5 text-lg font-bold tracking-tight ${s.valueClass}`}>
                   {formatCOP(s.value)}
                 </p>
               </CardContent>
@@ -118,14 +124,15 @@ export function HomeView({ userEmail, income, totalExpenses, available, paidCoun
         <div className="grid grid-cols-4 gap-3">
           {quick.map((q) => {
             const Icon = q.icon;
+            const t = TINT[q.tint];
             return (
               <button
                 key={q.label}
                 onClick={() => onNavigate(q.view)}
                 className="flex flex-col items-center gap-2 rounded-2xl border bg-card p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               >
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-${q.tint}/10`}>
-                  <Icon className={`h-5 w-5 text-${q.tint}`} />
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${t.bg}`}>
+                  <Icon className={`h-5 w-5 ${t.text}`} />
                 </div>
                 <span className="text-[11px] font-medium text-center leading-tight">{q.label}</span>
               </button>

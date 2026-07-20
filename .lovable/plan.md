@@ -1,44 +1,52 @@
+# Rediseño Frontend — Estructura por pantallas
 
+Solo cambios de UI/UX. La lógica, hooks (`useBudget`, `useSavings`, `useInstallments`, `useCategories`), Supabase y nombres de variables se mantienen intactos.
 
-## 💰 Control de Flujo de Gastos y Finanzas Personales
+## Nueva navegación
 
-### Resumen
-App de finanzas personales para gestionar tu presupuesto mensual, controlar gastos por categoría, marcar pagos como realizados y visualizar tu situación financiera con gráficas.
+Bottom navigation fija (móvil) + sidebar/tabs en desktop, con 5 secciones:
 
----
+| Sección | Contenido |
+|---|---|
+| **Inicio** | Selector de mes, `SummaryCards` (compactadas 2×2 en móvil), resumen visual (donut ingreso vs gasto vs ahorro), accesos rápidos (Nueva meta, Nuevo gasto, Ver deudas, Categorías) |
+| **Metas** | `SavingsModule` completo (pestañas Metas / Ahorros / Deudas ya existente) — se mantiene tal cual |
+| **Gastos** | Solo `ExpenseList` + `IncomeEditor` del mes seleccionado |
+| **Deudas** | Solo `InstallmentTracker` (préstamos + cuotas del mes) |
+| **Más** | Categorías (`CategoryManager`), Exportar (`ExportButton`), Registrar biometría, Cerrar sesión, info del usuario |
 
-### 1. Autenticación y Base de Datos (Lovable Cloud + Supabase)
-- **Login/Registro** con email para acceder desde cualquier dispositivo
-- **Base de datos** para guardar ingresos, gastos y estados de pago de forma permanente
+Se omite Soporte, Reportes y Presupuestos (no existen en la lógica actual — no inventar).
 
-### 2. Pantalla Principal — Dashboard de Resumen
-- **Ingreso del mes**: campo editable para ingresar tu sueldo variable cada mes
-- **Total de gastos**: suma automática de todos los conceptos
-- **Disponible para ahorro**: sueldo menos gastos totales, destacado visualmente (verde si positivo, rojo si negativo)
-- **Indicador visual** de salud financiera: barra de progreso o semáforo que muestra si tienes muchos gastos vs tu ingreso
+## Estructura de archivos
 
-### 3. Lista de Gastos con Categorías Predefinidas
-Cada concepto tendrá:
-- **Nombre** (preconfigurado): Sueldo, Plan celular, Recibos casa, Cuota crédito Banco de Bogotá, Cadena Tele 30 días, Tarjeta, Gasolina, Bolsillo Cami y Juan, Bolsillo emergencia, Bolsillo moto mantenimiento, Vale abono extra, Crédito
-- **Monto**: editable con un clic
-- **Descripción**: nota opcional
-- **Estado de pago**: botón toggle Pagado/Pendiente con color visual
-- **Botón editar**: para modificar monto y descripción rápidamente
+Nuevos:
+- `src/components/BottomNav.tsx` — navegación inferior con 5 tabs e íconos lucide (Home, Target, Receipt, CreditCard, Menu)
+- `src/components/AppShell.tsx` — layout con header sticky + `<Outlet/>` + `<BottomNav/>`, padding-bottom para no tapar contenido
+- `src/pages/app/Home.tsx` — dashboard resumen + donut (recharts ya instalado)
+- `src/pages/app/Goals.tsx` — envuelve `SavingsModule`
+- `src/pages/app/Expenses.tsx` — envuelve `ExpenseList` + `IncomeEditor`
+- `src/pages/app/Debts.tsx` — envuelve `InstallmentTracker`
+- `src/pages/app/More.tsx` — acciones secundarias
 
-### 4. Panel de Visualización con Gráficas
-- **Gráfica de torta/dona**: proporción de cada gasto respecto al total
-- **Gráfica de barras**: comparación de montos por categoría
-- Ambas gráficas se actualizan en tiempo real al modificar montos
+Modificados:
+- `src/App.tsx` — añadir rutas hijas bajo `/` protegidas por auth: `/`, `/metas`, `/gastos`, `/deudas`, `/mas`
+- `src/pages/Index.tsx` — si no hay user → `<Auth/>`; si hay user → `<AppShell/>` con outlet
+- `src/pages/Dashboard.tsx` — se convierte en el shell (o se retira; su contenido se reparte en las nuevas pantallas)
+- `src/components/SummaryCards.tsx` — ajustar a grid `grid-cols-2 lg:grid-cols-4`, tarjetas más compactas para móvil
 
-### 5. Gestión Mensual
-- Selector de mes para ver y editar gastos de cada periodo
-- Posibilidad de copiar la estructura del mes anterior como plantilla
-- Historial de meses anteriores
+Contexto compartido: para evitar re-fetch por pantalla, elevar `selectedMonth` + hooks (`useBudget`, `useInstallments`, `useCategories`) al `AppShell` y pasarlos vía React Context (`FinanceContext`). Las pantallas consumen del contexto — sin tocar la lógica interna de los hooks.
 
-### 6. Diseño y Experiencia
-- Interfaz en español
-- Botones grandes y accesibles para editar rápidamente
-- Colores claros para indicar estado: verde (pagado), rojo/naranja (pendiente)
-- Diseño responsive para usar desde celular o computador
-- Formato de moneda colombiana (COP con separador de miles)
+## Estilo visual
 
+- Fondo `bg-muted/30`, tarjetas `bg-card` con `rounded-2xl shadow-sm border`
+- Íconos en cajas suaves de color (`bg-primary/10`, `bg-success/10`, etc.), consistentes
+- Tipografía: números grandes `text-2xl font-bold tracking-tight`, labels `text-xs text-muted-foreground`
+- Espaciado generoso `p-5 gap-4`, headers de pantalla con título + acción principal (botón `+` circular)
+- Donut en Home con recharts (`PieChart` — ya usado en el proyecto)
+- Bottom nav: `fixed bottom-0 inset-x-0 border-t bg-card/95 backdrop-blur h-16`, ítem activo con color primary + indicador
+- Desktop (`md+`): bottom nav se oculta, aparece top-nav horizontal con las mismas 5 secciones
+
+## Fuera de alcance
+
+- No se modifica lógica de negocio, queries, migraciones ni tipos
+- No se cambia el diseño del login (`Auth.tsx`)
+- No se añaden secciones sin backend (Reportes, Presupuestos, Soporte, Configuración avanzada)

@@ -31,6 +31,7 @@ export interface InstallmentPayment {
 
 export function useInstallments(userId: string | undefined, selectedMonth: Date) {
   const [plans, setPlans] = useState<InstallmentPlan[]>([]);
+  const [allPayments, setAllPayments] = useState<InstallmentPayment[]>([]);
   const [monthPayments, setMonthPayments] = useState<(InstallmentPayment & { plan_name: string })[]>([]);
   const [loading, setLoading] = useState(true);
 

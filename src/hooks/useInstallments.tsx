@@ -233,6 +233,7 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
   return {
     plans,
     monthPayments,
+    allPayments,
     loading,
     createPlan,
     togglePayment,

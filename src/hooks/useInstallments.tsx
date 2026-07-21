@@ -121,9 +121,13 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
     total_amount: number;
     num_installments: number;
     start_date: string;
+    installment_amount?: number;
   }) => {
     if (!userId) return;
-    const installment_amount = Math.round(data.total_amount / data.num_installments);
+    const auto = Math.round(data.total_amount / data.num_installments);
+    const installment_amount = data.installment_amount && data.installment_amount > 0
+      ? Math.round(data.installment_amount)
+      : auto;
 
     const { data: newPlan, error } = await supabase
       .from("installment_plans")
@@ -142,17 +146,20 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
 
     const plan = newPlan as unknown as InstallmentPlan;
 
-    // Generate individual payments
+    // Generate individual payments; last one absorbs rounding difference
     const payments = [];
     const startDate = new Date(data.start_date + "T12:00:00");
+    const baseTotal = installment_amount * data.num_installments;
+    const diff = data.total_amount - baseTotal;
     for (let i = 0; i < data.num_installments; i++) {
       const dueDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
+      const isLast = i === data.num_installments - 1;
       payments.push({
         plan_id: plan.id,
         user_id: userId,
         payment_number: i + 1,
         due_month: getMonthKey(dueDate),
-        amount: installment_amount,
+        amount: isLast ? installment_amount + diff : installment_amount,
       });
     }
 

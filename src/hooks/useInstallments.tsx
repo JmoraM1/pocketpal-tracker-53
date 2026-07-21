@@ -12,6 +12,7 @@ export interface InstallmentPlan {
   paid_installments: number;
   start_date: string;
   is_completed: boolean;
+  completed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -30,6 +31,7 @@ export interface InstallmentPayment {
 
 export function useInstallments(userId: string | undefined, selectedMonth: Date) {
   const [plans, setPlans] = useState<InstallmentPlan[]>([]);
+  const [allPayments, setAllPayments] = useState<InstallmentPayment[]>([]);
   const [monthPayments, setMonthPayments] = useState<(InstallmentPayment & { plan_name: string })[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -80,27 +82,28 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
 
     setPlans(visiblePlans);
 
-    // Load payments for current month, excluding completed plans
-    const completedVisibleIds = visiblePlans.filter((p) => p.is_completed).map((p) => p.id);
-    const allCompletedIds = allPlans.filter((p) => p.is_completed).map((p) => p.id);
-    
-    let paymentsQuery = supabase
-      .from("installment_payments")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("due_month", monthKey);
-
-    // Filter out payments from completed plans (don't show in "cuotas del mes")
-    if (allCompletedIds.length > 0) {
-      paymentsQuery = paymentsQuery.not("plan_id", "in", `(${allCompletedIds.join(",")})`);
+    // Load ALL payments for visible plans (needed for cronograma view)
+    const visiblePlanIds = visiblePlans.map((p) => p.id);
+    let allPaymentsData: InstallmentPayment[] = [];
+    if (visiblePlanIds.length > 0) {
+      const { data: apData } = await supabase
+        .from("installment_payments")
+        .select("*")
+        .eq("user_id", userId)
+        .in("plan_id", visiblePlanIds)
+        .order("payment_number", { ascending: true });
+      allPaymentsData = (apData ?? []) as unknown as InstallmentPayment[];
     }
+    setAllPayments(allPaymentsData);
 
-    const { data: paymentsData } = await paymentsQuery;
+    // Filter month payments: exclude those from completed plans
+    const allCompletedIds = allPlans.filter((p) => p.is_completed).map((p) => p.id);
+    const monthList = allPaymentsData.filter(
+      (p) => p.due_month === monthKey && !allCompletedIds.includes(p.plan_id)
+    );
 
-    const payments = (paymentsData ?? []) as unknown as InstallmentPayment[];
-    
     // Enrich payments with plan name
-    const enriched = payments.map((p) => {
+    const enriched = monthList.map((p) => {
       const plan = allPlans.find((pl) => pl.id === p.plan_id);
       return { ...p, plan_name: plan?.name ?? "Desconocido" };
     });
@@ -118,9 +121,13 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
     total_amount: number;
     num_installments: number;
     start_date: string;
+    installment_amount?: number;
   }) => {
     if (!userId) return;
-    const installment_amount = Math.round(data.total_amount / data.num_installments);
+    const auto = Math.round(data.total_amount / data.num_installments);
+    const installment_amount = data.installment_amount && data.installment_amount > 0
+      ? Math.round(data.installment_amount)
+      : auto;
 
     const { data: newPlan, error } = await supabase
       .from("installment_plans")
@@ -139,17 +146,20 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
 
     const plan = newPlan as unknown as InstallmentPlan;
 
-    // Generate individual payments
+    // Generate individual payments; last one absorbs rounding difference
     const payments = [];
     const startDate = new Date(data.start_date + "T12:00:00");
+    const baseTotal = installment_amount * data.num_installments;
+    const diff = data.total_amount - baseTotal;
     for (let i = 0; i < data.num_installments; i++) {
       const dueDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
+      const isLast = i === data.num_installments - 1;
       payments.push({
         plan_id: plan.id,
         user_id: userId,
         payment_number: i + 1,
         due_month: getMonthKey(dueDate),
-        amount: installment_amount,
+        amount: isLast ? installment_amount + diff : installment_amount,
       });
     }
 
@@ -168,10 +178,9 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
       })
       .eq("id", paymentId);
 
-    // Update plan's paid count
-    const payment = monthPayments.find((p) => p.id === paymentId);
+    // Update plan's paid count (trigger will also sync completed_at)
+    const payment = allPayments.find((p) => p.id === paymentId);
     if (payment) {
-      // Recalculate since we already updated
       const { data: freshPayments } = await supabase
         .from("installment_payments")
         .select("is_paid")
@@ -200,7 +209,7 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
       .eq("id", paymentId);
 
     // Also update the plan's installment_amount so the active debts dashboard reflects it
-    const payment = monthPayments.find((p) => p.id === paymentId);
+    const payment = allPayments.find((p) => p.id === paymentId);
     if (payment) {
       await supabase
         .from("installment_plans")
@@ -224,6 +233,7 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
   return {
     plans,
     monthPayments,
+    allPayments,
     loading,
     createPlan,
     togglePayment,

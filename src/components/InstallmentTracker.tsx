@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,7 @@ import { MoneyInput } from "@/components/ui/money-input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -19,31 +20,65 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { formatCOP } from "@/lib/constants";
-import { Plus, Trash2, CreditCard, CalendarDays, Pencil, Check, X } from "lucide-react";
+import { Plus, Trash2, CreditCard, CalendarDays, Pencil, Check, X, Trophy, ListChecks } from "lucide-react";
 import type { InstallmentPlan, InstallmentPayment } from "@/hooks/useInstallments";
 
 interface InstallmentTrackerProps {
   plans: InstallmentPlan[];
   monthPayments: (InstallmentPayment & { plan_name: string })[];
-  onCreatePlan: (data: { name: string; total_amount: number; num_installments: number; start_date: string }) => void;
+  allPayments: InstallmentPayment[];
+  onCreatePlan: (data: { name: string; total_amount: number; num_installments: number; start_date: string; installment_amount?: number }) => void;
   onTogglePayment: (paymentId: string, isPaid: boolean) => void;
   onDeletePlan: (planId: string) => void;
   onUpdatePaymentAmount: (paymentId: string, amount: number) => void;
 }
 
-export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onTogglePayment, onDeletePlan, onUpdatePaymentAmount }: InstallmentTrackerProps) {
+function formatDate(iso?: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+export function InstallmentTracker({
+  plans,
+  monthPayments,
+  allPayments,
+  onCreatePlan,
+  onTogglePayment,
+  onDeletePlan,
+  onUpdatePaymentAmount,
+}: InstallmentTrackerProps) {
   const [addOpen, setAddOpen] = useState(false);
   const [name, setName] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [numInstallments, setNumInstallments] = useState("");
+  const [installmentAmount, setInstallmentAmount] = useState("");
+  const [installmentTouched, setInstallmentTouched] = useState(false);
   const [startDate, setStartDate] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   });
 
-  // Editing payment amount
-  const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
-  const [editAmount, setEditAmount] = useState("");
+  // Auto-calc installment when total/num change, unless the user overrode it
+  useEffect(() => {
+    if (installmentTouched) return;
+    const total = Number(totalAmount);
+    const num = Number(numInstallments);
+    if (total > 0 && num > 0) {
+      setInstallmentAmount(String(Math.round(total / num)));
+    } else {
+      setInstallmentAmount("");
+    }
+  }, [totalAmount, numInstallments, installmentTouched]);
+
+  const resetForm = () => {
+    setName("");
+    setTotalAmount("");
+    setNumInstallments("");
+    setInstallmentAmount("");
+    setInstallmentTouched(false);
+  };
 
   const handleCreate = () => {
     if (!name || !totalAmount || !numInstallments) return;
@@ -52,32 +87,27 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
       total_amount: Number(totalAmount),
       num_installments: Number(numInstallments),
       start_date: startDate,
+      installment_amount: installmentAmount ? Number(installmentAmount) : undefined,
     });
-    setName("");
-    setTotalAmount("");
-    setNumInstallments("");
+    resetForm();
     setAddOpen(false);
   };
 
-  const cuotaPreview = totalAmount && numInstallments && Number(numInstallments) > 0
-    ? Math.round(Number(totalAmount) / Number(numInstallments))
-    : 0;
-
-  const activePlans = plans.filter((p) => !p.is_completed);
-  const completedPlans = plans.filter((p) => p.is_completed);
-
+  // Editing payment amount (in "Cuotas del mes")
+  const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
+  const [editAmount, setEditAmount] = useState("");
   const startEditAmount = (payment: InstallmentPayment) => {
     setEditingPaymentId(payment.id);
     setEditAmount(String(payment.amount));
   };
-
   const saveEditAmount = (paymentId: string) => {
     const val = Number(editAmount);
-    if (val > 0) {
-      onUpdatePaymentAmount(paymentId, val);
-    }
+    if (val > 0) onUpdatePaymentAmount(paymentId, val);
     setEditingPaymentId(null);
   };
+
+  const activePlans = plans.filter((p) => !p.is_completed);
+  const completedPlans = plans.filter((p) => p.is_completed);
 
   return (
     <div className="space-y-4">
@@ -88,7 +118,7 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
             <CreditCard className="h-5 w-5" />
             Cuotas del Mes
           </CardTitle>
-          <Dialog open={addOpen} onOpenChange={setAddOpen}>
+          <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1">
                 <Plus className="h-4 w-4" />
@@ -102,18 +132,11 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
               <div className="space-y-4 pt-2">
                 <div className="space-y-2">
                   <Label>Nombre</Label>
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Ej: Celular, Electrodoméstico"
-                  />
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Celular, Electrodoméstico" />
                 </div>
                 <div className="space-y-2">
                   <Label>Monto total</Label>
-                  <MoneyInput
-                    value={totalAmount}
-                    onChange={(v) => setTotalAmount(v)}
-                  />
+                  <MoneyInput value={totalAmount} onChange={(v) => setTotalAmount(v)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Número de cuotas</Label>
@@ -126,19 +149,17 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Fecha inicio (mes primera cuota)</Label>
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                  <Label>Valor de la cuota (editable)</Label>
+                  <MoneyInput
+                    value={installmentAmount}
+                    onChange={(v) => { setInstallmentAmount(v); setInstallmentTouched(true); }}
                   />
+                  <p className="text-xs text-muted-foreground">Se calcula automáticamente. Puedes ajustarlo si tu cuota real es distinta.</p>
                 </div>
-                {cuotaPreview > 0 && (
-                  <div className="rounded-lg border bg-muted/50 p-3 text-sm">
-                    <p className="text-muted-foreground">Valor estimado por cuota (editable después):</p>
-                    <p className="text-lg font-bold text-primary">{formatCOP(cuotaPreview)}</p>
-                  </div>
-                )}
+                <div className="space-y-2">
+                  <Label>Fecha de la primera cuota</Label>
+                  <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                </div>
                 <Button className="w-full" onClick={handleCreate}>
                   Crear Plan de Cuotas
                 </Button>
@@ -161,9 +182,7 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
               >
                 <div className="flex-1">
                   <p className="text-sm font-semibold">{payment.plan_name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Cuota {payment.payment_number}
-                  </p>
+                  <p className="text-xs text-muted-foreground">Cuota {payment.payment_number}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   {editingPaymentId === payment.id ? (
@@ -187,9 +206,7 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
                     </div>
                   ) : (
                     <div className="flex items-center gap-1">
-                      <span className="text-sm font-bold tabular-nums">
-                        {formatCOP(Number(payment.amount))}
-                      </span>
+                      <span className="text-sm font-bold tabular-nums">{formatCOP(Number(payment.amount))}</span>
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEditAmount(payment)}>
                         <Pencil className="h-3 w-3 text-muted-foreground" />
                       </Button>
@@ -211,73 +228,190 @@ export function InstallmentTracker({ plans, monthPayments, onCreatePlan, onToggl
         </CardContent>
       </Card>
 
-      {/* Active plans overview */}
-      {activePlans.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <CalendarDays className="h-5 w-5" />
-              Deudas Activas
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 p-4 pt-0">
-            {activePlans.map((plan) => {
-              const paidAmount = Number(plan.installment_amount) * plan.paid_installments;
-              const totalAmount = Number(plan.total_amount);
-              const progress = totalAmount > 0 ? Math.min((paidAmount / totalAmount) * 100, 100) : 0;
-              const remaining = totalAmount - paidAmount;
-              return (
-                <div key={plan.id} className="rounded-xl border bg-card/50 backdrop-blur-sm p-5 space-y-4 shadow-sm">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <p className="text-base font-bold">{plan.name}</p>
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                          Cuota {plan.paid_installments} de {plan.num_installments}
+      {/* Tabs: Activas / Completadas */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <CalendarDays className="h-5 w-5" />
+            Deudas
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="active" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="active">Activas ({activePlans.length})</TabsTrigger>
+              <TabsTrigger value="completed">Completadas ({completedPlans.length})</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="active" className="space-y-3 pt-4">
+              {activePlans.length === 0 && (
+                <p className="text-center text-sm text-muted-foreground py-6">Aún no tienes deudas activas.</p>
+              )}
+              {activePlans.map((plan) => {
+                const planPayments = allPayments
+                  .filter((p) => p.plan_id === plan.id)
+                  .sort((a, b) => a.payment_number - b.payment_number);
+                const paidAmount = planPayments.filter((p) => p.is_paid).reduce((s, p) => s + Number(p.amount), 0);
+                const totalAmount = Number(plan.total_amount);
+                const progress = totalAmount > 0 ? Math.min((paidAmount / totalAmount) * 100, 100) : 0;
+                const remaining = Math.max(0, totalAmount - paidAmount);
+                return (
+                  <div key={plan.id} className="rounded-xl border bg-card/50 backdrop-blur-sm p-5 space-y-4 shadow-sm">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <p className="text-base font-bold">{plan.name}</p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                            Cuota {plan.paid_installments} de {plan.num_installments}
+                          </span>
+                          <span className="text-xs text-muted-foreground">· {formatCOP(Number(plan.installment_amount))}/mes</span>
+                        </div>
+                      </div>
+                      <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Progress value={progress} className="h-3" />
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-semibold text-primary">
+                          {formatCOP(paidAmount)} <span className="font-normal text-muted-foreground">pagado</span>
                         </span>
-                        <span className="text-xs text-muted-foreground">
-                          · {formatCOP(Number(plan.installment_amount))}/mes
+                        <span className="text-muted-foreground text-xs">{progress.toFixed(0)}%</span>
+                        <span className="font-semibold text-destructive">
+                          {formatCOP(remaining)} <span className="font-normal text-muted-foreground">saldo</span>
                         </span>
                       </div>
                     </div>
-                    <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />
+
+                    <ScheduleDialog
+                      plan={plan}
+                      payments={planPayments}
+                      onTogglePayment={onTogglePayment}
+                      onUpdatePaymentAmount={onUpdatePaymentAmount}
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <Progress value={progress} className="h-3" />
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-semibold text-primary">{formatCOP(paidAmount)} <span className="font-normal text-muted-foreground">pagado</span></span>
-                      <span className="font-semibold text-destructive">{formatCOP(remaining)} <span className="font-normal text-muted-foreground">restante</span></span>
+                );
+              })}
+            </TabsContent>
+
+            <TabsContent value="completed" className="space-y-2 pt-4">
+              {completedPlans.length === 0 && (
+                <p className="text-center text-sm text-muted-foreground py-6">Aún no tienes deudas completadas.</p>
+              )}
+              {completedPlans.map((plan) => (
+                <div key={plan.id} className="flex items-center justify-between rounded-xl border border-success/20 bg-success/5 p-3">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-4 w-4 text-success" />
+                    <div>
+                      <p className="text-sm font-semibold">{plan.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatCOP(Number(plan.total_amount))} — {plan.num_installments} cuotas
+                        {plan.completed_at ? ` · Completada el ${formatDate(plan.completed_at)}` : ""}
+                      </p>
                     </div>
                   </div>
+                  <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />
                 </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Completed - only shown if there are completed plans passed */}
-      {completedPlans.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg text-success">✅ Deudas Completadas</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 p-4 pt-0">
-            {completedPlans.map((plan) => (
-              <div key={plan.id} className="flex items-center justify-between rounded-lg border border-success/20 bg-success/5 p-3">
-                <div>
-                  <p className="text-sm font-semibold">{plan.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatCOP(Number(plan.total_amount))} — {plan.num_installments} cuotas
-                  </p>
-                </div>
-                <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+              ))}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
+  );
+}
+
+function ScheduleDialog({
+  plan,
+  payments,
+  onTogglePayment,
+  onUpdatePaymentAmount,
+}: {
+  plan: InstallmentPlan;
+  payments: InstallmentPayment[];
+  onTogglePayment: (paymentId: string, isPaid: boolean) => void;
+  onUpdatePaymentAmount: (paymentId: string, amount: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editVal, setEditVal] = useState("");
+
+  const save = (id: string) => {
+    const v = Number(editVal);
+    if (v > 0) onUpdatePaymentAmount(id, v);
+    setEditingId(null);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="w-full gap-2">
+          <ListChecks className="h-4 w-4" />
+          Ver cronograma
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Cronograma — {plan.name}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+          {payments.length === 0 && (
+            <p className="text-center text-sm text-muted-foreground py-4">Sin cuotas registradas.</p>
+          )}
+          {payments.map((p) => (
+            <div
+              key={p.id}
+              className={`flex items-center justify-between gap-2 rounded-lg border p-2.5 ${
+                p.is_paid ? "border-success/30 bg-success/5" : "border-warning/30 bg-warning/5"
+              }`}
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">Cuota {p.payment_number}</p>
+                <p className="text-xs text-muted-foreground">{p.due_month}</p>
+              </div>
+              {editingId === p.id ? (
+                <div className="flex items-center gap-1">
+                  <MoneyInput
+                    value={editVal}
+                    onChange={(v) => setEditVal(v)}
+                    className="h-8 w-28 text-sm"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") save(p.id);
+                      if (e.key === "Escape") setEditingId(null);
+                    }}
+                  />
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => save(p.id)}>
+                    <Check className="h-3.5 w-3.5 text-success" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingId(null)}>
+                    <X className="h-3.5 w-3.5 text-destructive" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-sm font-bold tabular-nums">{formatCOP(Number(p.amount))}</span>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7"
+                    onClick={() => { setEditingId(p.id); setEditVal(String(p.amount)); }}
+                  >
+                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                  </Button>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5">
+                <Switch checked={p.is_paid} onCheckedChange={(c) => onTogglePayment(p.id, c)} />
+                <span className={`text-xs font-medium ${p.is_paid ? "text-success" : "text-warning"}`}>
+                  {p.is_paid ? "Pagada" : "Pendiente"}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -291,9 +425,9 @@ function ConfirmDeleteButton({ onConfirm }: { onConfirm: () => void }) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Eliminar meta</AlertDialogTitle>
+          <AlertDialogTitle>Eliminar deuda</AlertDialogTitle>
           <AlertDialogDescription>
-            ¿Estás seguro de que deseas eliminar esta meta? Esta acción no se puede deshacer.
+            ¿Estás seguro de que deseas eliminar esta deuda? Esta acción no se puede deshacer.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -166,6 +166,7 @@ export type Database = {
       }
       installment_plans: {
         Row: {
+          completed_at: string | null
           created_at: string
           id: string
           installment_amount: number
@@ -179,6 +180,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          completed_at?: string | null
           created_at?: string
           id?: string
           installment_amount?: number
@@ -192,6 +194,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          completed_at?: string | null
           created_at?: string
           id?: string
           installment_amount?: number

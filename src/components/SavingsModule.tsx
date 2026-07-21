@@ -24,6 +24,16 @@ import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy } from "lucide-r
 import { formatCOP } from "@/lib/constants";
 import { useSavings } from "@/hooks/useSavings";
 
+function formatDateTime(iso?: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleString("es-CO", {
+    day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+}
+
 interface Props {
   userId: string | undefined;
   selectedMonth: Date;
@@ -267,9 +277,9 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
           <DialogContent>
             <DialogHeader><DialogTitle>Historial — {goal.name}</DialogTitle></DialogHeader>
             <div className="space-y-1 max-h-[60vh] overflow-y-auto">
-              {[...contributions].sort((a: any, b: any) => b.month.localeCompare(a.month)).map((c: any) => (
+              {[...contributions].sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).map((c: any) => (
                 <div key={c.id} className="flex items-center justify-between rounded p-2 hover:bg-muted/50">
-                  <span className="text-sm">{c.month}</span>
+                  <span className="text-sm">{formatDateTime(c.created_at)}</span>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-primary">{formatCOP(Number(c.amount))}</span>
                     <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => onDeleteContrib(c.id)}>
@@ -338,9 +348,9 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
           <DialogContent>
             <DialogHeader><DialogTitle>Historial — {saving.name}</DialogTitle></DialogHeader>
             <div className="space-y-1 max-h-[60vh] overflow-y-auto">
-              {[...contributions].sort((a: any, b: any) => b.month.localeCompare(a.month)).map((c: any) => (
+              {[...contributions].sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).map((c: any) => (
                 <div key={c.id} className="flex items-center justify-between rounded p-2 hover:bg-muted/50">
-                  <span className="text-sm">{c.month}</span>
+                  <span className="text-sm">{formatDateTime(c.created_at)}</span>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-primary">{formatCOP(Number(c.amount))}</span>
                     <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => onDeleteContrib(c.id)}>

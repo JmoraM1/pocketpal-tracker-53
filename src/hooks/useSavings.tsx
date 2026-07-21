@@ -14,6 +14,7 @@ export type GoalContribution = {
   goal_id: string;
   month: string;
   amount: number;
+  created_at: string;
 };
 
 export type FreeSaving = {
@@ -26,6 +27,7 @@ export type FreeContribution = {
   saving_id: string;
   month: string;
   amount: number;
+  created_at: string;
 };
 
 export function useSavings(userId: string | undefined, selectedMonth: Date) {

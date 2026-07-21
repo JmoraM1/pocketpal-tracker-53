@@ -32,7 +32,7 @@ export default function Dashboard() {
   } = useBudget(user?.id, selectedMonth);
 
   const { categories, categoryNames, addCategory, removeCategory, editCategory, toggleCumulativeSavings } = useCategories(user?.id);
-  const { plans, monthPayments, createPlan, togglePayment, updatePaymentAmount, deletePlan, monthlyInstallmentTotal } = useInstallments(user?.id, selectedMonth);
+  const { plans, monthPayments, allPayments, createPlan, togglePayment, updatePaymentAmount, deletePlan, monthlyInstallmentTotal } = useInstallments(user?.id, selectedMonth);
   const { loading: webauthnLoading, registerPasskey, isSupported: webauthnSupported } = useWebAuthn();
 
   const combinedTotalExpenses = totalExpenses + monthlyInstallmentTotal;
@@ -145,6 +145,7 @@ export default function Dashboard() {
           <InstallmentTracker
             plans={plans}
             monthPayments={monthPayments}
+            allPayments={allPayments}
             onCreatePlan={createPlan}
             onTogglePayment={togglePayment}
             onDeletePlan={deletePlan}

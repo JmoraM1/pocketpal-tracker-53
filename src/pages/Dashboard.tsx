@@ -145,6 +145,7 @@ export default function Dashboard() {
           <InstallmentTracker
             plans={plans}
             monthPayments={monthPayments}
+            allPayments={allPayments}
             onCreatePlan={createPlan}
             onTogglePayment={togglePayment}
             onDeletePlan={deletePlan}

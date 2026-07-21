@@ -1,52 +1,64 @@
-# Rediseño Frontend — Estructura por pantallas
+## Objetivo
 
-Solo cambios de UI/UX. La lógica, hooks (`useBudget`, `useSavings`, `useInstallments`, `useCategories`), Supabase y nombres de variables se mantienen intactos.
+1. Rediseñar la pantalla **Deudas** para que siga la misma UX de Metas (pestañas Activas/Completadas, progreso, cronograma, auto-completado con fecha).
+2. Corregir el historial de **Metas** y **Ahorros** para que cada aporte muestre su fecha y hora reales (no el mes).
 
-## Nueva navegación
+---
 
-Bottom navigation fija (móvil) + sidebar/tabs en desktop, con 5 secciones:
+## 1. Deudas
 
-| Sección | Contenido |
-|---|---|
-| **Inicio** | Selector de mes, `SummaryCards` (compactadas 2×2 en móvil), resumen visual (donut ingreso vs gasto vs ahorro), accesos rápidos (Nueva meta, Nuevo gasto, Ver deudas, Categorías) |
-| **Metas** | `SavingsModule` completo (pestañas Metas / Ahorros / Deudas ya existente) — se mantiene tal cual |
-| **Gastos** | Solo `ExpenseList` + `IncomeEditor` del mes seleccionado |
-| **Deudas** | Solo `InstallmentTracker` (préstamos + cuotas del mes) |
-| **Más** | Categorías (`CategoryManager`), Exportar (`ExportButton`), Registrar biometría, Cerrar sesión, info del usuario |
+### Base de datos
+- Agregar columna `completed_at timestamptz null` a `installment_plans`.
+- Trigger `sync_installment_plan_completion` (ya existe): ampliarlo para que además fije `completed_at = now()` la primera vez que `is_completed` pasa a `true`, y lo limpie si se revierte.
 
-Se omite Soporte, Reportes y Presupuestos (no existen en la lógica actual — no inventar).
+### Hook `useInstallments`
+- `createPlan` acepta un `installment_amount` opcional; si se envía, se usa tal cual y se ajusta el reparto (la última cuota absorbe el redondeo). Si no, sigue el cálculo automático actual.
+- Cargar **todas** las cuotas del plan (no sólo las del mes) para poder mostrar el cronograma. Exponer `paymentsByPlan` (map planId → payments[]).
+- Mantener el filtro actual: los planes completados no vuelven a aparecer en meses posteriores a su última cuota, y sus cuotas dejan de listarse en "Cuotas del mes".
 
-## Estructura de archivos
+### UI (`InstallmentTracker.tsx`)
+- Formulario de creación: agregar campo **Valor de la cuota** con auto-cálculo en vivo desde monto/número de cuotas pero editable. Etiqueta "Fecha de la primera cuota".
+- Reemplazar la lista actual por dos pestañas (`Tabs`, mismo patrón que Metas):
+  - **Activas**: tarjeta por deuda con
+    - Nombre y chip "Cuota X de N"
+    - `Progress` en %
+    - `pagadas / total`, **saldo pendiente** (`total - pagado`)
+    - Botón "Ver cronograma" que abre un `Dialog` listando todas las cuotas (número, mes, monto, estado pagada/pendiente, editar monto, toggle pagar) — reusa la lógica existente de `onTogglePayment` y `onUpdatePaymentAmount`.
+    - Eliminar con confirmación (ya existe).
+  - **Completadas**: tarjeta con nombre, total, número de cuotas y **fecha de completado** (`completed_at`), botón eliminar con confirmación.
+- Mantener la tarjeta "Cuotas del Mes" arriba (o integrada dentro de "Activas" — ver Nota).
+- Corregir el título del `AlertDialog` de borrado ("Eliminar deuda" en lugar de "Eliminar meta").
 
-Nuevos:
-- `src/components/BottomNav.tsx` — navegación inferior con 5 tabs e íconos lucide (Home, Target, Receipt, CreditCard, Menu)
-- `src/components/AppShell.tsx` — layout con header sticky + `<Outlet/>` + `<BottomNav/>`, padding-bottom para no tapar contenido
-- `src/pages/app/Home.tsx` — dashboard resumen + donut (recharts ya instalado)
-- `src/pages/app/Goals.tsx` — envuelve `SavingsModule`
-- `src/pages/app/Expenses.tsx` — envuelve `ExpenseList` + `IncomeEditor`
-- `src/pages/app/Debts.tsx` — envuelve `InstallmentTracker`
-- `src/pages/app/More.tsx` — acciones secundarias
+**Nota UX**: conservo "Cuotas del Mes" como sección superior para no cambiar el flujo mensual de marcado; el cronograma completo vive dentro de cada tarjeta de deuda activa.
 
-Modificados:
-- `src/App.tsx` — añadir rutas hijas bajo `/` protegidas por auth: `/`, `/metas`, `/gastos`, `/deudas`, `/mas`
-- `src/pages/Index.tsx` — si no hay user → `<Auth/>`; si hay user → `<AppShell/>` con outlet
-- `src/pages/Dashboard.tsx` — se convierte en el shell (o se retira; su contenido se reparte en las nuevas pantallas)
-- `src/components/SummaryCards.tsx` — ajustar a grid `grid-cols-2 lg:grid-cols-4`, tarjetas más compactas para móvil
+---
 
-Contexto compartido: para evitar re-fetch por pantalla, elevar `selectedMonth` + hooks (`useBudget`, `useInstallments`, `useCategories`) al `AppShell` y pasarlos vía React Context (`FinanceContext`). Las pantallas consumen del contexto — sin tocar la lógica interna de los hooks.
+## 2. Historial de Metas y Ahorros — fecha real
 
-## Estilo visual
+- Los aportes ya se guardan con `created_at = now()` (timestamp real en la BD); el problema es únicamente de visualización: hoy se muestra `c.month` (clave mensual, igual para todos los aportes del mes).
+- En `SavingsModule.tsx`:
+  - Ordenar los aportes por `created_at` descendente.
+  - Mostrar `created_at` formateado con fecha y hora locales (`dd/mm/yyyy HH:mm`) en lugar de `c.month`.
+- No se modifica la lógica de inserción (ya usa `now()` en el servidor, que es la fuente correcta y consistente entre dispositivos).
 
-- Fondo `bg-muted/30`, tarjetas `bg-card` con `rounded-2xl shadow-sm border`
-- Íconos en cajas suaves de color (`bg-primary/10`, `bg-success/10`, etc.), consistentes
-- Tipografía: números grandes `text-2xl font-bold tracking-tight`, labels `text-xs text-muted-foreground`
-- Espaciado generoso `p-5 gap-4`, headers de pantalla con título + acción principal (botón `+` circular)
-- Donut en Home con recharts (`PieChart` — ya usado en el proyecto)
-- Bottom nav: `fixed bottom-0 inset-x-0 border-t bg-card/95 backdrop-blur h-16`, ítem activo con color primary + indicador
-- Desktop (`md+`): bottom nav se oculta, aparece top-nav horizontal con las mismas 5 secciones
+---
 
-## Fuera de alcance
+## Detalles técnicos
 
-- No se modifica lógica de negocio, queries, migraciones ni tipos
-- No se cambia el diseño del login (`Auth.tsx`)
-- No se añaden secciones sin backend (Reportes, Presupuestos, Soporte, Configuración avanzada)
+- Migración SQL:
+  ```sql
+  ALTER TABLE public.installment_plans
+    ADD COLUMN completed_at timestamptz;
+  ```
+  Reescritura de `sync_installment_plan_completion` para setear/limpiar `completed_at` según transiciones de `is_completed`.
+- Tipos: `InstallmentPlan` gana `completed_at: string | null`.
+- Sin cambios en `useSavings` ni en el esquema de contribuciones.
+- Sin cambios en navegación, backend de auth, ni otras pantallas.
+
+## Archivos afectados
+
+- `supabase` migración (nueva).
+- `src/hooks/useInstallments.tsx`
+- `src/components/InstallmentTracker.tsx`
+- `src/components/SavingsModule.tsx`
+- `src/pages/Dashboard.tsx` (sólo si cambia la firma de `createPlan`).

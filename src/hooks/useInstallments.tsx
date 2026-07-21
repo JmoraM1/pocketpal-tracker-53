@@ -178,10 +178,9 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
       })
       .eq("id", paymentId);
 
-    // Update plan's paid count
-    const payment = monthPayments.find((p) => p.id === paymentId);
+    // Update plan's paid count (trigger will also sync completed_at)
+    const payment = allPayments.find((p) => p.id === paymentId);
     if (payment) {
-      // Recalculate since we already updated
       const { data: freshPayments } = await supabase
         .from("installment_payments")
         .select("is_paid")
@@ -210,7 +209,7 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
       .eq("id", paymentId);
 
     // Also update the plan's installment_amount so the active debts dashboard reflects it
-    const payment = monthPayments.find((p) => p.id === paymentId);
+    const payment = allPayments.find((p) => p.id === paymentId);
     if (payment) {
       await supabase
         .from("installment_plans")

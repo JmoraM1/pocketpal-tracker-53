@@ -82,27 +82,28 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
 
     setPlans(visiblePlans);
 
-    // Load payments for current month, excluding completed plans
-    const completedVisibleIds = visiblePlans.filter((p) => p.is_completed).map((p) => p.id);
-    const allCompletedIds = allPlans.filter((p) => p.is_completed).map((p) => p.id);
-    
-    let paymentsQuery = supabase
-      .from("installment_payments")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("due_month", monthKey);
-
-    // Filter out payments from completed plans (don't show in "cuotas del mes")
-    if (allCompletedIds.length > 0) {
-      paymentsQuery = paymentsQuery.not("plan_id", "in", `(${allCompletedIds.join(",")})`);
+    // Load ALL payments for visible plans (needed for cronograma view)
+    const visiblePlanIds = visiblePlans.map((p) => p.id);
+    let allPaymentsData: InstallmentPayment[] = [];
+    if (visiblePlanIds.length > 0) {
+      const { data: apData } = await supabase
+        .from("installment_payments")
+        .select("*")
+        .eq("user_id", userId)
+        .in("plan_id", visiblePlanIds)
+        .order("payment_number", { ascending: true });
+      allPaymentsData = (apData ?? []) as unknown as InstallmentPayment[];
     }
+    setAllPayments(allPaymentsData);
 
-    const { data: paymentsData } = await paymentsQuery;
+    // Filter month payments: exclude those from completed plans
+    const allCompletedIds = allPlans.filter((p) => p.is_completed).map((p) => p.id);
+    const monthList = allPaymentsData.filter(
+      (p) => p.due_month === monthKey && !allCompletedIds.includes(p.plan_id)
+    );
 
-    const payments = (paymentsData ?? []) as unknown as InstallmentPayment[];
-    
     // Enrich payments with plan name
-    const enriched = payments.map((p) => {
+    const enriched = monthList.map((p) => {
       const plan = allPlans.find((pl) => pl.id === p.plan_id);
       return { ...p, plan_name: plan?.name ?? "Desconocido" };
     });

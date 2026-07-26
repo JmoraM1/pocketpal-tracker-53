@@ -107,7 +107,7 @@ export function useWebAuthn() {
 
       const response = credential.response as AuthenticatorAttestationResponse;
 
-      // 3. Send credential to server for verification
+      // 3. Send FULL attestation to server for cryptographic verification
       const verifyRes = await fetch(getEdgeFunctionUrl("webauthn-register"), {
         method: "POST",
         headers: {
@@ -119,8 +119,13 @@ export function useWebAuthn() {
           action: "verify",
           credential: {
             id: bufferToBase64Url(credential.rawId),
-            publicKey: bufferToBase64Url(response.getPublicKey()!),
-            counter: 0,
+            rawId: bufferToBase64Url(credential.rawId),
+            type: credential.type,
+            clientExtensionResults: credential.getClientExtensionResults(),
+            response: {
+              attestationObject: bufferToBase64Url(response.attestationObject),
+              clientDataJSON: bufferToBase64Url(response.clientDataJSON),
+            },
           },
           deviceName: navigator.userAgent.includes("iPhone") || navigator.userAgent.includes("iPad")
             ? "iPhone/iPad"

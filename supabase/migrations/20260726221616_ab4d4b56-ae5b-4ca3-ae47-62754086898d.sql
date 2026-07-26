@@ -1,0 +1,1 @@
+DELETE FROM public.webauthn_credentials; DELETE FROM public.webauthn_challenges;

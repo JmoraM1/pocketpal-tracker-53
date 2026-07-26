@@ -214,7 +214,15 @@ export function useWebAuthn() {
           email,
           credential: {
             id: bufferToBase64Url(credential.rawId),
-            counter: new DataView(response.authenticatorData.slice(33, 37)).getUint32(0),
+            rawId: bufferToBase64Url(credential.rawId),
+            type: credential.type,
+            clientExtensionResults: credential.getClientExtensionResults(),
+            response: {
+              authenticatorData: bufferToBase64Url(response.authenticatorData),
+              clientDataJSON: bufferToBase64Url(response.clientDataJSON),
+              signature: bufferToBase64Url(response.signature),
+              userHandle: response.userHandle ? bufferToBase64Url(response.userHandle) : undefined,
+            },
           },
         }),
       });

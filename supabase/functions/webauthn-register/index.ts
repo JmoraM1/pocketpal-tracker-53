@@ -1,4 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.95.3";
+import {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+} from "https://esm.sh/@simplewebauthn/server@10.0.1?target=deno";
+import { isoBase64URL } from "https://esm.sh/@simplewebauthn/server@10.0.1/helpers?target=deno";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,11 +11,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-function bufferToBase64Url(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  let binary = "";
-  for (const b of bytes) binary += String.fromCharCode(b);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+function getOrigin(req: Request): string {
+  return req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, "") || "https://localhost";
 }
 
 Deno.serve(async (req) => {
@@ -50,43 +52,26 @@ Deno.serve(async (req) => {
     const userId = claimsData.claims.sub as string;
     const userEmail = claimsData.claims.email as string;
 
-    // Parse body ONCE and extract all fields
     const body = await req.json();
     const { action, credential, deviceName } = body;
 
+    const origin = getOrigin(req);
+    const rpId = new URL(origin).hostname;
+
     if (action === "options") {
-      const challengeBytes = crypto.getRandomValues(new Uint8Array(32));
-      const challenge = bufferToBase64Url(challengeBytes);
-
-      await supabaseAdmin.rpc("cleanup_old_challenges");
-
-      await supabaseAdmin.from("webauthn_challenges").insert({
-        user_email: userEmail,
-        challenge,
-        type: "registration",
-      });
-
       const { data: existing } = await supabaseAdmin
         .from("webauthn_credentials")
         .select("credential_id")
         .eq("user_id", userId);
 
-      const rpId = new URL(req.headers.get("origin") || req.headers.get("referer") || "https://localhost").hostname;
-
-      const options = {
-        challenge,
-        rp: { name: "Mis Finanzas", id: rpId },
-        user: {
-          id: bufferToBase64Url(new TextEncoder().encode(userId)),
-          name: userEmail,
-          displayName: userEmail,
-        },
-        pubKeyCredParams: [
-          { type: "public-key", alg: -7 },
-          { type: "public-key", alg: -257 },
-        ],
+      const options = await generateRegistrationOptions({
+        rpName: "Mis Finanzas",
+        rpID: rpId,
+        userID: new TextEncoder().encode(userId),
+        userName: userEmail,
+        userDisplayName: userEmail,
+        attestationType: "none",
         timeout: 60000,
-        attestation: "none",
         authenticatorSelection: {
           authenticatorAttachment: "platform",
           userVerification: "required",
@@ -94,12 +79,18 @@ Deno.serve(async (req) => {
           requireResidentKey: false,
         },
         excludeCredentials: (existing || []).map((c) => ({
-          type: "public-key",
           id: c.credential_id,
+          type: "public-key",
         })),
-      };
+        supportedAlgorithmIDs: [-7, -257],
+      });
 
-      console.log("[webauthn-register] options generated for user:", userEmail, "rpId:", rpId);
+      await supabaseAdmin.rpc("cleanup_old_challenges");
+      await supabaseAdmin.from("webauthn_challenges").insert({
+        user_email: userEmail,
+        challenge: options.challenge,
+        type: "registration",
+      });
 
       return new Response(JSON.stringify(options), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -107,8 +98,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === "verify") {
-      if (!credential?.id || !credential?.publicKey) {
-        console.error("[webauthn-register] verify: missing credential data", JSON.stringify(body));
+      if (!credential?.id || !credential?.response) {
         return new Response(JSON.stringify({ error: "Missing credential data" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -125,7 +115,6 @@ Deno.serve(async (req) => {
         .single();
 
       if (!challengeData) {
-        console.error("[webauthn-register] verify: challenge not found for", userEmail);
         return new Response(JSON.stringify({ error: "Challenge expired or not found" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -134,15 +123,41 @@ Deno.serve(async (req) => {
 
       await supabaseAdmin.from("webauthn_challenges").delete().eq("id", challengeData.id);
 
+      let verification;
+      try {
+        verification = await verifyRegistrationResponse({
+          response: credential,
+          expectedChallenge: challengeData.challenge,
+          expectedOrigin: origin,
+          expectedRPID: rpId,
+          requireUserVerification: true,
+        });
+      } catch (e) {
+        console.error("[webauthn-register] verification error:", (e as Error).message);
+        return new Response(JSON.stringify({ error: "Verification failed" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (!verification.verified || !verification.registrationInfo) {
+        return new Response(JSON.stringify({ error: "Registration not verified" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { credential: verifiedCred } = verification.registrationInfo;
+      const credentialIdB64 = isoBase64URL.fromBuffer(verifiedCred.id as unknown as Uint8Array);
+      const publicKeyB64 = isoBase64URL.fromBuffer(verifiedCred.publicKey);
+
       await supabaseAdmin.from("webauthn_credentials").insert({
         user_id: userId,
-        credential_id: credential.id,
-        public_key: credential.publicKey,
-        counter: credential.counter || 0,
+        credential_id: credentialIdB64,
+        public_key: publicKeyB64,
+        counter: verifiedCred.counter ?? 0,
         device_name: deviceName || "Dispositivo",
       });
-
-      console.log("[webauthn-register] credential stored for user:", userEmail, "device:", deviceName);
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -154,8 +169,8 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error("[webauthn-register] error:", err.message);
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error("[webauthn-register] error:", (err as Error).message);
+    return new Response(JSON.stringify({ error: (err as Error).message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

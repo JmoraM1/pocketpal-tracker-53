@@ -73,7 +73,7 @@ export default function Auth() {
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
       {/* Animated gradient background */}
       <div className="absolute inset-0" style={{
-        background: "linear-gradient(140deg, hsl(230 40% 12%) 0%, hsl(250 50% 18%) 30%, hsl(220 60% 14%) 60%, hsl(200 50% 10%) 100%)",
+        background: "linear-gradient(140deg, hsl(215 42% 10%) 0%, hsl(200 40% 14%) 35%, hsl(170 35% 12%) 70%, hsl(158 40% 9%) 100%)",
       }} />
 
       {/* Floating orbs */}

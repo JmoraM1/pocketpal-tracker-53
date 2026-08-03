@@ -73,17 +73,17 @@ export default function Auth() {
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
       {/* Animated gradient background */}
       <div className="absolute inset-0" style={{
-        background: "linear-gradient(140deg, hsl(230 40% 12%) 0%, hsl(250 50% 18%) 30%, hsl(220 60% 14%) 60%, hsl(200 50% 10%) 100%)",
+        background: "linear-gradient(140deg, hsl(215 42% 10%) 0%, hsl(200 40% 14%) 35%, hsl(170 35% 12%) 70%, hsl(158 40% 9%) 100%)",
       }} />
 
       {/* Floating orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[15%] left-[20%] w-[300px] h-[300px] rounded-full opacity-30 blur-[100px]"
-          style={{ background: "hsl(220 70% 50%)", animation: "orb1 18s ease-in-out infinite" }} />
+          style={{ background: "hsl(158 58% 40%)", animation: "orb1 18s ease-in-out infinite" }} />
         <div className="absolute bottom-[10%] right-[15%] w-[250px] h-[250px] rounded-full opacity-25 blur-[90px]"
-          style={{ background: "hsl(270 60% 55%)", animation: "orb2 22s ease-in-out infinite" }} />
+          style={{ background: "hsl(200 60% 40%)", animation: "orb2 22s ease-in-out infinite" }} />
         <div className="absolute top-[60%] left-[60%] w-[200px] h-[200px] rounded-full opacity-20 blur-[80px]"
-          style={{ background: "hsl(190 80% 50%)", animation: "orb3 15s ease-in-out infinite" }} />
+          style={{ background: "hsl(158 60% 50%)", animation: "orb3 15s ease-in-out infinite" }} />
       </div>
 
       {/* Glass card */}
@@ -91,8 +91,8 @@ export default function Auth() {
         {/* Logo */}
         <div className="mb-10 text-center">
           <div className="relative mx-auto mb-5 flex h-16 w-16 items-center justify-center">
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 opacity-80 blur-lg" />
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-2xl shadow-blue-500/30">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary to-primary-glow opacity-80 blur-lg" />
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-glow shadow-2xl shadow-primary/30">
               <Wallet className="h-8 w-8 text-white" />
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function Auth() {
                     {errors.email && <p className="flex items-center gap-1 text-xs text-red-400 animate-fade-in"><AlertCircle className="h-3 w-3" />{errors.email}</p>}
                   </div>
                   <Button type="submit" disabled={submitting}
-                    className="w-full h-12 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-sm border-0 shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 hover:brightness-110 active:scale-[0.98] transition-all duration-300">
+                    className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-primary-glow text-white font-semibold text-sm border-0 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:brightness-110 active:scale-[0.98] transition-all duration-300">
                     {submitting ? "Enviando..." : "Enviar enlace"}
                   </Button>
                 </form>
@@ -163,7 +163,7 @@ export default function Auth() {
                 )}
 
                 <Button type="submit" disabled={submitting || webauthnLoading}
-                  className="w-full h-12 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-sm border-0 shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 hover:brightness-110 active:scale-[0.98] transition-all duration-300">
+                  className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-primary-glow text-white font-semibold text-sm border-0 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:brightness-110 active:scale-[0.98] transition-all duration-300">
                   {submitting ? "Cargando..." : view === "login" ? "Iniciar sesión" : "Crear cuenta"}
                 </Button>
 

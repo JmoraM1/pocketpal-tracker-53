@@ -15,6 +15,9 @@ import { BottomNav, type AppView } from "@/components/BottomNav";
 import { HomeView } from "@/components/HomeView";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { QuickAddFab } from "@/components/QuickAddFab";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { AnimatePresence, motion } from "framer-motion";
 import { LogOut, Wallet, Fingerprint, ChevronRight } from "lucide-react";
 
 export default function Dashboard() {
@@ -57,14 +60,14 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="sticky top-0 z-10 border-b bg-card/80 backdrop-blur-md">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-20 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-primary shadow-soft">
               <Wallet className="h-5 w-5 text-primary-foreground" />
             </div>
-            <h1 className="text-lg font-bold">{titleMap[view]}</h1>
+            <h1 className="text-lg font-bold tracking-tight">{titleMap[view]}</h1>
           </div>
 
           <div className="hidden md:block">
@@ -75,19 +78,29 @@ export default function Dashboard() {
             <span className="hidden text-sm text-muted-foreground lg:inline">
               {user?.email}
             </span>
+            <ThemeToggle />
             {webauthnSupported && (
-              <Button variant="ghost" size="icon" onClick={registerPasskey} disabled={webauthnLoading} title="Registrar biometría">
+              <Button variant="ghost" size="icon" className="rounded-full" onClick={registerPasskey} disabled={webauthnLoading} title="Registrar biometría">
                 <Fingerprint className="h-4 w-4" />
               </Button>
             )}
-            <Button variant="ghost" size="icon" onClick={signOut}>
+            <Button variant="ghost" size="icon" className="rounded-full" onClick={signOut} title="Cerrar sesión">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-5 px-4 py-5 pb-28 md:pb-8">
+      <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 pb-32 md:pb-12">
+        <AnimatePresence mode="wait">
+        <motion.div
+          key={view}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          className="space-y-5"
+        >
         {/* Month selector on data screens */}
         {view !== "more" && (
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -119,6 +132,9 @@ export default function Dashboard() {
             available={combinedAvailable}
             paidCount={paidCount}
             totalCount={expenses.length}
+            expenses={expenses}
+            monthPayments={monthPayments}
+            installmentMonthTotal={monthlyInstallmentTotal}
             onNavigate={setView}
           />
         )}
@@ -177,7 +193,11 @@ export default function Dashboard() {
             onSignOut={signOut}
           />
         )}
+        </motion.div>
+        </AnimatePresence>
       </main>
+
+      <QuickAddFab onNavigate={setView} />
 
       <div className="md:hidden">
         <BottomNav active={view} onChange={setView} />
@@ -199,21 +219,21 @@ function MoreView({
 }) {
   return (
     <div className="space-y-5">
-      <Card className="rounded-2xl border shadow-sm">
+      <Card className="rounded-3xl border shadow-soft">
         <CardContent className="p-5">
           <p className="text-xs text-muted-foreground">Sesión activa</p>
           <p className="mt-1 font-semibold truncate">{userEmail}</p>
         </CardContent>
       </Card>
 
-      <Card className="rounded-2xl border shadow-sm">
+      <Card className="rounded-3xl border shadow-soft">
         <CardContent className="p-2">
           <Row label="Exportar datos" action={exportButton} />
           {biometricButton && <Row label="Biometría" action={biometricButton} />}
         </CardContent>
       </Card>
 
-      <Card className="rounded-2xl border shadow-sm">
+      <Card className="rounded-3xl border shadow-soft">
         <CardContent className="p-2">
           <button
             onClick={onSignOut}

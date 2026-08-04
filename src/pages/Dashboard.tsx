@@ -4,6 +4,7 @@ import { useBudget } from "@/hooks/useBudget";
 import { useCategories } from "@/hooks/useCategories";
 import { useInstallments } from "@/hooks/useInstallments";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
+import { useProfilePrefs } from "@/hooks/useProfilePrefs";
 import { MonthSelector } from "@/components/MonthSelector";
 import { ExpenseList } from "@/components/ExpenseList";
 import { IncomeEditor } from "@/components/IncomeEditor";
@@ -18,10 +19,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { QuickAddFab } from "@/components/QuickAddFab";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Wallet, Fingerprint, ChevronRight } from "lucide-react";
+import { LogOut, Wallet, Fingerprint, ChevronRight, User, ShieldCheck, KeyRound } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
+  const { prefs, savePrefs } = useProfilePrefs();
   const [view, setView] = useState<AppView>("home");
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
@@ -56,7 +61,7 @@ export default function Dashboard() {
     savings: "Ahorros",
     expenses: "Gastos",
     debts: "Deudas",
-    more: "Más",
+    more: "Configuración",
   };
 
   return (
@@ -127,6 +132,7 @@ export default function Dashboard() {
         {view === "home" && (
           <HomeView
             userEmail={user?.email}
+            displayName={prefs.alias}
             income={income}
             totalExpenses={combinedTotalExpenses}
             available={combinedAvailable}
@@ -172,6 +178,8 @@ export default function Dashboard() {
         {view === "more" && (
           <MoreView
             userEmail={user?.email}
+            prefs={prefs}
+            onSavePrefs={savePrefs}
             exportButton={
               <ExportButton
                 expenses={expenses}
@@ -208,28 +216,99 @@ export default function Dashboard() {
 
 function MoreView({
   userEmail,
+  prefs,
+  onSavePrefs,
   exportButton,
   biometricButton,
   onSignOut,
 }: {
   userEmail?: string;
+  prefs: { alias: string; currency: string; language: string };
+  onSavePrefs: (p: Partial<{ alias: string; currency: string; language: string }>) => void;
   exportButton: React.ReactNode;
   biometricButton: React.ReactNode;
   onSignOut: () => void;
 }) {
   return (
     <div className="space-y-5">
+      {/* Perfil */}
       <Card className="rounded-3xl border shadow-soft">
-        <CardContent className="p-5">
-          <p className="text-xs text-muted-foreground">Sesión activa</p>
-          <p className="mt-1 font-semibold truncate">{userEmail}</p>
+        <CardContent className="space-y-4 p-5 sm:p-6">
+          <div className="flex items-center gap-3">
+            <span className="icon-tile h-11 w-11 bg-primary/10 text-primary">
+              <User className="h-5 w-5" />
+            </span>
+            <div>
+              <h3 className="text-base font-bold tracking-tight">Perfil</h3>
+              <p className="text-xs text-muted-foreground">Cómo te mostramos en la app</p>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="alias">Alias o nombre mostrado</Label>
+            <Input
+              id="alias"
+              value={prefs.alias}
+              onChange={(e) => onSavePrefs({ alias: e.target.value })}
+              placeholder="Ej: Juan"
+            />
+            <p className="text-[11px] text-muted-foreground">Se usa en el saludo del inicio.</p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Moneda</Label>
+              <Select value={prefs.currency} onValueChange={(v) => onSavePrefs({ currency: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="COP">Peso colombiano (COP)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Idioma</Label>
+              <Select value={prefs.language} onValueChange={(v) => onSavePrefs({ language: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="es">Español</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-muted/50 px-3 py-2.5">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Correo</p>
+            <p className="mt-0.5 truncate text-sm font-semibold">{userEmail}</p>
+          </div>
         </CardContent>
       </Card>
 
+      {/* Seguridad */}
       <Card className="rounded-3xl border shadow-soft">
-        <CardContent className="p-2">
-          <Row label="Exportar datos" action={exportButton} />
-          {biometricButton && <Row label="Biometría" action={biometricButton} />}
+        <CardContent className="p-5 sm:p-6">
+          <div className="mb-3 flex items-center gap-3">
+            <span className="icon-tile h-11 w-11 bg-success/10 text-success">
+              <ShieldCheck className="h-5 w-5" />
+            </span>
+            <div>
+              <h3 className="text-base font-bold tracking-tight">Seguridad</h3>
+              <p className="text-xs text-muted-foreground">Acceso y sesión</p>
+            </div>
+          </div>
+
+          <div className="divide-y">
+            {biometricButton && <Row label="Biometría" action={biometricButton} />}
+            <Row
+              label="Cambiar contraseña"
+              action={
+                <Button variant="outline" size="sm" className="gap-2 rounded-full" onClick={() => (window.location.href = "/reset-password")}>
+                  <KeyRound className="h-4 w-4" />
+                  Cambiar
+                </Button>
+              }
+            />
+            <Row label="Exportar datos" action={exportButton} />
+          </div>
         </CardContent>
       </Card>
 
@@ -237,9 +316,9 @@ function MoreView({
         <CardContent className="p-2">
           <button
             onClick={onSignOut}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-destructive hover:bg-destructive/5"
+            className="flex w-full items-center justify-between rounded-2xl px-4 py-3.5 text-left text-destructive transition-colors hover:bg-destructive/5"
           >
-            <span className="flex items-center gap-3 font-medium">
+            <span className="flex items-center gap-3 font-semibold">
               <LogOut className="h-4 w-4" /> Cerrar sesión
             </span>
             <ChevronRight className="h-4 w-4 opacity-60" />
@@ -250,14 +329,12 @@ function MoreView({
   );
 }
 
-
-
-
 function Row({ label, action }: { label: string; action: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl px-3 py-3">
-      <span className="font-medium">{label}</span>
+    <div className="flex items-center justify-between gap-3 py-3">
+      <span className="text-sm font-medium">{label}</span>
       <div className="shrink-0">{action}</div>
     </div>
   );
 }
+

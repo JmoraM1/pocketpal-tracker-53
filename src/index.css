@@ -150,7 +150,23 @@
     box-shadow: var(--shadow-card);
   }
 
+  /* Tarjeta de listado premium reutilizable */
+  .list-card {
+    @apply rounded-2xl border bg-card p-4 transition-all duration-300;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .list-card:hover {
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Icono contenedor consistente */
+  .icon-tile {
+    @apply flex shrink-0 items-center justify-center rounded-2xl;
+  }
+
   .press {
     @apply transition-transform duration-150 active:scale-[0.97];
   }
 }
+

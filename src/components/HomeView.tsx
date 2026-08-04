@@ -255,12 +255,22 @@ export function HomeView({
             Hola {name || "👋"} {name && "👋"}
           </h2>
         </div>
-        <div className="flex items-start gap-3 rounded-3xl border border-primary/15 bg-accent/60 p-4">
-          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+        <motion.div
+          key={insight.title}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className={`flex items-start gap-3 rounded-3xl border p-4 transition-colors duration-500 ${insight.wrap}`}
+        >
+          <span className={`icon-tile mt-0.5 h-9 w-9 rounded-full ${insight.tile}`}>
             <Sparkles className="h-4 w-4" />
           </span>
-          <p className="text-sm font-medium leading-relaxed text-accent-foreground">{message}</p>
-        </div>
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-wider opacity-70">{insight.title}</p>
+            <p className="mt-0.5 text-sm font-medium leading-relaxed">{insight.text}</p>
+          </div>
+        </motion.div>
+
       </motion.div>
 
       {/* Tarjetas principales */}

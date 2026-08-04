@@ -110,14 +110,22 @@ export function InstallmentTracker({
   const completedPlans = plans.filter((p) => p.is_completed);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Month payments section */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <CreditCard className="h-5 w-5" />
-            Cuotas del Mes
-          </CardTitle>
+      <Card className="rounded-3xl border shadow-soft">
+        <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 p-5 sm:p-6">
+          <div className="flex items-start gap-3">
+            <span className="icon-tile h-11 w-11 bg-primary/10 text-primary">
+              <CreditCard className="h-5 w-5" />
+            </span>
+            <div>
+              <CardTitle className="text-lg font-bold tracking-tight">Cuotas del mes</CardTitle>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {monthPayments.length} cuota{monthPayments.length === 1 ? "" : "s"} programada{monthPayments.length === 1 ? "" : "s"}
+              </p>
+            </div>
+          </div>
+
           <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1">

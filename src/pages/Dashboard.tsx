@@ -19,7 +19,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { QuickAddFab } from "@/components/QuickAddFab";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Wallet, Fingerprint, ChevronRight } from "lucide-react";
+import { LogOut, Wallet, Fingerprint, ChevronRight, User, ShieldCheck, KeyRound } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();

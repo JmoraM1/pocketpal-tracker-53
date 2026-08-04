@@ -66,6 +66,7 @@ function relativeDay(dateStr: string | null): string {
 
 export function HomeView({
   userEmail,
+  displayName,
   income,
   totalExpenses,
   available,
@@ -76,28 +77,54 @@ export function HomeView({
   installmentMonthTotal,
   onNavigate,
 }: HomeViewProps) {
-  const name = userEmail ? userEmail.split("@")[0] : "";
+  const name = displayName?.trim() || (userEmail ? userEmail.split("@")[0] : "");
   const spentPct = income > 0 ? Math.min(Math.round((totalExpenses / income) * 100), 999) : 0;
 
-  const message = useMemo(() => {
-    if (income <= 0) return "Registra tu ingreso del mes para ver tu historia financiera.";
-    if (spentPct < 50) return `Este mes vas muy bien. Has gastado el ${spentPct}%. Aún puedes ahorrar.`;
-    if (spentPct < 85) return `Vas a buen ritmo. Llevas el ${spentPct}% de tu ingreso comprometido.`;
-    if (spentPct <= 100) return `Cuidado, has comprometido el ${spentPct}% de tu ingreso este mes.`;
-    return `Te excediste: llevas el ${spentPct}% de tu ingreso comprometido.`;
+  const insight = useMemo(() => {
+    if (income <= 0)
+      return {
+        text: "Registra tu ingreso del mes para ver tu historia financiera.",
+        wrap: "border-border bg-muted/50",
+        tile: "bg-muted text-muted-foreground",
+        title: "Comencemos",
+      };
+    if (spentPct < 50)
+      return {
+        text: `Excelente. Has comprometido el ${spentPct}% de tu ingreso y aún puedes ahorrar.`,
+        wrap: "border-success/20 bg-success/10",
+        tile: "bg-success/15 text-success",
+        title: "Excelente",
+      };
+    if (spentPct < 75)
+      return {
+        text: `Buen ritmo. Llevas el ${spentPct}% de tu ingreso comprometido este mes.`,
+        wrap: "border-primary/20 bg-primary/10",
+        tile: "bg-primary/15 text-primary",
+        title: "Buen ritmo",
+      };
+    if (spentPct < 90)
+      return {
+        text: `Atención: ya comprometiste el ${spentPct}% de tu ingreso. Modera los gastos.`,
+        wrap: "border-warning/25 bg-warning/10",
+        tile: "bg-warning/20 text-warning",
+        title: "Atención",
+      };
+    if (spentPct <= 100)
+      return {
+        text: `Estás cerca del límite: has comprometido el ${spentPct}% de tu ingreso.`,
+        wrap: "border-[hsl(var(--accent-warm)/0.3)] bg-[hsl(var(--accent-warm)/0.12)]",
+        tile: "bg-[hsl(var(--accent-warm)/0.2)] text-[hsl(var(--accent-warm))]",
+        title: "Cerca del límite",
+      };
+    return {
+      text: `Tus gastos superan tus ingresos: vas en el ${spentPct}% de tu ingreso.`,
+      wrap: "border-destructive/25 bg-destructive/10",
+      tile: "bg-destructive/15 text-destructive",
+      title: "Sobregiro",
+    };
   }, [income, spentPct]);
 
   const stats = [
-    {
-      label: "Disponible",
-      value: available,
-      icon: Wallet,
-      accent: available >= 0 ? "text-success" : "text-destructive",
-      chip: available >= 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive",
-      trend: income > 0 ? `${Math.max(100 - spentPct, 0)}% libre` : "—",
-      up: available >= 0,
-      view: "expenses" as AppView,
-    },
     {
       label: "Ingresos",
       value: income,
@@ -109,6 +136,16 @@ export function HomeView({
       view: "home" as AppView,
     },
     {
+      label: "Disponible",
+      value: available,
+      icon: Wallet,
+      accent: available >= 0 ? "text-success" : "text-destructive",
+      chip: available >= 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive",
+      trend: income > 0 ? `${Math.max(100 - spentPct, 0)}% libre` : "—",
+      up: available >= 0,
+      view: "expenses" as AppView,
+    },
+    {
       label: "Gastos",
       value: totalExpenses,
       icon: TrendingDown,
@@ -118,6 +155,7 @@ export function HomeView({
       up: false,
       view: "expenses" as AppView,
     },
+
     {
       label: "Deudas",
       value: installmentMonthTotal,

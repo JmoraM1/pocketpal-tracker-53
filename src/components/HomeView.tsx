@@ -23,7 +23,6 @@ type Expense = Tables<"expenses">;
 
 interface HomeViewProps {
   userEmail?: string;
-  displayName?: string;
   income: number;
   totalExpenses: number;
   available: number;
@@ -34,7 +33,6 @@ interface HomeViewProps {
   installmentMonthTotal: number;
   onNavigate: (v: AppView) => void;
 }
-
 
 const container = {
   hidden: {},
@@ -66,7 +64,6 @@ function relativeDay(dateStr: string | null): string {
 
 export function HomeView({
   userEmail,
-  displayName,
   income,
   totalExpenses,
   available,
@@ -77,64 +74,18 @@ export function HomeView({
   installmentMonthTotal,
   onNavigate,
 }: HomeViewProps) {
-  const name = displayName?.trim() || (userEmail ? userEmail.split("@")[0] : "");
+  const name = userEmail ? userEmail.split("@")[0] : "";
   const spentPct = income > 0 ? Math.min(Math.round((totalExpenses / income) * 100), 999) : 0;
 
-  const insight = useMemo(() => {
-    if (income <= 0)
-      return {
-        text: "Registra tu ingreso del mes para ver tu historia financiera.",
-        wrap: "border-border bg-muted/50",
-        tile: "bg-muted text-muted-foreground",
-        title: "Comencemos",
-      };
-    if (spentPct < 50)
-      return {
-        text: `Excelente. Has comprometido el ${spentPct}% de tu ingreso y aún puedes ahorrar.`,
-        wrap: "border-success/20 bg-success/10",
-        tile: "bg-success/15 text-success",
-        title: "Excelente",
-      };
-    if (spentPct < 75)
-      return {
-        text: `Buen ritmo. Llevas el ${spentPct}% de tu ingreso comprometido este mes.`,
-        wrap: "border-primary/20 bg-primary/10",
-        tile: "bg-primary/15 text-primary",
-        title: "Buen ritmo",
-      };
-    if (spentPct < 90)
-      return {
-        text: `Atención: ya comprometiste el ${spentPct}% de tu ingreso. Modera los gastos.`,
-        wrap: "border-warning/25 bg-warning/10",
-        tile: "bg-warning/20 text-warning",
-        title: "Atención",
-      };
-    if (spentPct <= 100)
-      return {
-        text: `Estás cerca del límite: has comprometido el ${spentPct}% de tu ingreso.`,
-        wrap: "border-[hsl(var(--accent-warm)/0.3)] bg-[hsl(var(--accent-warm)/0.12)]",
-        tile: "bg-[hsl(var(--accent-warm)/0.2)] text-[hsl(var(--accent-warm))]",
-        title: "Cerca del límite",
-      };
-    return {
-      text: `Tus gastos superan tus ingresos: vas en el ${spentPct}% de tu ingreso.`,
-      wrap: "border-destructive/25 bg-destructive/10",
-      tile: "bg-destructive/15 text-destructive",
-      title: "Sobregiro",
-    };
+  const message = useMemo(() => {
+    if (income <= 0) return "Registra tu ingreso del mes para ver tu historia financiera.";
+    if (spentPct < 50) return `Este mes vas muy bien. Has gastado el ${spentPct}%. Aún puedes ahorrar.`;
+    if (spentPct < 85) return `Vas a buen ritmo. Llevas el ${spentPct}% de tu ingreso comprometido.`;
+    if (spentPct <= 100) return `Cuidado, has comprometido el ${spentPct}% de tu ingreso este mes.`;
+    return `Te excediste: llevas el ${spentPct}% de tu ingreso comprometido.`;
   }, [income, spentPct]);
 
   const stats = [
-    {
-      label: "Ingresos",
-      value: income,
-      icon: TrendingUp,
-      accent: "",
-      chip: "bg-primary/10 text-primary",
-      trend: "Este mes",
-      up: true,
-      view: "home" as AppView,
-    },
     {
       label: "Disponible",
       value: available,
@@ -146,6 +97,16 @@ export function HomeView({
       view: "expenses" as AppView,
     },
     {
+      label: "Ingresos",
+      value: income,
+      icon: TrendingUp,
+      accent: "",
+      chip: "bg-primary/10 text-primary",
+      trend: "Este mes",
+      up: true,
+      view: "home" as AppView,
+    },
+    {
       label: "Gastos",
       value: totalExpenses,
       icon: TrendingDown,
@@ -155,7 +116,6 @@ export function HomeView({
       up: false,
       view: "expenses" as AppView,
     },
-
     {
       label: "Deudas",
       value: installmentMonthTotal,
@@ -255,22 +215,12 @@ export function HomeView({
             Hola {name || "👋"} {name && "👋"}
           </h2>
         </div>
-        <motion.div
-          key={insight.title}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className={`flex items-start gap-3 rounded-3xl border p-4 transition-colors duration-500 ${insight.wrap}`}
-        >
-          <span className={`icon-tile mt-0.5 h-9 w-9 rounded-full ${insight.tile}`}>
+        <div className="flex items-start gap-3 rounded-3xl border border-primary/15 bg-accent/60 p-4">
+          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
             <Sparkles className="h-4 w-4" />
           </span>
-          <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-wider opacity-70">{insight.title}</p>
-            <p className="mt-0.5 text-sm font-medium leading-relaxed">{insight.text}</p>
-          </div>
-        </motion.div>
-
+          <p className="text-sm font-medium leading-relaxed text-accent-foreground">{message}</p>
+        </div>
       </motion.div>
 
       {/* Tarjetas principales */}

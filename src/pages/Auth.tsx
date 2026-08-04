@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { toast } from "@/hooks/use-toast";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { Wallet, AlertCircle, ArrowLeft, Eye, EyeOff, Fingerprint, Mail, Lock, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Wallet, AlertCircle, ArrowLeft, Eye, EyeOff, Fingerprint } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -69,229 +67,153 @@ export default function Auth() {
   const clearError = (field: keyof FormErrors) => setErrors((prev) => { const n = { ...prev }; delete n[field]; return n; });
 
   const inputClass = (hasError: boolean) =>
-    `h-12 rounded-2xl border bg-background pl-11 text-[15px] transition-all duration-200 placeholder:text-muted-foreground/60 focus-visible:ring-2 focus-visible:ring-ring/40 ${
-      hasError ? "border-destructive/60 focus-visible:ring-destructive/30" : "border-border"
-    }`;
-
-  const subtitle =
-    view === "forgot"
-      ? forgotSent ? "Revisa tu bandeja de entrada" : "Recupera el acceso a tu cuenta"
-      : view === "login" ? "Bienvenido de vuelta" : "Crea tu cuenta gratis";
+    `h-12 rounded-2xl border-0 bg-white/[0.07] text-white placeholder:text-white/30 backdrop-blur-md transition-all duration-300 focus:bg-white/[0.12] focus:ring-2 focus:ring-white/20 focus:shadow-[0_0_30px_rgba(255,255,255,0.06)] ${hasError ? "ring-2 ring-red-400/60" : ""}`;
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-4">
-      {/* Halo sutil de fondo */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full opacity-[0.14] blur-[120px]"
-        style={{ background: "hsl(var(--primary))" }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute bottom-[-10rem] right-[-6rem] h-[420px] w-[420px] rounded-full opacity-[0.10] blur-[120px]"
-        style={{ background: "hsl(var(--accent-cool))" }}
-      />
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0" style={{
+        background: "linear-gradient(140deg, hsl(215 42% 10%) 0%, hsl(200 40% 14%) 35%, hsl(170 35% 12%) 70%, hsl(158 40% 9%) 100%)",
+      }} />
 
-      <div className="absolute right-4 top-4 z-20">
-        <ThemeToggle />
+      {/* Floating orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[15%] left-[20%] w-[300px] h-[300px] rounded-full opacity-30 blur-[100px]"
+          style={{ background: "hsl(158 58% 40%)", animation: "orb1 18s ease-in-out infinite" }} />
+        <div className="absolute bottom-[10%] right-[15%] w-[250px] h-[250px] rounded-full opacity-25 blur-[90px]"
+          style={{ background: "hsl(200 60% 40%)", animation: "orb2 22s ease-in-out infinite" }} />
+        <div className="absolute top-[60%] left-[60%] w-[200px] h-[200px] rounded-full opacity-20 blur-[80px]"
+          style={{ background: "hsl(158 60% 50%)", animation: "orb3 15s ease-in-out infinite" }} />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        animate={mounted ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 w-full max-w-[420px]"
-      >
-        {/* Marca */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-primary shadow-float">
-            <Wallet className="h-8 w-8 text-primary-foreground" />
+      {/* Glass card */}
+      <div className={`relative z-10 w-full max-w-[400px] transition-all duration-700 ease-out ${mounted ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-8"}`}>
+        {/* Logo */}
+        <div className="mb-10 text-center">
+          <div className="relative mx-auto mb-5 flex h-16 w-16 items-center justify-center">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary to-primary-glow opacity-80 blur-lg" />
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-glow shadow-2xl shadow-primary/30">
+              <Wallet className="h-8 w-8 text-white" />
+            </div>
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight">PocketPal Tracker</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">{subtitle}</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Mis Finanzas</h1>
+          <p className="mt-1.5 text-sm text-white/40">
+            {view === "forgot"
+              ? (forgotSent ? "Revisa tu bandeja de entrada" : "Recupera el acceso a tu cuenta")
+              : view === "login" ? "Bienvenido de vuelta" : "Crea tu cuenta gratis"}
+          </p>
         </div>
 
-        {/* Tarjeta */}
-        <div className="rounded-3xl border bg-card p-6 shadow-card sm:p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={view + String(forgotSent)}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {view === "forgot" ? (
-                <>
-                  {forgotSent ? (
-                    <div className="flex flex-col items-center gap-3 py-4 text-center">
-                      <span className="icon-tile h-14 w-14 bg-success/10 text-success">
-                        <CheckCircle2 className="h-7 w-7" />
-                      </span>
-                      <p className="text-sm text-muted-foreground">
-                        Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.
-                      </p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleForgotPassword} className="space-y-5" noValidate>
-                      <Field
-                        id="email"
-                        label="Correo electrónico"
-                        icon={Mail}
-                        error={errors.email}
-                      >
-                        <Input
-                          id="email"
-                          type="email"
-                          value={email}
-                          onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
-                          placeholder="tu@correo.com"
-                          className={inputClass(!!errors.email)}
-                          aria-invalid={!!errors.email}
-                        />
-                      </Field>
-                      <Button type="submit" disabled={submitting} className="h-12 w-full rounded-2xl text-[15px] font-semibold shadow-soft transition-all hover:shadow-float active:scale-[0.99]">
-                        {submitting ? "Enviando..." : "Enviar enlace"}
-                      </Button>
-                    </form>
-                  )}
-                  <button
-                    onClick={() => { setView("login"); setErrors({}); setForgotSent(false); }}
-                    className="mx-auto mt-6 flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    <ArrowLeft className="h-3.5 w-3.5" /> Volver al inicio
-                  </button>
-                </>
-              ) : (
-                <>
-                  <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-                    <Field id="email" label="Correo electrónico" icon={Mail} error={errors.email}>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
-                        placeholder="tu@correo.com"
-                        className={inputClass(!!errors.email)}
-                        aria-invalid={!!errors.email}
-                      />
-                    </Field>
-
-                    <Field id="password" label="Contraseña" icon={Lock} error={errors.password}>
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
-                        placeholder="••••••••"
-                        className={`${inputClass(!!errors.password)} pr-12`}
-                        aria-invalid={!!errors.password}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        tabIndex={-1}
-                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </Field>
-                    {view === "register" && !errors.password && (
-                      <p className="-mt-3 text-[11px] text-muted-foreground">Mínimo {MIN_PASSWORD_LENGTH} caracteres</p>
-                    )}
-
-                    {view === "login" && (
-                      <div className="text-right">
-                        <button
-                          type="button"
-                          onClick={() => { setView("forgot"); setErrors({}); }}
-                          className="text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
-                        >
-                          ¿Olvidaste tu contraseña?
-                        </button>
-                      </div>
-                    )}
-
-                    <Button
-                      type="submit"
-                      disabled={submitting || webauthnLoading}
-                      className="h-12 w-full rounded-2xl text-[15px] font-semibold shadow-soft transition-all hover:shadow-float active:scale-[0.99]"
-                    >
-                      {submitting ? "Cargando..." : view === "login" ? "Iniciar sesión" : "Crear cuenta"}
-                    </Button>
-
-                    {view === "login" && webauthnSupported && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={webauthnLoading || submitting || !email.trim()}
-                        onClick={async () => {
-                          if (!email.trim()) { toast({ title: "Correo requerido", description: "Ingresa tu correo para usar biometría.", variant: "destructive" }); return; }
-                          await authenticateWithPasskey(email.trim());
-                        }}
-                        className="h-12 w-full gap-2 rounded-2xl text-[15px] font-medium"
-                      >
-                        <Fingerprint className="h-4.5 w-4.5" />
-                        {webauthnLoading ? "Verificando..." : "Huella / Face ID"}
-                      </Button>
-                    )}
-                  </form>
-
-                  <div className="my-6 border-t" />
-
-                  <p className="text-center text-xs text-muted-foreground">
-                    {view === "login" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
-                    <button
-                      onClick={() => { setView(view === "login" ? "register" : "login"); setErrors({}); }}
-                      className="font-semibold text-primary transition-colors hover:text-primary/80"
-                    >
-                      {view === "login" ? "Regístrate" : "Inicia sesión"}
-                    </button>
-                  </p>
-                </>
+        {/* Glass form container */}
+        <div className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-7 backdrop-blur-xl shadow-[0_8px_60px_rgba(0,0,0,0.4)]">
+          {view === "forgot" ? (
+            <>
+              {!forgotSent && (
+                <form onSubmit={handleForgotPassword} className="space-y-5" noValidate>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-xs font-medium text-white/50 uppercase tracking-wider">Correo electrónico</Label>
+                    <Input id="email" type="email" value={email}
+                      onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
+                      placeholder="tu@correo.com" className={inputClass(!!errors.email)} aria-invalid={!!errors.email} />
+                    {errors.email && <p className="flex items-center gap-1 text-xs text-red-400 animate-fade-in"><AlertCircle className="h-3 w-3" />{errors.email}</p>}
+                  </div>
+                  <Button type="submit" disabled={submitting}
+                    className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-primary-glow text-white font-semibold text-sm border-0 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:brightness-110 active:scale-[0.98] transition-all duration-300">
+                    {submitting ? "Enviando..." : "Enviar enlace"}
+                  </Button>
+                </form>
               )}
-            </motion.div>
-          </AnimatePresence>
+              <button onClick={() => { setView("login"); setErrors({}); setForgotSent(false); }}
+                className="mt-5 flex items-center gap-1.5 mx-auto text-xs font-medium text-white/40 hover:text-white/70 transition-colors">
+                <ArrowLeft className="h-3 w-3" /> Volver al inicio
+              </button>
+            </>
+          ) : (
+            <>
+              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-xs font-medium text-white/50 uppercase tracking-wider">Correo electrónico</Label>
+                  <Input id="email" type="email" value={email}
+                    onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
+                    placeholder="tu@correo.com" className={inputClass(!!errors.email)} aria-invalid={!!errors.email} />
+                  {errors.email && <p className="flex items-center gap-1 text-xs text-red-400 animate-fade-in"><AlertCircle className="h-3 w-3" />{errors.email}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-xs font-medium text-white/50 uppercase tracking-wider">Contraseña</Label>
+                  <div className="relative">
+                    <Input id="password" type={showPassword ? "text" : "password"} value={password}
+                      onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
+                      placeholder="••••••••" className={`${inputClass(!!errors.password)} pr-12`} aria-invalid={!!errors.password} />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} tabIndex={-1}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/60 transition-colors">
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {errors.password && <p className="flex items-center gap-1 text-xs text-red-400 animate-fade-in"><AlertCircle className="h-3 w-3" />{errors.password}</p>}
+                  {view === "register" && !errors.password && <p className="text-[11px] text-white/25">Mínimo {MIN_PASSWORD_LENGTH} caracteres</p>}
+                </div>
+
+                {view === "login" && (
+                  <div className="text-right">
+                    <button type="button" onClick={() => { setView("forgot"); setErrors({}); }}
+                      className="text-xs text-white/35 hover:text-white/60 transition-colors">
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  </div>
+                )}
+
+                <Button type="submit" disabled={submitting || webauthnLoading}
+                  className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-primary-glow text-white font-semibold text-sm border-0 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:brightness-110 active:scale-[0.98] transition-all duration-300">
+                  {submitting ? "Cargando..." : view === "login" ? "Iniciar sesión" : "Crear cuenta"}
+                </Button>
+
+                {view === "login" && webauthnSupported && (
+                  <button type="button" disabled={webauthnLoading || submitting || !email.trim()}
+                    onClick={async () => {
+                      if (!email.trim()) { toast({ title: "Correo requerido", description: "Ingresa tu correo para usar biometría.", variant: "destructive" }); return; }
+                      await authenticateWithPasskey(email.trim());
+                    }}
+                    className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-sm font-medium hover:bg-white/[0.08] hover:text-white/80 active:scale-[0.98] transition-all duration-300 disabled:opacity-30">
+                    <Fingerprint className="h-4.5 w-4.5" />
+                    {webauthnLoading ? "Verificando..." : "Huella / Face ID"}
+                  </button>
+                )}
+              </form>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/[0.06]" /></div>
+              </div>
+
+              <p className="text-center text-xs text-white/30">
+                {view === "login" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
+                <button onClick={() => { setView(view === "login" ? "register" : "login"); setErrors({}); }}
+                  className="font-semibold text-blue-400 hover:text-blue-300 transition-colors">
+                  {view === "login" ? "Regístrate" : "Inicia sesión"}
+                </button>
+              </p>
+            </>
+          )}
         </div>
-
-        <p className="mt-6 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-          <ShieldCheck className="h-3.5 w-3.5" />
-          Tus datos viajan cifrados y solo tú puedes verlos
-        </p>
-      </motion.div>
-    </div>
-  );
-}
-
-function Field({
-  id,
-  label,
-  icon: Icon,
-  error,
-  children,
-}: {
-  id: string;
-  label: string;
-  icon: typeof Mail;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      <Label htmlFor={id} className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </Label>
-      <div className="relative">
-        <Icon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        {children}
       </div>
-      {error && (
-        <p className="flex animate-fade-in items-center gap-1 text-xs text-destructive">
-          <AlertCircle className="h-3 w-3" />
-          {error}
-        </p>
-      )}
+
+      <style>{`
+        @keyframes orb1 {
+          0%, 100% { transform: translate(0, 0); }
+          33% { transform: translate(60px, -40px); }
+          66% { transform: translate(-30px, 50px); }
+        }
+        @keyframes orb2 {
+          0%, 100% { transform: translate(0, 0); }
+          33% { transform: translate(-50px, 30px); }
+          66% { transform: translate(40px, -60px); }
+        }
+        @keyframes orb3 {
+          0%, 100% { transform: translate(0, 0); }
+          33% { transform: translate(30px, 40px); }
+          66% { transform: translate(-50px, -20px); }
+        }
+      `}</style>
     </div>
   );
 }

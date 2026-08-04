@@ -23,6 +23,7 @@ type Expense = Tables<"expenses">;
 
 interface HomeViewProps {
   userEmail?: string;
+  displayName?: string;
   income: number;
   totalExpenses: number;
   available: number;
@@ -33,6 +34,7 @@ interface HomeViewProps {
   installmentMonthTotal: number;
   onNavigate: (v: AppView) => void;
 }
+
 
 const container = {
   hidden: {},

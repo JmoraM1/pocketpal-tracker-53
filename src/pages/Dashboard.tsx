@@ -4,6 +4,7 @@ import { useBudget } from "@/hooks/useBudget";
 import { useCategories } from "@/hooks/useCategories";
 import { useInstallments } from "@/hooks/useInstallments";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
+import { useProfilePrefs } from "@/hooks/useProfilePrefs";
 import { MonthSelector } from "@/components/MonthSelector";
 import { ExpenseList } from "@/components/ExpenseList";
 import { IncomeEditor } from "@/components/IncomeEditor";
@@ -22,6 +23,7 @@ import { LogOut, Wallet, Fingerprint, ChevronRight } from "lucide-react";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
+  const { prefs, savePrefs } = useProfilePrefs();
   const [view, setView] = useState<AppView>("home");
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
@@ -56,7 +58,7 @@ export default function Dashboard() {
     savings: "Ahorros",
     expenses: "Gastos",
     debts: "Deudas",
-    more: "Más",
+    more: "Configuración",
   };
 
   return (
@@ -127,6 +129,7 @@ export default function Dashboard() {
         {view === "home" && (
           <HomeView
             userEmail={user?.email}
+            displayName={prefs.alias}
             income={income}
             totalExpenses={combinedTotalExpenses}
             available={combinedAvailable}
@@ -172,6 +175,8 @@ export default function Dashboard() {
         {view === "more" && (
           <MoreView
             userEmail={user?.email}
+            prefs={prefs}
+            onSavePrefs={savePrefs}
             exportButton={
               <ExportButton
                 expenses={expenses}

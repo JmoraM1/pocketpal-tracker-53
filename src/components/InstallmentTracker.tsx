@@ -128,10 +128,11 @@ export function InstallmentTracker({
 
           <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button size="sm" className="gap-1">
+              <Button size="sm" className="shrink-0 gap-1 rounded-full px-4 shadow-soft">
                 <Plus className="h-4 w-4" />
-                Nueva Deuda
+                <span className="hidden sm:inline">Nueva deuda</span>
               </Button>
+
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

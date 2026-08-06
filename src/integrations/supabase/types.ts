@@ -21,6 +21,8 @@ export type Database = {
           category: string
           created_at: string
           description: string | null
+          due_date: string | null
+          frequency: string
           id: string
           is_paid: boolean
           updated_at: string
@@ -32,6 +34,8 @@ export type Database = {
           category: string
           created_at?: string
           description?: string | null
+          due_date?: string | null
+          frequency?: string
           id?: string
           is_paid?: boolean
           updated_at?: string
@@ -43,6 +47,8 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string | null
+          due_date?: string | null
+          frequency?: string
           id?: string
           is_paid?: boolean
           updated_at?: string
@@ -334,6 +340,33 @@ export type Database = {
           target_amount?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          alias: string | null
+          created_at: string
+          currency: string
+          id: string
+          language: string
+          updated_at: string
+        }
+        Insert: {
+          alias?: string | null
+          created_at?: string
+          currency?: string
+          id: string
+          language?: string
+          updated_at?: string
+        }
+        Update: {
+          alias?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          language?: string
+          updated_at?: string
         }
         Relationships: []
       }

@@ -33,7 +33,7 @@ export function QuickAddFab({ onNavigate }: QuickAddFabProps) {
         )}
       </AnimatePresence>
 
-      <div className="fixed bottom-24 right-4 z-40 flex flex-col items-end gap-3 md:bottom-8 md:right-8">
+      <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 flex-col items-center gap-3 md:bottom-8 md:left-auto md:right-8 md:translate-x-0 md:items-end">
         <AnimatePresence>
           {open &&
             ACTIONS.map((a, i) => {

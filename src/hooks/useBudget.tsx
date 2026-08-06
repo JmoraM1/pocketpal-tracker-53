@@ -124,7 +124,7 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
     setBudget({ ...budget, income });
   };
 
-  const updateExpense = async (id: string, updates: { amount?: number; description?: string; is_paid?: boolean; category?: string }) => {
+  const updateExpense = async (id: string, updates: { amount?: number; description?: string; is_paid?: boolean; category?: string; due_date?: string | null; frequency?: string }) => {
     await supabase.from("expenses").update(updates).eq("id", id);
     setExpenses((prev) => prev.map((e) => (e.id === id ? { ...e, ...updates } : e)));
     if (userId) {
@@ -132,7 +132,7 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
     }
   };
 
-  const addExpense = async (data: { category: string; amount: number; description: string; is_paid: boolean }) => {
+  const addExpense = async (data: { category: string; amount: number; description: string; is_paid: boolean; due_date?: string | null; frequency?: string }) => {
     if (!userId || !budget) return;
     const { data: newExpense } = await supabase
       .from("expenses")
@@ -143,6 +143,8 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
         amount: data.amount,
         description: data.description,
         is_paid: data.is_paid,
+        due_date: data.due_date ?? null,
+        frequency: data.frequency ?? "unico",
       })
       .select()
       .single();
@@ -193,6 +195,8 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
         amount: e.amount,
         description: e.description ?? "",
         is_paid: false,
+        due_date: e.due_date,
+        frequency: e.frequency,
       }));
       await supabase.from("expenses").insert(newExpenses);
       await loadData();

@@ -199,7 +199,7 @@ export default function Dashboard() {
               )}
 
               {view === "reports" && (
-                <ExpenseCharts expenses={expenses} income={income} totalExpenses={combinedTotalExpenses} />
+                <ExpenseCharts expenses={expenses} />
               )}
 
               {view === "export" && (

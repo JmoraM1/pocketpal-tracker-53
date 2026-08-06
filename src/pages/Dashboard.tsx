@@ -4,6 +4,7 @@ import { useBudget } from "@/hooks/useBudget";
 import { useCategories } from "@/hooks/useCategories";
 import { useInstallments } from "@/hooks/useInstallments";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
+import { useProfile } from "@/hooks/useProfile";
 import { MonthSelector } from "@/components/MonthSelector";
 import { ExpenseList } from "@/components/ExpenseList";
 import { IncomeEditor } from "@/components/IncomeEditor";
@@ -11,14 +12,39 @@ import { ExportButton } from "@/components/ExportButton";
 import { CategoryManager } from "@/components/CategoryManager";
 import { InstallmentTracker } from "@/components/InstallmentTracker";
 import { SavingsModule } from "@/components/SavingsModule";
+import { ExpenseCharts } from "@/components/ExpenseCharts";
 import { BottomNav, type AppView } from "@/components/BottomNav";
+import { AppSidebar } from "@/components/AppSidebar";
 import { HomeView } from "@/components/HomeView";
+import { SettingsView } from "@/components/SettingsView";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { QuickAddFab } from "@/components/QuickAddFab";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Wallet, Fingerprint, ChevronRight } from "lucide-react";
+import {
+  Wallet,
+  ChevronRight,
+  PiggyBank,
+  CreditCard,
+  LayoutGrid,
+  BarChart3,
+  Download,
+  Settings,
+} from "lucide-react";
+
+const TITLES: Record<AppView, string> = {
+  home: "Inicio",
+  goals: "Metas",
+  savings: "Ahorros",
+  expenses: "Gastos",
+  debts: "Deudas",
+  categories: "Categorías",
+  reports: "Reportes",
+  export: "Exportar",
+  settings: "Configuración",
+  more: "Más",
+};
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -37,227 +63,211 @@ export default function Dashboard() {
   const { categories, categoryNames, addCategory, removeCategory, editCategory, toggleCumulativeSavings } = useCategories(user?.id);
   const { plans, monthPayments, allPayments, createPlan, togglePayment, updatePaymentAmount, deletePlan, monthlyInstallmentTotal } = useInstallments(user?.id, selectedMonth);
   const { loading: webauthnLoading, registerPasskey, isSupported: webauthnSupported } = useWebAuthn();
+  const { profile, saveProfile } = useProfile(user?.id);
 
   const combinedTotalExpenses = totalExpenses + monthlyInstallmentTotal;
   const income = Number(budget?.income ?? 0);
   const combinedAvailable = income - combinedTotalExpenses;
 
+  const exportButton = (
+    <ExportButton
+      expenses={expenses}
+      income={income}
+      selectedMonth={selectedMonth}
+      totalExpenses={combinedTotalExpenses}
+      available={combinedAvailable}
+      cumulativeSavings={cumulativeSavings}
+    />
+  );
+
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-dvh items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Cargando...</div>
       </div>
     );
   }
 
-  const titleMap: Record<AppView, string> = {
-    home: "Mis Finanzas",
-    goals: "Metas",
-    savings: "Ahorros",
-    expenses: "Gastos",
-    debts: "Deudas",
-    more: "Más",
-  };
+  const showMonthSelector = ["home", "goals", "savings", "expenses", "debts", "reports", "export"].includes(view);
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-20 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-primary shadow-soft">
-              <Wallet className="h-5 w-5 text-primary-foreground" />
+    <div className="flex min-h-dvh bg-background">
+      <AppSidebar active={view} onChange={setView} alias={profile.alias} email={user?.email} />
+
+      <div className="min-w-0 flex-1">
+        <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-xl md:hidden">
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary shadow-soft">
+                <Wallet className="h-4.5 w-4.5 text-primary-foreground" />
+              </span>
+              <h1 className="font-display text-base font-semibold tracking-tight">{TITLES[view]}</h1>
             </div>
-            <h1 className="text-lg font-bold tracking-tight">{titleMap[view]}</h1>
-          </div>
-
-          <div className="hidden md:block">
-            <BottomNav active={view} onChange={setView} />
-          </div>
-
-          <div className="flex items-center gap-1">
-            <span className="hidden text-sm text-muted-foreground lg:inline">
-              {user?.email}
-            </span>
             <ThemeToggle />
-            {webauthnSupported && (
-              <Button variant="ghost" size="icon" className="rounded-full" onClick={registerPasskey} disabled={webauthnLoading} title="Registrar biometría">
-                <Fingerprint className="h-4 w-4" />
-              </Button>
-            )}
-            <Button variant="ghost" size="icon" className="rounded-full" onClick={signOut} title="Cerrar sesión">
-              <LogOut className="h-4 w-4" />
-            </Button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 pb-32 md:pb-12">
-        <AnimatePresence mode="wait">
-        <motion.div
-          key={view}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="space-y-5"
-        >
-        {/* Month selector on data screens */}
-        {view !== "more" && (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <MonthSelector
-              selectedMonth={selectedMonth}
-              onChangeMonth={setSelectedMonth}
-              onCopyPrevious={copyFromPreviousMonth}
-            />
-            {view === "home" && (
-              <IncomeEditor income={income} onSave={updateIncome} />
-            )}
-            {view === "expenses" && (
-              <CategoryManager
-                categories={categories}
-                onAdd={addCategory}
-                onRemove={removeCategory}
-                onEdit={editCategory}
-                onToggleCumulative={toggleCumulativeSavings}
-              />
-            )}
-          </div>
-        )}
+        <main className="mx-auto w-full max-w-6xl space-y-5 px-4 py-6 pb-32 md:px-8 md:py-8 md:pb-12">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={view}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-5"
+            >
+              {showMonthSelector && (
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <MonthSelector
+                    selectedMonth={selectedMonth}
+                    onChangeMonth={setSelectedMonth}
+                    onCopyPrevious={copyFromPreviousMonth}
+                  />
+                  {view === "home" && <IncomeEditor income={income} onSave={updateIncome} />}
+                  {view === "expenses" && (
+                    <CategoryManager
+                      categories={categories}
+                      onAdd={addCategory}
+                      onRemove={removeCategory}
+                      onEdit={editCategory}
+                      onToggleCumulative={toggleCumulativeSavings}
+                    />
+                  )}
+                </div>
+              )}
 
-        {view === "home" && (
-          <HomeView
-            userEmail={user?.email}
-            income={income}
-            totalExpenses={combinedTotalExpenses}
-            available={combinedAvailable}
-            paidCount={paidCount}
-            totalCount={expenses.length}
-            expenses={expenses}
-            monthPayments={monthPayments}
-            installmentMonthTotal={monthlyInstallmentTotal}
-            onNavigate={setView}
-          />
-        )}
+              {view === "home" && (
+                <HomeView
+                  alias={profile.alias}
+                  userEmail={user?.email}
+                  income={income}
+                  totalExpenses={combinedTotalExpenses}
+                  available={combinedAvailable}
+                  paidCount={paidCount}
+                  totalCount={expenses.length}
+                  expenses={expenses}
+                  monthPayments={monthPayments}
+                  installmentMonthTotal={monthlyInstallmentTotal}
+                  onNavigate={setView}
+                />
+              )}
 
-        {view === "goals" && (
-          <SavingsModule userId={user?.id} selectedMonth={selectedMonth} mode="goals" />
-        )}
+              {view === "goals" && <SavingsModule userId={user?.id} selectedMonth={selectedMonth} mode="goals" />}
+              {view === "savings" && <SavingsModule userId={user?.id} selectedMonth={selectedMonth} mode="savings" />}
 
-        {view === "savings" && (
-          <SavingsModule userId={user?.id} selectedMonth={selectedMonth} mode="savings" />
-        )}
+              {view === "expenses" && (
+                <ExpenseList
+                  expenses={expenses}
+                  categories={categoryNames}
+                  onUpdate={updateExpense}
+                  onAdd={addExpense}
+                  onDelete={deleteExpense}
+                />
+              )}
 
-        {view === "expenses" && (
-          <ExpenseList
-            expenses={expenses}
-            categories={categoryNames}
-            onUpdate={updateExpense}
-            onAdd={addExpense}
-            onDelete={deleteExpense}
-          />
-        )}
+              {view === "debts" && (
+                <InstallmentTracker
+                  plans={plans}
+                  monthPayments={monthPayments}
+                  allPayments={allPayments}
+                  onCreatePlan={createPlan}
+                  onTogglePayment={togglePayment}
+                  onDeletePlan={deletePlan}
+                  onUpdatePaymentAmount={updatePaymentAmount}
+                />
+              )}
 
-        {view === "debts" && (
-          <InstallmentTracker
-            plans={plans}
-            monthPayments={monthPayments}
-            allPayments={allPayments}
-            onCreatePlan={createPlan}
-            onTogglePayment={togglePayment}
-            onDeletePlan={deletePlan}
-            onUpdatePaymentAmount={updatePaymentAmount}
-          />
-        )}
+              {view === "categories" && (
+                <Card className="rounded-2xl border shadow-soft">
+                  <CardContent className="space-y-4 p-6">
+                    <div>
+                      <h3 className="font-display text-base font-semibold">Categorías</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Administra las categorías que usas en tus gastos.
+                      </p>
+                    </div>
+                    <CategoryManager
+                      categories={categories}
+                      onAdd={addCategory}
+                      onRemove={removeCategory}
+                      onEdit={editCategory}
+                      onToggleCumulative={toggleCumulativeSavings}
+                    />
+                  </CardContent>
+                </Card>
+              )}
 
-        {view === "more" && (
-          <MoreView
-            userEmail={user?.email}
-            exportButton={
-              <ExportButton
-                expenses={expenses}
-                income={income}
-                selectedMonth={selectedMonth}
-                totalExpenses={combinedTotalExpenses}
-                available={combinedAvailable}
-                cumulativeSavings={cumulativeSavings}
-              />
-            }
-            biometricButton={
-              webauthnSupported ? (
-                <Button variant="outline" size="sm" onClick={registerPasskey} disabled={webauthnLoading} className="gap-2">
-                  <Fingerprint className="h-4 w-4" />
-                  Registrar biometría
-                </Button>
-              ) : null
-            }
-            onSignOut={signOut}
-          />
-        )}
-        </motion.div>
-        </AnimatePresence>
-      </main>
+              {view === "reports" && (
+                <ExpenseCharts expenses={expenses} income={income} totalExpenses={combinedTotalExpenses} />
+              )}
+
+              {view === "export" && (
+                <Card className="rounded-2xl border shadow-soft">
+                  <CardContent className="space-y-4 p-6">
+                    <div>
+                      <h3 className="font-display text-base font-semibold">Exportar datos</h3>
+                      <p className="text-sm text-muted-foreground">Descarga el resumen del mes seleccionado.</p>
+                    </div>
+                    {exportButton}
+                  </CardContent>
+                </Card>
+              )}
+
+              {view === "settings" && (
+                <SettingsView
+                  email={user?.email}
+                  profile={profile}
+                  onSaveProfile={saveProfile}
+                  onRegisterPasskey={registerPasskey}
+                  biometricSupported={webauthnSupported}
+                  biometricLoading={webauthnLoading}
+                  onSignOut={signOut}
+                />
+              )}
+
+              {view === "more" && <MoreView onNavigate={setView} />}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
 
       <QuickAddFab onNavigate={setView} />
 
-      <div className="md:hidden">
-        <BottomNav active={view} onChange={setView} />
-      </div>
+      <BottomNav active={view} onChange={setView} />
     </div>
   );
 }
 
-function MoreView({
-  userEmail,
-  exportButton,
-  biometricButton,
-  onSignOut,
-}: {
-  userEmail?: string;
-  exportButton: React.ReactNode;
-  biometricButton: React.ReactNode;
-  onSignOut: () => void;
-}) {
+const MORE_ITEMS: { key: AppView; label: string; icon: typeof PiggyBank }[] = [
+  { key: "savings", label: "Ahorros", icon: PiggyBank },
+  { key: "debts", label: "Deudas", icon: CreditCard },
+  { key: "categories", label: "Categorías", icon: LayoutGrid },
+  { key: "reports", label: "Reportes", icon: BarChart3 },
+  { key: "export", label: "Exportar", icon: Download },
+  { key: "settings", label: "Configuración", icon: Settings },
+];
+
+function MoreView({ onNavigate }: { onNavigate: (v: AppView) => void }) {
   return (
-    <div className="space-y-5">
-      <Card className="rounded-3xl border shadow-soft">
-        <CardContent className="p-5">
-          <p className="text-xs text-muted-foreground">Sesión activa</p>
-          <p className="mt-1 font-semibold truncate">{userEmail}</p>
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-3xl border shadow-soft">
-        <CardContent className="p-2">
-          <Row label="Exportar datos" action={exportButton} />
-          {biometricButton && <Row label="Biometría" action={biometricButton} />}
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-3xl border shadow-soft">
-        <CardContent className="p-2">
-          <button
-            onClick={onSignOut}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-destructive hover:bg-destructive/5"
-          >
-            <span className="flex items-center gap-3 font-medium">
-              <LogOut className="h-4 w-4" /> Cerrar sesión
-            </span>
-            <ChevronRight className="h-4 w-4 opacity-60" />
-          </button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-
-
-
-function Row({ label, action }: { label: string; action: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-xl px-3 py-3">
-      <span className="font-medium">{label}</span>
-      <div className="shrink-0">{action}</div>
-    </div>
+    <Card className="rounded-2xl border shadow-soft">
+      <CardContent className="p-2">
+        {MORE_ITEMS.map((it) => {
+          const Icon = it.icon;
+          return (
+            <button
+              key={it.key}
+              onClick={() => onNavigate(it.key)}
+              className="flex w-full items-center justify-between rounded-xl px-3 py-3.5 text-left transition-colors hover:bg-muted"
+            >
+              <span className="flex items-center gap-3 text-sm font-medium">
+                <Icon className="h-4 w-4 text-primary" /> {it.label}
+              </span>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+          );
+        })}
+      </CardContent>
+    </Card>
   );
 }

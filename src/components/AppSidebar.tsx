@@ -5,7 +5,6 @@ import {
   PiggyBank,
   Receipt,
   CreditCard,
-  LayoutGrid,
   BarChart3,
   Download,
   Settings,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import type { AppView } from "@/components/BottomNav";
 
 const ITEMS: { key: AppView; label: string; icon: typeof Home }[] = [
@@ -24,7 +24,6 @@ const ITEMS: { key: AppView; label: string; icon: typeof Home }[] = [
   { key: "savings", label: "Ahorros", icon: PiggyBank },
   { key: "expenses", label: "Gastos", icon: Receipt },
   { key: "debts", label: "Deudas", icon: CreditCard },
-  { key: "categories", label: "Categorías", icon: LayoutGrid },
   { key: "reports", label: "Reportes", icon: BarChart3 },
   { key: "export", label: "Exportar", icon: Download },
   { key: "settings", label: "Configuración", icon: Settings },
@@ -38,6 +37,7 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ active, onChange, alias, email }: AppSidebarProps) {
+  const t = useT();
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
   const initials = (alias || email || "?").trim().slice(0, 1).toUpperCase();
@@ -49,8 +49,8 @@ export function AppSidebar({ active, onChange, alias, email }: AppSidebarProps) 
           <Wallet className="h-5 w-5 text-primary-foreground" />
         </span>
         <span className="leading-tight">
-          <span className="block font-display text-[15px] font-semibold text-foreground">PocketPal</span>
-          <span className="block text-xs text-muted-foreground">Tracker</span>
+          <span className="block font-display text-[15px] font-semibold text-foreground">{t("Mis finanzas")}</span>
+          <span className="block text-xs text-muted-foreground">{t("Control personal")}</span>
         </span>
       </div>
 
@@ -78,7 +78,7 @@ export function AppSidebar({ active, onChange, alias, email }: AppSidebarProps) 
                 />
               )}
               <Icon className="h-[18px] w-[18px]" />
-              {it.label}
+              {t(it.label)}
             </button>
           );
         })}
@@ -89,7 +89,7 @@ export function AppSidebar({ active, onChange, alias, email }: AppSidebarProps) 
         className="mt-4 flex items-center gap-3 rounded-xl bg-muted px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
       >
         {isDark ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
-        {isDark ? "Modo claro" : "Modo oscuro"}
+        {isDark ? t("Modo claro") : t("Modo oscuro")}
       </button>
 
       <button
@@ -100,8 +100,8 @@ export function AppSidebar({ active, onChange, alias, email }: AppSidebarProps) 
           {initials}
         </span>
         <span className="min-w-0 flex-1 leading-tight">
-          <span className="block truncate text-sm font-medium">{alias || email?.split("@")[0] || "Mi perfil"}</span>
-          <span className="block text-xs text-muted-foreground">Ver perfil</span>
+          <span className="block truncate text-sm font-medium">{alias || email?.split("@")[0] || t("Mi perfil")}</span>
+          <span className="block text-xs text-muted-foreground">{t("Ver perfil")}</span>
         </span>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </button>

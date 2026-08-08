@@ -28,7 +28,6 @@ import {
   ChevronRight,
   PiggyBank,
   CreditCard,
-  LayoutGrid,
   BarChart3,
   Download,
   Settings,

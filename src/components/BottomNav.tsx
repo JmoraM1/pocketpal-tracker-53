@@ -1,6 +1,7 @@
 import { Home, Target, Receipt, MoreHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export type AppView =
   | "home"
@@ -27,6 +28,7 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ active, onChange }: BottomNavProps) {
+  const t = useT();
   return (
     <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-border bg-card/95 backdrop-blur-xl md:hidden">
       <div className="mx-auto grid max-w-md grid-cols-5 items-stretch px-2 pb-[env(safe-area-inset-bottom)]">
@@ -51,7 +53,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
                 />
               )}
               <Icon className={cn("h-5 w-5 transition-transform", isActive && "scale-110")} />
-              <span>{it.label}</span>
+              <span>{t(it.label)}</span>
             </button>
           );
           // hueco central para el botón flotante (+)

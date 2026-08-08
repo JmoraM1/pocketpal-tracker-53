@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { formatCOP, formatMonthLabel, getMonthKey } from "@/lib/constants";
 import type { Tables } from "@/integrations/supabase/types";
+import { useT } from "@/lib/i18n";
 
 type Expense = Tables<"expenses">;
 
@@ -22,27 +23,28 @@ function escapeCsv(value: string): string {
 }
 
 export function ExportButton({ expenses, income, selectedMonth, totalExpenses, available, cumulativeSavings }: ExportButtonProps) {
+  const t = useT();
   const handleExport = () => {
     const monthLabel = formatMonthLabel(getMonthKey(selectedMonth));
 
-    const headers = ["Mes", "Tipo", "Categoría", "Descripción", "Valor", "Valor (COP)", "Estado"];
+    const headers = [t("Mes"), t("Tipo"), t("Categoría"), t("Descripción"), t("Valor"), t("Valor con formato"), t("Estado")];
 
     const rows = expenses.map((e) => [
       monthLabel,
-      "Gasto",
+      t("Gasto"),
       e.category,
       e.description || "",
       String(Number(e.amount)),
       formatCOP(Number(e.amount)),
-      e.is_paid ? "Pagado" : "Pendiente",
+      e.is_paid ? t("Pagado") : t("Pendiente"),
     ]);
 
     // Summary rows
     rows.push(
-      [monthLabel, "Resumen", "Ingreso del Mes", "", String(income), formatCOP(income), ""],
-      [monthLabel, "Resumen", "Total Gastos", "", String(totalExpenses), formatCOP(totalExpenses), ""],
-      [monthLabel, "Resumen", "Disponible para Ahorro", "", String(available), formatCOP(available), ""],
-      [monthLabel, "Resumen", "Ahorro Acumulado", "", String(cumulativeSavings), formatCOP(cumulativeSavings), ""],
+      [monthLabel, t("Resumen"), t("Ingreso del Mes"), "", String(income), formatCOP(income), ""],
+      [monthLabel, t("Resumen"), t("Total Gastos"), "", String(totalExpenses), formatCOP(totalExpenses), ""],
+      [monthLabel, t("Resumen"), t("Disponible para Ahorro"), "", String(available), formatCOP(available), ""],
+      [monthLabel, t("Resumen"), t("Ahorro Acumulado"), "", String(cumulativeSavings), formatCOP(cumulativeSavings), ""],
     );
 
     const csvContent = [
@@ -62,7 +64,7 @@ export function ExportButton({ expenses, income, selectedMonth, totalExpenses, a
   return (
     <Button variant="outline" size="sm" className="gap-1" onClick={handleExport}>
       <Download className="h-3.5 w-3.5" />
-      <span className="hidden sm:inline">Exportar CSV</span>
+      <span className="hidden sm:inline">{t("Exportar CSV")}</span>
     </Button>
   );
 }

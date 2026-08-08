@@ -59,3 +59,9 @@ export function formatShortDate(value?: string | null): string {
   const d = new Date(`${value}T12:00:00`);
   return d.toLocaleDateString(getUiLocale(), { day: "numeric", month: "short" });
 }
+
+export function getShortMonthNames(locale = getUiLocale()): string[] {
+  return Array.from({ length: 12 }, (_, i) =>
+    new Date(2024, i, 1).toLocaleDateString(locale, { month: "short" }).replace(".", ""),
+  );
+}

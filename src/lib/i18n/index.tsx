@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { EN } from "./en";
 import { setActiveCurrency } from "@/lib/currency";
+import { setUiLocale } from "@/lib/locale";
 
 export type Language = "es" | "en";
 

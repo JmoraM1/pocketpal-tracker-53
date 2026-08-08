@@ -22,6 +22,7 @@ import {
 import { formatCOP } from "@/lib/constants";
 import { Plus, Trash2, CreditCard, CalendarDays, Pencil, Check, X, Trophy, ListChecks } from "lucide-react";
 import type { InstallmentPlan, InstallmentPayment } from "@/hooks/useInstallments";
+import { useT } from "@/lib/i18n";
 
 interface InstallmentTrackerProps {
   plans: InstallmentPlan[];
@@ -49,6 +50,7 @@ export function InstallmentTracker({
   onDeletePlan,
   onUpdatePaymentAmount,
 }: InstallmentTrackerProps) {
+  const t = useT();
   const [addOpen, setAddOpen] = useState(false);
   const [name, setName] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
@@ -116,52 +118,52 @@ export function InstallmentTracker({
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
             <CreditCard className="h-5 w-5" />
-            Cuotas del Mes
+            t("Cuotas del Mes")
           </CardTitle>
           <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1">
                 <Plus className="h-4 w-4" />
-                Nueva Deuda
+                t("Nueva Deuda")
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Registrar Deuda / Compra a Cuotas</DialogTitle>
+                <DialogTitle>t("Registrar Deuda / Compra a Cuotas")</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 pt-2">
                 <div className="space-y-2">
-                  <Label>Nombre</Label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Celular, Electrodoméstico" />
+                  <Label>{t("Nombre")}</Label>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("Ej: Celular, Electrodoméstico")} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Monto total</Label>
+                  <Label>{t("Monto total")}</Label>
                   <MoneyInput value={totalAmount} onChange={(v) => setTotalAmount(v)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Número de cuotas</Label>
+                  <Label>{t("Número de cuotas")}</Label>
                   <Input
                     type="number"
                     value={numInstallments}
                     onChange={(e) => setNumInstallments(e.target.value)}
-                    placeholder="Ej: 4, 12, 24"
+                    placeholder={t("Ej: 4, 12, 24")}
                     min="1"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Valor de la cuota (editable)</Label>
+                  <Label>{t("Valor de la cuota (editable)")}</Label>
                   <MoneyInput
                     value={installmentAmount}
                     onChange={(v) => { setInstallmentAmount(v); setInstallmentTouched(true); }}
                   />
-                  <p className="text-xs text-muted-foreground">Se calcula automáticamente. Puedes ajustarlo si tu cuota real es distinta.</p>
+                  <p className="text-xs text-muted-foreground">{t("Se calcula automáticamente. Puedes ajustarlo si tu cuota real es distinta.")}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Fecha de la primera cuota</Label>
+                  <Label>{t("Fecha de la primera cuota")}</Label>
                   <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                 </div>
                 <Button className="w-full" onClick={handleCreate}>
-                  Crear Plan de Cuotas
+                  t("Crear Plan de Cuotas")
                 </Button>
               </div>
             </DialogContent>
@@ -170,7 +172,7 @@ export function InstallmentTracker({
         <CardContent className="space-y-2 p-4 pt-0">
           {monthPayments.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              No hay cuotas programadas para este mes.
+              {t("No hay cuotas programadas para este mes.")}
             </p>
           ) : (
             monthPayments.map((payment) => (
@@ -182,7 +184,7 @@ export function InstallmentTracker({
               >
                 <div className="flex-1">
                   <p className="text-sm font-semibold">{payment.plan_name}</p>
-                  <p className="text-xs text-muted-foreground">Cuota {payment.payment_number}</p>
+                  <p className="text-xs text-muted-foreground">{t("Cuota {n}", { n: payment.payment_number })}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   {editingPaymentId === payment.id ? (
@@ -218,7 +220,7 @@ export function InstallmentTracker({
                       onCheckedChange={(checked) => onTogglePayment(payment.id, checked)}
                     />
                     <span className={`text-xs font-medium ${payment.is_paid ? "text-success" : "text-warning"}`}>
-                      {payment.is_paid ? "Pagada" : "Pendiente"}
+                      {payment.is_paid ? t("Pagada") : t("Pendiente")}
                     </span>
                   </div>
                 </div>
@@ -233,19 +235,19 @@ export function InstallmentTracker({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <CalendarDays className="h-5 w-5" />
-            Deudas
+            t("Deudas")
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="active" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="active">Activas ({activePlans.length})</TabsTrigger>
-              <TabsTrigger value="completed">Completadas ({completedPlans.length})</TabsTrigger>
+              <TabsTrigger value="active">{t("Activas")} ({activePlans.length})</TabsTrigger>
+              <TabsTrigger value="completed">{t("Completadas")} ({completedPlans.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="active" className="space-y-3 pt-4">
               {activePlans.length === 0 && (
-                <p className="text-center text-sm text-muted-foreground py-6">Aún no tienes deudas activas.</p>
+                <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes deudas activas.")}</p>
               )}
               {activePlans.map((plan) => {
                 const planPayments = allPayments
@@ -262,9 +264,9 @@ export function InstallmentTracker({
                         <p className="text-base font-bold">{plan.name}</p>
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                            Cuota {plan.paid_installments} de {plan.num_installments}
+                            {t("Cuota {a} de {b}", { a: plan.paid_installments, b: plan.num_installments })}
                           </span>
-                          <span className="text-xs text-muted-foreground">· {formatCOP(Number(plan.installment_amount))}/mes</span>
+                          <span className="text-xs text-muted-foreground">· {t("{amount}/mes", { amount: formatCOP(Number(plan.installment_amount), plan.currency) })}</span>
                         </div>
                       </div>
                       <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />
@@ -274,11 +276,11 @@ export function InstallmentTracker({
                       <Progress value={progress} className="h-3" />
                       <div className="flex items-center justify-between text-sm">
                         <span className="font-semibold text-primary">
-                          {formatCOP(paidAmount)} <span className="font-normal text-muted-foreground">pagado</span>
+                          {formatCOP(paidAmount, plan.currency)} <span className="font-normal text-muted-foreground">{t("pagado")}</span>
                         </span>
                         <span className="text-muted-foreground text-xs">{progress.toFixed(0)}%</span>
                         <span className="font-semibold text-destructive">
-                          {formatCOP(remaining)} <span className="font-normal text-muted-foreground">saldo</span>
+                          {formatCOP(remaining, plan.currency)} <span className="font-normal text-muted-foreground">{t("saldo")}</span>
                         </span>
                       </div>
                     </div>
@@ -296,7 +298,7 @@ export function InstallmentTracker({
 
             <TabsContent value="completed" className="space-y-2 pt-4">
               {completedPlans.length === 0 && (
-                <p className="text-center text-sm text-muted-foreground py-6">Aún no tienes deudas completadas.</p>
+                <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes deudas completadas.")}</p>
               )}
               {completedPlans.map((plan) => (
                 <div key={plan.id} className="flex items-center justify-between rounded-xl border border-success/20 bg-success/5 p-3">
@@ -305,8 +307,8 @@ export function InstallmentTracker({
                     <div>
                       <p className="text-sm font-semibold">{plan.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatCOP(Number(plan.total_amount))} — {plan.num_installments} cuotas
-                        {plan.completed_at ? ` · Completada el ${formatDate(plan.completed_at)}` : ""}
+                        {formatCOP(Number(plan.total_amount), plan.currency)} — {t("{n} cuotas", { n: plan.num_installments })}
+                        {plan.completed_at ? ` · ${t("Completada el {date}", { date: formatDate(plan.completed_at) })}` : ""}
                       </p>
                     </div>
                   </div>
@@ -332,6 +334,7 @@ function ScheduleDialog({
   onTogglePayment: (paymentId: string, isPaid: boolean) => void;
   onUpdatePaymentAmount: (paymentId: string, amount: number) => void;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editVal, setEditVal] = useState("");
@@ -347,16 +350,16 @@ function ScheduleDialog({
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="w-full gap-2">
           <ListChecks className="h-4 w-4" />
-          Ver cronograma
+          {t("Ver cronograma")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Cronograma — {plan.name}</DialogTitle>
+          <DialogTitle>{t("Cronograma —")} {plan.name}</DialogTitle>
         </DialogHeader>
         <div className="space-y-2 max-h-[60vh] overflow-y-auto">
           {payments.length === 0 && (
-            <p className="text-center text-sm text-muted-foreground py-4">Sin cuotas registradas.</p>
+            <p className="text-center text-sm text-muted-foreground py-4">{t("Sin cuotas registradas.")}</p>
           )}
           {payments.map((p) => (
             <div
@@ -366,7 +369,7 @@ function ScheduleDialog({
               }`}
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">Cuota {p.payment_number}</p>
+                <p className="text-sm font-medium">{t("Cuota {n}", { n: p.payment_number })}</p>
                 <p className="text-xs text-muted-foreground">{p.due_month}</p>
               </div>
               {editingId === p.id ? (
@@ -390,7 +393,7 @@ function ScheduleDialog({
                 </div>
               ) : (
                 <div className="flex items-center gap-1">
-                  <span className="text-sm font-bold tabular-nums">{formatCOP(Number(p.amount))}</span>
+                  <span className="text-sm font-bold tabular-nums">{formatCOP(Number(p.amount), plan.currency)}</span>
                   <Button
                     size="icon"
                     variant="ghost"
@@ -404,7 +407,7 @@ function ScheduleDialog({
               <div className="flex items-center gap-1.5">
                 <Switch checked={p.is_paid} onCheckedChange={(c) => onTogglePayment(p.id, c)} />
                 <span className={`text-xs font-medium ${p.is_paid ? "text-success" : "text-warning"}`}>
-                  {p.is_paid ? "Pagada" : "Pendiente"}
+                  {p.is_paid ? t("Pagada") : t("Pendiente")}
                 </span>
               </div>
             </div>
@@ -416,6 +419,7 @@ function ScheduleDialog({
 }
 
 function ConfirmDeleteButton({ onConfirm }: { onConfirm: () => void }) {
+  const t = useT();
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -425,15 +429,15 @@ function ConfirmDeleteButton({ onConfirm }: { onConfirm: () => void }) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Eliminar deuda</AlertDialogTitle>
+          <AlertDialogTitle>{t("Eliminar deuda")}</AlertDialogTitle>
           <AlertDialogDescription>
-            ¿Estás seguro de que deseas eliminar esta deuda? Esta acción no se puede deshacer.
+            {t("¿Estás seguro de que deseas eliminar esta deuda? Esta acción no se puede deshacer.")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel>{t("Cancelar")}</AlertDialogCancel>
           <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={onConfirm}>
-            Eliminar
+            {t("Eliminar")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

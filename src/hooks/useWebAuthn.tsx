@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -46,8 +46,58 @@ function getEdgeFunctionUrl(functionName: string): string {
   return `https://${projectId}.supabase.co/functions/v1/${functionName}`;
 }
 
+export interface WebAuthnCredential {
+  id: string;
+  device_name: string | null;
+  created_at: string;
+}
+
 export function useWebAuthn() {
   const [loading, setLoading] = useState(false);
+  const [credentials, setCredentials] = useState<WebAuthnCredential[]>([]);
+  const [platformAvailable, setPlatformAvailable] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    if (window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable) {
+      window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+        .then((available) => {
+          if (mounted) setPlatformAvailable(available);
+        })
+        .catch(() => {
+          if (mounted) setPlatformAvailable(false);
+        });
+    }
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const loadCredentials = useCallback(async () => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData?.session) {
+      setCredentials([]);
+      return;
+    }
+    const { data, error } = await supabase
+      .from("webauthn_credentials")
+      .select("id, device_name, created_at")
+      .order("created_at", { ascending: false });
+    if (!error && data) {
+      setCredentials(data as WebAuthnCredential[]);
+    }
+  }, []);
+
+  const removePasskey = useCallback(async (id: string) => {
+    const { error } = await supabase.from("webauthn_credentials").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Error", description: "No se pudo eliminar la huella.", variant: "destructive" });
+      return false;
+    }
+    toast({ title: "Biometría desactivada", description: "La huella fue eliminada correctamente." });
+    await loadCredentials();
+    return true;
+  }, [loadCredentials]);
 
   const registerPasskey = useCallback(async () => {
     if (!isWebAuthnSupported()) {
@@ -141,6 +191,7 @@ export function useWebAuthn() {
       }
 
       toast({ title: "¡Listo!", description: "Huella/Face ID registrado exitosamente." });
+      await loadCredentials();
       return true;
     } catch (err: any) {
       const message = getWebAuthnErrorMessage(err);
@@ -151,7 +202,7 @@ export function useWebAuthn() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadCredentials]);
 
   const authenticateWithPasskey = useCallback(async (email: string) => {
     if (!isWebAuthnSupported()) {
@@ -261,5 +312,14 @@ export function useWebAuthn() {
     }
   }, []);
 
-  return { loading, registerPasskey, authenticateWithPasskey, isSupported: isWebAuthnSupported() };
+  return {
+    loading,
+    registerPasskey,
+    authenticateWithPasskey,
+    isSupported: isWebAuthnSupported(),
+    credentials,
+    loadCredentials,
+    removePasskey,
+    platformAvailable,
+  };
 }

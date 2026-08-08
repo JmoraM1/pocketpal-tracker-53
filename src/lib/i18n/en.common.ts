@@ -1,0 +1,68 @@
+export const EN_COMMON: Record<string, string> = {
+  // App shell / navigation
+  "Mis finanzas": "My Finances",
+  Inicio: "Home",
+  Metas: "Goals",
+  Ahorros: "Savings",
+  Gastos: "Expenses",
+  Deudas: "Debts",
+  Reportes: "Reports",
+  Exportar: "Export",
+  Configuración: "Settings",
+  Más: "More",
+  "Modo claro": "Light mode",
+  "Modo oscuro": "Dark mode",
+  "Mi perfil": "My profile",
+  "Ver perfil": "View profile",
+  "Cargando...": "Loading...",
+
+  // Generic actions
+  Guardar: "Save",
+  "Guardar cambios": "Save changes",
+  Cancelar: "Cancel",
+  Eliminar: "Delete",
+  Editar: "Edit",
+  Agregar: "Add",
+  Crear: "Create",
+  Cerrar: "Close",
+  Aceptar: "Accept",
+  Confirmar: "Confirm",
+  Activas: "Active",
+  Completadas: "Completed",
+  Total: "Total",
+  Pendiente: "Pending",
+  Pagado: "Paid",
+  Historial: "History",
+  Nombre: "Name",
+  Monto: "Amount",
+  Descripción: "Description",
+  Categoría: "Category",
+  Categorías: "Categories",
+  Mes: "Month",
+  Fecha: "Date",
+  Progreso: "Progress",
+  Aportes: "Contributions",
+  Aporte: "Contribution",
+  "Monto inicial": "Initial amount",
+  "Monto inicial (opcional)": "Initial amount (optional)",
+  Opcional: "Optional",
+
+  // Confirmations
+  "¿Estás seguro?": "Are you sure?",
+  "¿Estás seguro de que deseas eliminar esta meta? Esta acción no se puede deshacer.":
+    "Are you sure you want to delete this goal? This action cannot be undone.",
+  "Esta acción no se puede deshacer.": "This action cannot be undone.",
+
+  // Months / periods
+  "Mes anterior": "Previous month",
+  "Mes siguiente": "Next month",
+  "Copiar mes anterior": "Copy previous month",
+  "Exportar datos": "Export data",
+  "Descarga el resumen del mes seleccionado.": "Download the summary for the selected month.",
+  "Descargar CSV": "Download CSV",
+
+  // Reports
+  "Gastos por categoría": "Expenses by category",
+  "Aún no hay gastos registrados.": "No expenses recorded yet.",
+  "Sin datos para mostrar.": "No data to display.",
+};

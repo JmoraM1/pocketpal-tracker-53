@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_CATEGORIES, getMonthKey } from "@/lib/constants";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { getActiveCurrency } from "@/lib/currency";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Budget = Tables<"monthly_budgets">;
@@ -45,7 +46,7 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
     if (!budgetData) {
       const { data: newBudget } = await supabase
         .from("monthly_budgets")
-        .insert({ user_id: userId, month: monthKey, income: 0 })
+        .insert({ user_id: userId, month: monthKey, income: 0, currency: getActiveCurrency() })
         .select()
         .single();
       budgetData = newBudget;
@@ -120,7 +121,7 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
 
   const updateIncome = async (income: number) => {
     if (!budget) return;
-    await supabase.from("monthly_budgets").update({ income }).eq("id", budget.id);
+    await supabase.from("monthly_budgets").update({ income, currency: getActiveCurrency() }).eq("id", budget.id);
     setBudget({ ...budget, income });
   };
 
@@ -145,6 +146,7 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
         is_paid: data.is_paid,
         due_date: data.due_date ?? null,
         frequency: data.frequency ?? "unico",
+        currency: getActiveCurrency(),
       })
       .select()
       .single();

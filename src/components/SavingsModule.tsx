@@ -301,6 +301,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
 
 // ---------------- FREE SAVING CARD ----------------
 function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, onDelete, onSetMonth, onDeleteContrib }: any) {
+  const t = useT();
   const [editName, setEditName] = useState(saving.name);
   const [amount, setAmount] = useState("");
   const [editOpen, setEditOpen] = useState(false);
@@ -311,7 +312,7 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="font-semibold">{saving.name}</h3>
-          <p className="text-xs text-muted-foreground">Acumulado: <span className="font-semibold text-primary">{formatCOP(total)}</span></p>
+          <p className="text-xs text-muted-foreground">{t("Acumulado:")} <span className="font-semibold text-primary">{formatCOP(total, saving.currency)}</span></p>
         </div>
         <div className="flex gap-1">
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
@@ -319,43 +320,43 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
               <Button size="icon" variant="ghost" className="h-7 w-7"><Pencil className="h-3.5 w-3.5" /></Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>Editar ahorro</DialogTitle></DialogHeader>
-              <div><Label>Nombre</Label><Input value={editName} onChange={(e) => setEditName(e.target.value)} /></div>
+              <DialogHeader><DialogTitle>{t("Editar ahorro")}</DialogTitle></DialogHeader>
+              <div><Label>{t("Nombre")}</Label><Input value={editName} onChange={(e) => setEditName(e.target.value)} /></div>
               <DialogFooter>
-                <Button onClick={async () => { await onUpdate(saving.id, editName); setEditOpen(false); }}>Guardar</Button>
+                <Button onClick={async () => { await onUpdate(saving.id, editName); setEditOpen(false); }}>{t("Guardar")}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <ConfirmDeleteButton onConfirm={() => onDelete(saving.id)} className="h-7 w-7" />
+          <ConfirmDeleteButton onConfirm={() => onDelete(saving.id)} className="h-7 w-7" title={t("Eliminar ahorro")} description={t("¿Estás seguro de que deseas eliminar este ahorro? Esta acción no se puede deshacer.")} />
         </div>
       </div>
 
       <div className="flex items-end gap-2 pt-2 border-t">
         <div className="flex-1">
-          <Label className="text-xs">Nuevo aporte</Label>
+          <Label className="text-xs">{t("Nuevo aporte")}</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
           {monthAmount > 0 && (
-            <p className="text-xs text-muted-foreground mt-1">Aportado este mes: {formatCOP(monthAmount)}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("Aportado este mes:")} {formatCOP(monthAmount, saving.currency)}</p>
           )}
         </div>
         <Button size="sm" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(saving.id, Number(amount)); setAmount(""); } }}>
-          <Check className="mr-1 h-4 w-4" />Guardar
+          <Check className="mr-1 h-4 w-4" />{t("Guardar")}
         </Button>
       </div>
 
       {contributions.length > 0 && (
         <Dialog open={histOpen} onOpenChange={setHistOpen}>
           <DialogTrigger asChild>
-            <Button variant="link" size="sm" className="px-0 h-auto">Ver historial ({contributions.length} aportes)</Button>
+            <Button variant="link" size="sm" className="px-0 h-auto">{t("Ver historial ({count} aportes)", { count: contributions.length })}</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Historial — {saving.name}</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{t("Historial —")} {saving.name}</DialogTitle></DialogHeader>
             <div className="space-y-1 max-h-[60vh] overflow-y-auto">
               {[...contributions].sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).map((c: any) => (
                 <div key={c.id} className="flex items-center justify-between rounded p-2 hover:bg-muted/50">
                   <span className="text-sm">{formatDateTime(c.created_at)}</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-primary">{formatCOP(Number(c.amount))}</span>
+                    <span className="font-semibold text-primary">{formatCOP(Number(c.amount), saving.currency)}</span>
                     <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => onDeleteContrib(c.id)}>
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -370,7 +371,8 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
   );
 }
 
-function ConfirmDeleteButton({ onConfirm, className = "h-8 w-8" }: { onConfirm: () => void; className?: string }) {
+function ConfirmDeleteButton({ onConfirm, className = "h-8 w-8", title, description }: { onConfirm: () => void; className?: string; title?: string; description?: string }) {
+  const t = useT();
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -380,15 +382,15 @@ function ConfirmDeleteButton({ onConfirm, className = "h-8 w-8" }: { onConfirm: 
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Eliminar meta</AlertDialogTitle>
+          <AlertDialogTitle>{title ?? t("Eliminar meta")}</AlertDialogTitle>
           <AlertDialogDescription>
-            ¿Estás seguro de que deseas eliminar esta meta? Esta acción no se puede deshacer.
+            {description ?? t("¿Estás seguro de que deseas eliminar esta meta? Esta acción no se puede deshacer.")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel>{t("Cancelar")}</AlertDialogCancel>
           <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={onConfirm}>
-            Eliminar
+            {t("Eliminar")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

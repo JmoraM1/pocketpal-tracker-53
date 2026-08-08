@@ -4,11 +4,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Fingerprint, KeyRound, LogOut, Mail, User } from "lucide-react";
+import { Fingerprint, KeyRound, LogOut, Mail, Trash2, User } from "lucide-react";
 import type { Profile } from "@/hooks/useProfile";
+import { useT, useI18n } from "@/lib/i18n";
+import { CURRENCIES } from "@/lib/currency";
+import type { WebAuthnCredential } from "@/hooks/useWebAuthn";
 
 interface SettingsViewProps {
   email?: string;
@@ -18,6 +33,9 @@ interface SettingsViewProps {
   biometricSupported: boolean;
   biometricLoading: boolean;
   onSignOut: () => void;
+  passkeys: WebAuthnCredential[];
+  onRemovePasskey: (id: string) => void | Promise<void>;
+  biometricPlatformAvailable: boolean;
 }
 
 export function SettingsView({
@@ -28,7 +46,12 @@ export function SettingsView({
   biometricSupported,
   biometricLoading,
   onSignOut,
+  passkeys,
+  onRemovePasskey,
+  biometricPlatformAvailable,
 }: SettingsViewProps) {
+  const t = useT();
+  const { language } = useI18n();
   const [alias, setAlias] = useState(profile.alias);
   const [saving, setSaving] = useState(false);
 
@@ -36,7 +59,7 @@ export function SettingsView({
     setSaving(true);
     await onSaveProfile({ alias: alias.trim() });
     setSaving(false);
-    toast({ title: "Perfil actualizado", description: "Tus datos se guardaron correctamente." });
+    toast({ title: t("Perfil actualizado"), description: t("Tus datos se guardaron correctamente.") });
   };
 
   const handlePassword = async () => {
@@ -44,8 +67,12 @@ export function SettingsView({
     await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    toast({ title: "Correo enviado", description: "Te enviamos un enlace para cambiar tu contraseña." });
+    toast({ title: t("Correo enviado"), description: t("Te enviamos un enlace para cambiar tu contraseña.") });
   };
+
+  const biometricEnabled = passkeys.length > 0;
+  const canUseBiometrics = biometricSupported && biometricPlatformAvailable;
+  const locale = language === "en" ? "en-US" : "es-ES";
 
   return (
     <motion.div
@@ -58,34 +85,35 @@ export function SettingsView({
         <CardContent className="space-y-5 p-6">
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-primary" />
-            <h3 className="font-display text-base font-semibold">Perfil</h3>
+            <h3 className="font-display text-base font-semibold">{t("Perfil")}</h3>
           </div>
 
           <div className="space-y-2">
-            <Label>Alias</Label>
-            <Input value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="Ej. Juan" />
-            <p className="text-xs text-muted-foreground">Se usa en el saludo del inicio.</p>
+            <Label>{t("Alias")}</Label>
+            <Input value={alias} onChange={(e) => setAlias(e.target.value)} placeholder={t("Ej. Juan")} />
+            <p className="text-xs text-muted-foreground">{t("Se usa en el saludo del inicio.")}</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>Moneda</Label>
+              <Label>{t("Moneda")}</Label>
               <Select value={profile.currency} onValueChange={(v) => onSaveProfile({ currency: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="COP">COP — Peso colombiano</SelectItem>
-                  <SelectItem value="USD">USD — Dólar</SelectItem>
-                  <SelectItem value="EUR">EUR — Euro</SelectItem>
-                  <SelectItem value="MXN">MXN — Peso mexicano</SelectItem>
+                  {CURRENCIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>
+                      {language === "en" ? c.labelEn : c.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Idioma</Label>
+              <Label>{t("Idioma")}</Label>
               <Select value={profile.language} onValueChange={(v) => onSaveProfile({ language: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="es">Español</SelectItem>
+                  <SelectItem value="es">{t("Español")}</SelectItem>
                   <SelectItem value="en">English</SelectItem>
                 </SelectContent>
               </Select>
@@ -93,42 +121,101 @@ export function SettingsView({
           </div>
 
           <div className="space-y-2">
-            <Label className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> Correo</Label>
+            <Label className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> {t("Correo")}</Label>
             <Input value={email ?? ""} readOnly className="bg-muted text-muted-foreground" />
           </div>
 
           <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto">
-            Guardar cambios
+            {t("Guardar cambios")}
           </Button>
         </CardContent>
       </Card>
 
       <Card className="rounded-2xl border shadow-soft">
         <CardContent className="space-y-3 p-6">
-          <h3 className="font-display text-base font-semibold">Seguridad</h3>
+          <h3 className="font-display text-base font-semibold">{t("Seguridad")}</h3>
 
-          {biometricSupported && (
-            <button
-              onClick={onRegisterPasskey}
-              disabled={biometricLoading}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium transition-colors hover:bg-muted"
-            >
-              <Fingerprint className="h-4 w-4 text-primary" /> Biometría
-            </button>
-          )}
+          <div className="space-y-3 rounded-xl border px-3 py-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Fingerprint className="h-4 w-4 text-primary" /> {t("Biometría")}
+              </div>
+              <Badge variant={biometricEnabled ? "default" : "secondary"}>
+                {biometricEnabled ? t("Activada") : t("Desactivada")}
+              </Badge>
+            </div>
+
+            {!canUseBiometrics ? (
+              <p className="text-xs text-muted-foreground">
+                {t("Tu dispositivo o navegador no es compatible con la autenticación biométrica.")}
+              </p>
+            ) : (
+              <>
+                {passkeys.length > 0 && (
+                  <ul className="space-y-2">
+                    {passkeys.map((p) => (
+                      <li key={p.id} className="flex items-center justify-between gap-2 rounded-lg bg-muted/50 px-3 py-2 text-xs">
+                        <div>
+                          <p className="font-medium text-foreground">{p.device_name ?? t("Biometría")}</p>
+                          <p className="text-muted-foreground">
+                            {t("Registrado el {date}").replace(
+                              "{date}",
+                              new Date(p.created_at).toLocaleDateString(locale)
+                            )}
+                          </p>
+                        </div>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t("¿Desactivar biometría?")}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {t("¿Estás seguro de que deseas eliminar esta huella? Podrás volver a registrarla cuando quieras.")}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>{t("Cancelar")}</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => onRemovePasskey(p.id)}>
+                                {t("Desactivar")}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {!biometricEnabled && (
+                  <Button
+                    onClick={onRegisterPasskey}
+                    disabled={biometricLoading}
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    <Fingerprint className="h-4 w-4" /> {t("Activar biometría")}
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
 
           <button
             onClick={handlePassword}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium transition-colors hover:bg-muted"
           >
-            <KeyRound className="h-4 w-4 text-info" /> Cambiar contraseña
+            <KeyRound className="h-4 w-4 text-info" /> {t("Cambiar contraseña")}
           </button>
 
           <button
             onClick={onSignOut}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
           >
-            <LogOut className="h-4 w-4" /> Cerrar sesión
+            <LogOut className="h-4 w-4" /> {t("Cerrar sesión")}
           </button>
         </CardContent>
       </Card>

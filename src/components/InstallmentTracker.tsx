@@ -235,7 +235,7 @@ export function InstallmentTracker({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <CalendarDays className="h-5 w-5" />
-            t("Deudas")
+            {t("Deudas")}
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -76,6 +76,7 @@ export function HomeView({
   installmentMonthTotal,
   onNavigate,
 }: HomeViewProps) {
+  const { t, locale } = useI18n();
   const name = alias?.trim() || (userEmail ? userEmail.split("@")[0] : "");
   const spentPct = income > 0 ? Math.min(Math.round((totalExpenses / income) * 100), 999) : 0;
 
@@ -371,7 +372,7 @@ export function HomeView({
                   return (
                     <div key={a.id} className="flex items-center gap-3 py-3">
                       <span className="w-16 shrink-0 text-[11px] font-medium text-muted-foreground">
-                        {relativeDay(a.date)}
+                        {relativeDay(a.date, t, locale)}
                       </span>
                       <span
                         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${

@@ -9,7 +9,6 @@ export type AppView =
   | "savings"
   | "expenses"
   | "debts"
-  | "categories"
   | "reports"
   | "export"
   | "settings"

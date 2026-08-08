@@ -210,7 +210,7 @@ export default function Dashboard() {
                   biometricSupported={webauthnSupported}
                   biometricLoading={webauthnLoading}
                   passkeys={passkeys}
-                  onRemovePasskey={removePasskey}
+                  onRemovePasskey={(id) => { void removePasskey(id); }}
                   biometricPlatformAvailable={platformAvailable}
                   onSignOut={signOut}
                 />

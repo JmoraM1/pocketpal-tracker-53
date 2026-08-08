@@ -14,6 +14,7 @@ import { formatCOP, FREQUENCIES, frequencyLabel, formatShortDate } from "@/lib/c
 import { getCategoryVisual } from "@/lib/categoryIcons";
 import { CalendarIcon, Check, Pencil, Plus, Trash2 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import { useT } from "@/lib/i18n";
 
 type Expense = Tables<"expenses">;
 
@@ -59,6 +60,7 @@ function ExpenseForm({
   submitLabel: string;
   onSubmit: (values: ExpenseFormValues) => void;
 }) {
+  const t = useT();
   const [category, setCategory] = useState(initial?.category ?? categories[0] ?? "");
   const [amount, setAmount] = useState(initial?.amount ? String(initial.amount) : "");
   const [description, setDescription] = useState(initial?.description ?? "");
@@ -69,9 +71,9 @@ function ExpenseForm({
   return (
     <div className="space-y-4 pt-2">
       <div className="space-y-2">
-        <Label>Categoría</Label>
+        <Label>{t("Categoría")}</Label>
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger><SelectValue placeholder="Selecciona" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t("Selecciona")} /></SelectTrigger>
           <SelectContent>
             {categories.map((cat) => (
               <SelectItem key={cat} value={cat}>{cat}</SelectItem>
@@ -81,18 +83,18 @@ function ExpenseForm({
       </div>
 
       <div className="space-y-2">
-        <Label>Valor</Label>
+        <Label>{t("Valor")}</Label>
         <MoneyInput value={amount} onChange={setAmount} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>Fecha de vencimiento</Label>
+          <Label>{t("Fecha de vencimiento")}</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start gap-2 font-normal">
                 <CalendarIcon className="h-4 w-4" />
-                {dueDate ? formatShortDate(dueDate) : "Seleccionar fecha"}
+                {dueDate ? formatShortDate(dueDate) : t("Seleccionar fecha")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -108,12 +110,12 @@ function ExpenseForm({
         </div>
 
         <div className="space-y-2">
-          <Label>Frecuencia</Label>
+          <Label>{t("Frecuencia")}</Label>
           <Select value={frequency} onValueChange={setFrequency}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {FREQUENCIES.map((f) => (
-                <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                <SelectItem key={f.value} value={f.value}>{t(f.label)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -121,13 +123,13 @@ function ExpenseForm({
       </div>
 
       <div className="space-y-2">
-        <Label>Descripción (opcional)</Label>
-        <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Nota sobre el gasto" />
+        <Label>{t("Descripción (opcional)")}</Label>
+        <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("Nota sobre el gasto")} />
       </div>
 
       <div className="flex items-center gap-2">
         <Switch checked={isPaid} onCheckedChange={setIsPaid} />
-        <Label>{isPaid ? "Pagado" : "Pendiente"}</Label>
+        <Label>{isPaid ? t("Pagado") : t("Pendiente")}</Label>
       </div>
 
       <Button
@@ -150,6 +152,7 @@ function ExpenseForm({
 }
 
 export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }: ExpenseListProps) {
+  const t = useT();
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<Expense | null>(null);
   const [filter, setFilter] = useState<"todos" | "pendientes" | "pagados">("todos");
@@ -157,6 +160,12 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
   const visible = expenses.filter((e) =>
     filter === "todos" ? true : filter === "pagados" ? e.is_paid : !e.is_paid,
   );
+
+  const filterLabels: Record<typeof filter, string> = {
+    todos: t("todos"),
+    pendientes: t("pendientes"),
+    pagados: t("pagados"),
+  };
 
   return (
     <div className="space-y-4">
@@ -170,7 +179,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
                 filter === f ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {f}
+              {filterLabels[f]}
             </button>
           ))}
         </div>
@@ -178,14 +187,14 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-1.5 rounded-full">
-              <Plus className="h-4 w-4" /> Nuevo
+              <Plus className="h-4 w-4" /> {t("Nuevo")}
             </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Nuevo gasto</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{t("Nuevo gasto")}</DialogTitle></DialogHeader>
             <ExpenseForm
               categories={categories}
-              submitLabel="Agregar"
+              submitLabel={t("Agregar")}
               onSubmit={(v) => {
                 onAdd(v);
                 setAddOpen(false);
@@ -219,7 +228,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
                       <p className="truncate text-xs text-muted-foreground">{expense.category}</p>
                     </div>
                     <span className="shrink-0 font-display text-sm font-semibold tabular-nums">
-                      {formatCOP(Number(expense.amount))}
+                      {formatCOP(Number(expense.amount), expense.currency)}
                     </span>
                   </div>
 
@@ -229,10 +238,10 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
                         expense.is_paid ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
                       }`}
                     >
-                      {expense.is_paid ? "Pagado" : "Pendiente"}
+                      {expense.is_paid ? t("Pagado") : t("Pendiente")}
                     </span>
                     <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                      {frequencyLabel(expense.frequency)}
+                      {t(frequencyLabel(expense.frequency))}
                     </span>
                     {expense.due_date && (
                       <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
@@ -250,12 +259,12 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
                       onClick={() => onUpdate(expense.id, { is_paid: !expense.is_paid })}
                     >
                       <Check className={`h-4 w-4 ${expense.is_paid ? "text-success" : "text-muted-foreground"}`} />
-                      {expense.is_paid ? "Pagado" : "Marcar pagado"}
+                      {expense.is_paid ? t("Pagado") : t("Marcar pagado")}
                     </Button>
-                    <Button size="icon" variant="ghost" aria-label="Editar" onClick={() => setEditing(expense)}>
+                    <Button size="icon" variant="ghost" aria-label={t("Editar")} onClick={() => setEditing(expense)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" aria-label="Eliminar" onClick={() => onDelete(expense.id)}>
+                    <Button size="icon" variant="ghost" aria-label={t("Eliminar")} onClick={() => onDelete(expense.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
@@ -269,19 +278,19 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
       {visible.length === 0 && (
         <Card className="rounded-2xl border border-dashed shadow-none">
           <CardContent className="py-12 text-center text-sm text-muted-foreground">
-            No hay gastos en esta vista. Usa “Nuevo” para agregar uno.
+            {t("No hay gastos en esta vista. Usa “Nuevo” para agregar uno.")}
           </CardContent>
         </Card>
       )}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Editar gasto</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("Editar gasto")}</DialogTitle></DialogHeader>
           {editing && (
             <ExpenseForm
               key={editing.id}
               categories={categories}
-              submitLabel="Guardar cambios"
+              submitLabel={t("Guardar cambios")}
               initial={{
                 category: editing.category,
                 amount: Number(editing.amount),

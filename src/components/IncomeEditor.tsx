@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MoneyInput } from "@/components/ui/money-input";
 import { Pencil, Check } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 interface IncomeEditorProps {
   income: number;
@@ -9,6 +10,7 @@ interface IncomeEditorProps {
 }
 
 export function IncomeEditor({ income, onSave }: IncomeEditorProps) {
+  const t = useT();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(String(income));
 
@@ -45,7 +47,7 @@ export function IncomeEditor({ income, onSave }: IncomeEditorProps) {
       }}
     >
       <Pencil className="h-3.5 w-3.5" />
-      Editar ingreso
+      {t("Editar ingreso")}
     </Button>
   );
 }

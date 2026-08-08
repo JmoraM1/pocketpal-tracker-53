@@ -55,14 +55,14 @@ const BAR_COLORS = [
   "hsl(var(--accent-cool))",
 ];
 
-function relativeDay(dateStr: string | null): string {
+function relativeDay(dateStr: string | null, t: (s: string, v?: Record<string, string | number>) => string, locale: string): string {
   if (!dateStr) return "";
   const d = new Date(dateStr);
   const diff = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(d).setHours(0, 0, 0, 0)) / 86400000);
-  if (diff <= 0) return "Hoy";
-  if (diff === 1) return "Ayer";
-  if (diff < 7) return `Hace ${diff} días`;
-  return d.toLocaleDateString("es-CO", { day: "numeric", month: "short" });
+  if (diff <= 0) return t("Hoy");
+  if (diff === 1) return t("Ayer");
+  if (diff < 7) return t("Hace {n} días", { n: diff });
+  return d.toLocaleDateString(locale, { day: "numeric", month: "short" });
 }
 
 export function HomeView({

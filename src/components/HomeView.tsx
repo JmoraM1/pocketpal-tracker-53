@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCOP } from "@/lib/constants";
+import { formatCompactNumber } from "@/lib/currency";
+import { useI18n } from "@/lib/i18n";
 import { getCategoryVisual } from "@/lib/categoryIcons";
 import { SmartMessage } from "@/components/SmartMessage";
 import {

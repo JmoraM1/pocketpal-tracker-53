@@ -215,6 +215,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
 
 // ---------------- GOAL CARD ----------------
 function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete, onSetMonth, onDeleteContrib }: any) {
+  const t = useT();
   const [editName, setEditName] = useState(goal.name);
   const [editTarget, setEditTarget] = useState(String(goal.target_amount));
   const [amount, setAmount] = useState("");
@@ -229,7 +230,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="font-semibold">{goal.name}</h3>
-          <p className="text-xs text-muted-foreground">Objetivo: {formatCOP(target)}</p>
+          <p className="text-xs text-muted-foreground">{t("Objetivo:")} {formatCOP(target, goal.currency)}</p>
         </div>
         <div className="flex gap-1">
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
@@ -237,53 +238,53 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
               <Button size="icon" variant="ghost" className="h-7 w-7"><Pencil className="h-3.5 w-3.5" /></Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>Editar meta</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>{t("Editar meta")}</DialogTitle></DialogHeader>
               <div className="space-y-3">
-                <div><Label>Nombre</Label><Input value={editName} onChange={(e) => setEditName(e.target.value)} /></div>
-                <div><Label>Valor objetivo</Label><MoneyInput value={editTarget} onChange={(v) => setEditTarget(v)} /></div>
+                <div><Label>{t("Nombre")}</Label><Input value={editName} onChange={(e) => setEditName(e.target.value)} /></div>
+                <div><Label>{t("Valor objetivo")}</Label><MoneyInput value={editTarget} onChange={(v) => setEditTarget(v)} /></div>
               </div>
               <DialogFooter>
-                <Button onClick={async () => { await onUpdate(goal.id, { name: editName, target_amount: Number(editTarget) }); setEditOpen(false); }}>Guardar</Button>
+                <Button onClick={async () => { await onUpdate(goal.id, { name: editName, target_amount: Number(editTarget) }); setEditOpen(false); }}>{t("Guardar")}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <ConfirmDeleteButton onConfirm={() => onDelete(goal.id)} className="h-7 w-7" />
+          <ConfirmDeleteButton onConfirm={() => onDelete(goal.id)} className="h-7 w-7" title={t("Eliminar meta")} description={t("¿Estás seguro de que deseas eliminar esta meta? Esta acción no se puede deshacer.")} />
         </div>
       </div>
 
       <Progress value={pct} className="h-2.5" />
       <div className="flex items-center justify-between text-xs">
-        <span className="font-semibold text-primary">{formatCOP(total)} ahorrado</span>
+        <span className="font-semibold text-primary">{formatCOP(total, goal.currency)} {t("ahorrado")}</span>
         <span className="text-muted-foreground">{pct.toFixed(0)}%</span>
-        <span className="text-muted-foreground">Faltan {formatCOP(Math.max(0, target - total))}</span>
+        <span className="text-muted-foreground">{t("Faltan")} {formatCOP(Math.max(0, target - total), goal.currency)}</span>
       </div>
 
       <div className="flex items-end gap-2 pt-2 border-t">
         <div className="flex-1">
-          <Label className="text-xs">Nuevo aporte</Label>
+          <Label className="text-xs">{t("Nuevo aporte")}</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
           {monthAmount > 0 && (
-            <p className="text-xs text-muted-foreground mt-1">Aportado este mes: {formatCOP(monthAmount)}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("Aportado este mes:")} {formatCOP(monthAmount, goal.currency)}</p>
           )}
         </div>
         <Button size="sm" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(goal.id, Number(amount)); setAmount(""); } }}>
-          <Check className="mr-1 h-4 w-4" />Guardar
+          <Check className="mr-1 h-4 w-4" />{t("Guardar")}
         </Button>
       </div>
 
       {contributions.length > 0 && (
         <Dialog open={histOpen} onOpenChange={setHistOpen}>
           <DialogTrigger asChild>
-            <Button variant="link" size="sm" className="px-0 h-auto">Ver historial ({contributions.length} aportes)</Button>
+            <Button variant="link" size="sm" className="px-0 h-auto">{t("Ver historial ({count} aportes)", { count: contributions.length })}</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Historial — {goal.name}</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{t("Historial —")} {goal.name}</DialogTitle></DialogHeader>
             <div className="space-y-1 max-h-[60vh] overflow-y-auto">
               {[...contributions].sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).map((c: any) => (
                 <div key={c.id} className="flex items-center justify-between rounded p-2 hover:bg-muted/50">
                   <span className="text-sm">{formatDateTime(c.created_at)}</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-primary">{formatCOP(Number(c.amount))}</span>
+                    <span className="font-semibold text-primary">{formatCOP(Number(c.amount), goal.currency)}</span>
                     <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => onDeleteContrib(c.id)}>
                       <Trash2 className="h-3 w-3" />
                     </Button>

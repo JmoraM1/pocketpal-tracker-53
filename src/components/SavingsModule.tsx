@@ -23,6 +23,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Target, PiggyBank, Plus, Pencil, Trash2, Check, Trophy } from "lucide-react";
 import { formatCOP } from "@/lib/constants";
 import { useSavings } from "@/hooks/useSavings";
+import { useT } from "@/lib/i18n";
 
 function formatDateTime(iso?: string | null): string {
   if (!iso) return "";
@@ -41,6 +42,7 @@ interface Props {
 }
 
 export function SavingsModule({ userId, selectedMonth, mode }: Props) {
+  const t = useT();
   const s = useSavings(userId, selectedMonth);
   const [newGoalName, setNewGoalName] = useState("");
   const [newGoalTarget, setNewGoalTarget] = useState("");
@@ -69,34 +71,34 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
-              Metas
+              {t("Metas")}
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Define objetivos y registra aportes múltiples cada mes.
+              {t("Define objetivos y registra aportes múltiples cada mes.")}
             </p>
           </div>
           <Dialog open={openGoal} onOpenChange={setOpenGoal}>
             <DialogTrigger asChild>
-              <Button size="sm"><Plus className="mr-1 h-4 w-4" />Nueva meta</Button>
+              <Button size="sm"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>Nueva meta de ahorro</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>{t("Nueva meta de ahorro")}</DialogTitle></DialogHeader>
               <div className="space-y-3">
                 <div>
-                  <Label>Nombre</Label>
-                  <Input value={newGoalName} onChange={(e) => setNewGoalName(e.target.value)} placeholder="Ej: Viaje a la costa" />
+                  <Label>{t("Nombre")}</Label>
+                  <Input value={newGoalName} onChange={(e) => setNewGoalName(e.target.value)} placeholder={t("Ej: Viaje a la costa")} />
                 </div>
                 <div>
-                  <Label>Valor objetivo</Label>
+                  <Label>{t("Valor objetivo")}</Label>
                   <MoneyInput value={newGoalTarget} onChange={(v) => setNewGoalTarget(v)} />
                 </div>
                 <div>
-                  <Label>Monto inicial (opcional)</Label>
+                  <Label>{t("Monto inicial (opcional)")}</Label>
                   <MoneyInput value={newGoalInitial} onChange={(v) => setNewGoalInitial(v)} />
                 </div>
               </div>
               <DialogFooter>
-                <Button onClick={handleCreateGoal}>Crear</Button>
+                <Button onClick={handleCreateGoal}>{t("Crear")}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -104,13 +106,13 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
         <CardContent>
           <Tabs defaultValue="active" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="active">Activas ({s.activeGoals.length})</TabsTrigger>
-              <TabsTrigger value="completed">Completadas ({s.completedGoals.length})</TabsTrigger>
+              <TabsTrigger value="active">{t("Activas")} ({s.activeGoals.length})</TabsTrigger>
+              <TabsTrigger value="completed">{t("Completadas")} ({s.completedGoals.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="active" className="space-y-3 pt-4">
               {s.activeGoals.length === 0 && (
-                <p className="text-center text-sm text-muted-foreground py-6">Aún no tienes metas activas.</p>
+                <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes metas activas.")}</p>
               )}
               {s.activeGoals.map((g) => (
                 <GoalCard
@@ -129,7 +131,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
 
             <TabsContent value="completed" className="space-y-2 pt-4">
               {s.completedGoals.length === 0 && (
-                <p className="text-center text-sm text-muted-foreground py-6">Aún no tienes metas completadas.</p>
+                <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes metas completadas.")}</p>
               )}
               {s.completedGoals.map((g) => (
                 <div key={g.id} className="flex items-center justify-between rounded-xl border bg-muted/40 p-3">
@@ -137,11 +139,11 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
                     <Trophy className="h-4 w-4 text-primary" />
                     <div>
                       <p className="font-medium text-sm">{g.name}</p>
-                      <p className="text-xs text-muted-foreground">Meta completada</p>
+                      <p className="text-xs text-muted-foreground">{t("Meta completada")}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-primary font-semibold text-sm">{formatCOP(s.goalTotal(g.id))} / {formatCOP(Number(g.target_amount))}</span>
+                    <span className="text-primary font-semibold text-sm">{formatCOP(s.goalTotal(g.id), g.currency)} / {formatCOP(Number(g.target_amount), g.currency)}</span>
                     <ConfirmDeleteButton onConfirm={() => s.deleteGoal(g.id)} />
                   </div>
                 </div>
@@ -160,37 +162,37 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
         <div>
           <CardTitle className="flex items-center gap-2">
             <PiggyBank className="h-5 w-5 text-primary" />
-            Ahorros
+            {t("Ahorros")}
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Registra aportes libres y consulta el total acumulado.
+            {t("Registra aportes libres y consulta el total acumulado.")}
           </p>
         </div>
         <Dialog open={openSaving} onOpenChange={setOpenSaving}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="mr-1 h-4 w-4" />Nuevo ahorro</Button>
+            <Button size="sm"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Nuevo ahorro</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{t("Nuevo ahorro")}</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div>
-                <Label>Nombre</Label>
-                <Input value={newSavingName} onChange={(e) => setNewSavingName(e.target.value)} placeholder="Ej: Ahorro libre" />
+                <Label>{t("Nombre")}</Label>
+                <Input value={newSavingName} onChange={(e) => setNewSavingName(e.target.value)} placeholder={t("Ej: Ahorro libre")} />
               </div>
               <div>
-                <Label>Monto inicial (opcional)</Label>
+                <Label>{t("Monto inicial (opcional)")}</Label>
                 <MoneyInput value={newSavingInitial} onChange={(v) => setNewSavingInitial(v)} />
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={handleCreateSaving}>Crear</Button>
+              <Button onClick={handleCreateSaving}>{t("Crear")}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </CardHeader>
       <CardContent className="space-y-3">
         {s.freeSavings.length === 0 && (
-          <p className="text-center text-sm text-muted-foreground py-6">Aún no tienes ahorros registrados.</p>
+          <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes ahorros registrados.")}</p>
         )}
         {s.freeSavings.map((f) => (
           <FreeSavingCard

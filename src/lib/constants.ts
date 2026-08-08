@@ -12,22 +12,22 @@ export const DEFAULT_CATEGORIES = [
   "Crédito",
 ] as const;
 
-export function formatCOP(value: number): string {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
+/**
+ * Formats a value as money. Pass the record's own currency to keep historical
+ * records in the currency they were created with; omit it to use the currency
+ * currently configured by the user.
+ */
+export function formatCOP(value: number, currency?: string | null): string {
+  return formatMoney(value, currency);
 }
 
 export function getMonthKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-01`;
 }
 
-export function formatMonthLabel(dateStr: string): string {
+export function formatMonthLabel(dateStr: string, locale = getUiLocale()): string {
   const date = new Date(dateStr + "T12:00:00");
-  return date.toLocaleDateString("es-CO", { month: "long", year: "numeric" });
+  return date.toLocaleDateString(locale, { month: "long", year: "numeric" });
 }
 
 export function isSavingsCategory(name: string): boolean {

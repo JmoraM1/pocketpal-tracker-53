@@ -1,3 +1,6 @@
+import { formatMoney } from "@/lib/currency";
+import { getUiLocale } from "@/lib/locale";
+
 export const DEFAULT_CATEGORIES = [
   "Plan celular",
   "Recibos casa",

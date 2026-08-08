@@ -57,5 +57,5 @@ export function frequencyLabel(value?: string | null): string {
 export function formatShortDate(value?: string | null): string {
   if (!value) return "";
   const d = new Date(`${value}T12:00:00`);
-  return d.toLocaleDateString("es-CO", { day: "numeric", month: "short" });
+  return d.toLocaleDateString(getUiLocale(), { day: "numeric", month: "short" });
 }

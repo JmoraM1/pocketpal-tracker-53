@@ -136,7 +136,14 @@ export function HomeView({
       return { name: e.category?.slice(0, 12) ?? `#${i + 1}`, Ingresos: income, Gastos: acc };
     });
     return [{ name: t("Inicio"), Ingresos: income, Gastos: 0 }, ...points];
-  }, [expenses, income]);
+  }, [expenses, income, t]);
+
+  // El ancho del eje Y se adapta al valor más alto (miles, millones, decenas de millones)
+  const yAxisWidth = useMemo(() => {
+    const max = flowData.reduce((m, d) => Math.max(m, d.Ingresos, d.Gastos), 0);
+    const label = formatCompactNumber(max);
+    return Math.min(96, Math.max(44, label.length * 9 + 16));
+  }, [flowData]);
 
   const categoryData = useMemo(() => {
     const map = new Map<string, number>();

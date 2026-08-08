@@ -20,6 +20,7 @@ export type Database = {
           budget_id: string
           category: string
           created_at: string
+          currency: string
           description: string | null
           due_date: string | null
           frequency: string
@@ -33,6 +34,7 @@ export type Database = {
           budget_id: string
           category: string
           created_at?: string
+          currency?: string
           description?: string | null
           due_date?: string | null
           frequency?: string
@@ -46,6 +48,7 @@ export type Database = {
           budget_id?: string
           category?: string
           created_at?: string
+          currency?: string
           description?: string | null
           due_date?: string | null
           frequency?: string
@@ -67,6 +70,7 @@ export type Database = {
       free_savings: {
         Row: {
           created_at: string
+          currency: string
           id: string
           name: string
           updated_at: string
@@ -74,6 +78,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          currency?: string
           id?: string
           name: string
           updated_at?: string
@@ -81,6 +86,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          currency?: string
           id?: string
           name?: string
           updated_at?: string
@@ -174,6 +180,7 @@ export type Database = {
         Row: {
           completed_at: string | null
           created_at: string
+          currency: string
           id: string
           installment_amount: number
           is_completed: boolean
@@ -188,6 +195,7 @@ export type Database = {
         Insert: {
           completed_at?: string | null
           created_at?: string
+          currency?: string
           id?: string
           installment_amount?: number
           is_completed?: boolean
@@ -202,6 +210,7 @@ export type Database = {
         Update: {
           completed_at?: string | null
           created_at?: string
+          currency?: string
           id?: string
           installment_amount?: number
           is_completed?: boolean
@@ -218,6 +227,7 @@ export type Database = {
       monthly_budgets: {
         Row: {
           created_at: string
+          currency: string
           id: string
           income: number
           month: string
@@ -226,6 +236,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          currency?: string
           id?: string
           income?: number
           month: string
@@ -234,6 +245,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          currency?: string
           id?: string
           income?: number
           month?: string
@@ -411,6 +423,7 @@ export type Database = {
       savings_goals: {
         Row: {
           created_at: string
+          currency: string
           id: string
           is_completed: boolean
           name: string
@@ -420,6 +433,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          currency?: string
           id?: string
           is_completed?: boolean
           name: string
@@ -429,6 +443,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          currency?: string
           id?: string
           is_completed?: boolean
           name?: string

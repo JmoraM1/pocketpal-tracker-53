@@ -41,6 +41,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = language;
+    setUiLocale(language === "en" ? "en-US" : "es-CO");
   }, [language]);
 
   const value = useMemo<I18nValue>(() => {

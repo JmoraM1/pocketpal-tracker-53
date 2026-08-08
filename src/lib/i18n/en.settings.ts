@@ -1,0 +1,28 @@
+export const EN_SETTINGS: Record<string, string> = {
+  Perfil: "Profile",
+  Alias: "Alias",
+  "Ej. Juan": "E.g. John",
+  "Se usa en el saludo del inicio.": "Used in the home screen greeting.",
+  Moneda: "Currency",
+  Idioma: "Language",
+  Español: "Spanish",
+  Correo: "Email",
+  Seguridad: "Security",
+  Biometría: "Biometrics",
+  Activada: "Enabled",
+  Desactivada: "Disabled",
+  "Activar biometría": "Enable biometrics",
+  Desactivar: "Disable",
+  "Cambiar contraseña": "Change password",
+  "Cerrar sesión": "Sign out",
+  "Perfil actualizado": "Profile updated",
+  "Tus datos se guardaron correctamente.": "Your data was saved successfully.",
+  "Correo enviado": "Email sent",
+  "Te enviamos un enlace para cambiar tu contraseña.": "We sent you a link to change your password.",
+  "Tu dispositivo o navegador no es compatible con la autenticación biométrica.":
+    "Your device or browser doesn't support biometric authentication.",
+  "Registrado el {date}": "Registered on {date}",
+  "¿Desactivar biometría?": "Disable biometrics?",
+  "¿Estás seguro de que deseas eliminar esta huella? Podrás volver a registrarla cuando quieras.":
+    "Are you sure you want to remove this passkey? You can register it again anytime.",
+};

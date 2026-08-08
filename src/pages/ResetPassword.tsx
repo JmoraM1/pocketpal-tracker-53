@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Wallet, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useT } from "@/lib/i18n";
 
 const MIN_PASSWORD_LENGTH = 6;
 
@@ -17,6 +18,7 @@ export default function ResetPassword() {
   const [errors, setErrors] = useState<{ password?: string; confirm?: string }>({});
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+  const t = useT();
 
   useEffect(() => {
     // Listen for the PASSWORD_RECOVERY event from the magic link
@@ -32,15 +34,15 @@ export default function ResetPassword() {
     const newErrors: { password?: string; confirm?: string } = {};
 
     if (!password) {
-      newErrors.password = "La contraseña es obligatoria.";
+      newErrors.password = t("La contraseña es obligatoria.");
     } else if (password.length < MIN_PASSWORD_LENGTH) {
-      newErrors.password = `Mínimo ${MIN_PASSWORD_LENGTH} caracteres.`;
+      newErrors.password = t("Mínimo {n} caracteres.", { n: MIN_PASSWORD_LENGTH });
     }
 
     if (!confirmPassword) {
-      newErrors.confirm = "Confirma tu contraseña.";
+      newErrors.confirm = t("Confirma tu contraseña.");
     } else if (password !== confirmPassword) {
-      newErrors.confirm = "Las contraseñas no coinciden.";
+      newErrors.confirm = t("Las contraseñas no coinciden.");
     }
 
     setErrors(newErrors);
@@ -55,10 +57,10 @@ export default function ResetPassword() {
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("Error"), description: error.message, variant: "destructive" });
     } else {
       setSuccess(true);
-      toast({ title: "¡Listo!", description: "Tu contraseña ha sido actualizada." });
+      toast({ title: t("¡Listo!"), description: t("Tu contraseña ha sido actualizada.") });
       setTimeout(() => navigate("/auth"), 3000);
     }
     setSubmitting(false);
@@ -72,8 +74,8 @@ export default function ResetPassword() {
             <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
               <CheckCircle2 className="h-7 w-7 text-primary-foreground" />
             </div>
-            <CardTitle className="text-2xl">Contraseña actualizada</CardTitle>
-            <CardDescription>Serás redirigido al inicio de sesión...</CardDescription>
+            <CardTitle className="text-2xl">{t("Contraseña actualizada")}</CardTitle>
+            <CardDescription>{t("Serás redirigido al inicio de sesión...")}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -87,13 +89,13 @@ export default function ResetPassword() {
           <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
             <Wallet className="h-7 w-7 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl">Nueva contraseña</CardTitle>
-          <CardDescription>Ingresa y confirma tu nueva contraseña</CardDescription>
+          <CardTitle className="text-2xl">{t("Nueva contraseña")}</CardTitle>
+          <CardDescription>{t("Ingresa y confirma tu nueva contraseña")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-2">
-              <Label htmlFor="new-password">Nueva contraseña</Label>
+              <Label htmlFor="new-password">{t("Nueva contraseña")}</Label>
               <Input
                 id="new-password"
                 type="password"
@@ -102,7 +104,7 @@ export default function ResetPassword() {
                   setPassword(e.target.value);
                   setErrors((p) => { const n = { ...p }; delete n.password; return n; });
                 }}
-                placeholder="••••••••"
+                placeholder={t("••••••••")}
                 className={errors.password ? "border-destructive focus-visible:ring-destructive" : ""}
                 aria-invalid={!!errors.password}
               />
@@ -114,7 +116,7 @@ export default function ResetPassword() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirmar contraseña</Label>
+              <Label htmlFor="confirm-password">{t("Confirmar contraseña")}</Label>
               <Input
                 id="confirm-password"
                 type="password"
@@ -123,7 +125,7 @@ export default function ResetPassword() {
                   setConfirmPassword(e.target.value);
                   setErrors((p) => { const n = { ...p }; delete n.confirm; return n; });
                 }}
-                placeholder="••••••••"
+                placeholder={t("••••••••")}
                 className={errors.confirm ? "border-destructive focus-visible:ring-destructive" : ""}
                 aria-invalid={!!errors.confirm}
               />
@@ -134,11 +136,11 @@ export default function ResetPassword() {
                 </p>
               )}
               {!errors.password && !errors.confirm && (
-                <p className="text-xs text-muted-foreground">Mínimo {MIN_PASSWORD_LENGTH} caracteres.</p>
+                <p className="text-xs text-muted-foreground">{t("Mínimo {n} caracteres.", { n: MIN_PASSWORD_LENGTH })}</p>
               )}
             </div>
             <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-              {submitting ? "Guardando..." : "Actualizar contraseña"}
+              {submitting ? t("Guardando...") : t("Actualizar contraseña")}
             </Button>
           </form>
         </CardContent>

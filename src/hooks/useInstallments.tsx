@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMonthKey } from "@/lib/constants";
+import { getActiveCurrency } from "@/lib/currency";
 
 export interface InstallmentPlan {
   id: string;
@@ -15,6 +16,7 @@ export interface InstallmentPlan {
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+  currency?: string | null;
 }
 
 export interface InstallmentPayment {
@@ -138,6 +140,7 @@ export function useInstallments(userId: string | undefined, selectedMonth: Date)
         num_installments: data.num_installments,
         installment_amount,
         start_date: data.start_date,
+        currency: getActiveCurrency(),
       })
       .select()
       .single();

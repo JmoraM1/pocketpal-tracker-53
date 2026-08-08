@@ -2,12 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Copy, CalendarDays } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { formatMonthLabel, getMonthKey } from "@/lib/constants";
-
-const MONTH_NAMES = [
-  "Ene", "Feb", "Mar", "Abr", "May", "Jun",
-  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
-];
+import { formatMonthLabel, getMonthKey, getShortMonthNames } from "@/lib/constants";
+import { useI18n } from "@/lib/i18n";
 
 interface MonthSelectorProps {
   selectedMonth: Date;
@@ -16,6 +12,8 @@ interface MonthSelectorProps {
 }
 
 export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: MonthSelectorProps) {
+  const { t, locale } = useI18n();
+  const MONTH_NAMES = getShortMonthNames(locale);
   const [open, setOpen] = useState(false);
   const [viewYear, setViewYear] = useState(selectedMonth.getFullYear());
 
@@ -51,7 +49,7 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
         <PopoverTrigger asChild>
           <Button variant="outline" className="min-w-[160px] gap-2 capitalize">
             <CalendarDays className="h-4 w-4" />
-            {formatMonthLabel(getMonthKey(selectedMonth))}
+            {formatMonthLabel(getMonthKey(selectedMonth), locale)}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[280px] p-3" align="start">
@@ -90,7 +88,7 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
 
       <Button variant="outline" size="sm" onClick={onCopyPrevious} className="ml-2 gap-1">
         <Copy className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">Copiar mes anterior</span>
+        <span className="hidden sm:inline">{t("Copiar mes anterior")}</span>
       </Button>
     </div>
   );

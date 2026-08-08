@@ -7,6 +7,7 @@ import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { toast } from "@/hooks/use-toast";
 import { Wallet, AlertCircle, ArrowLeft, Eye, EyeOff, Fingerprint } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/lib/i18n";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 6;
@@ -27,6 +28,7 @@ export default function Auth() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [forgotSent, setForgotSent] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const t = useT();
   const { signIn, signUp } = useAuth();
   const { loading: webauthnLoading, authenticateWithPasskey, isSupported: webauthnSupported } = useWebAuthn();
 
@@ -34,11 +36,11 @@ export default function Auth() {
 
   const validate = (emailOnly = false): boolean => {
     const newErrors: FormErrors = {};
-    if (!email.trim()) newErrors.email = "El correo electrónico es obligatorio.";
-    else if (!EMAIL_REGEX.test(email.trim())) newErrors.email = "El formato del correo no es válido.";
+    if (!email.trim()) newErrors.email = t("El correo electrónico es obligatorio.");
+    else if (!EMAIL_REGEX.test(email.trim())) newErrors.email = t("El formato del correo no es válido.");
     if (!emailOnly) {
-      if (!password) newErrors.password = "La contraseña es obligatoria.";
-      else if (password.length < MIN_PASSWORD_LENGTH) newErrors.password = `Mínimo ${MIN_PASSWORD_LENGTH} caracteres.`;
+      if (!password) newErrors.password = t("La contraseña es obligatoria.");
+      else if (password.length < MIN_PASSWORD_LENGTH) newErrors.password = t("Mínimo {n} caracteres.", { n: MIN_PASSWORD_LENGTH });
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -50,7 +52,7 @@ export default function Auth() {
     setSubmitting(true);
     await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/reset-password` });
     setForgotSent(true);
-    toast({ title: "Correo enviado", description: "Si el correo está registrado, recibirás un enlace de recuperación." });
+    toast({ title: t("Correo enviado"), description: t("Si el correo está registrado, recibirás un enlace de recuperación.") });
     setSubmitting(false);
   };
 
@@ -59,8 +61,8 @@ export default function Auth() {
     if (!validate()) return;
     setSubmitting(true);
     const { error } = view === "login" ? await signIn(email.trim(), password) : await signUp(email.trim(), password);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else if (view === "register") toast({ title: "Registro exitoso", description: "Revisa tu correo para confirmar tu cuenta." });
+    if (error) toast({ title: t("Error"), description: error.message, variant: "destructive" });
+    else if (view === "register") toast({ title: t("Registro exitoso"), description: t("Revisa tu correo para confirmar tu cuenta.") });
     setSubmitting(false);
   };
 
@@ -96,11 +98,11 @@ export default function Auth() {
               <Wallet className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Mis Finanzas</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">{t("Mis finanzas")}</h1>
           <p className="mt-1.5 text-sm text-white/40">
             {view === "forgot"
-              ? (forgotSent ? "Revisa tu bandeja de entrada" : "Recupera el acceso a tu cuenta")
-              : view === "login" ? "Bienvenido de vuelta" : "Crea tu cuenta gratis"}
+              ? (forgotSent ? t("Revisa tu bandeja de entrada") : t("Recupera el acceso a tu cuenta"))
+              : view === "login" ? t("Bienvenido de vuelta") : t("Crea tu cuenta gratis")}
           </p>
         </div>
 
@@ -111,35 +113,35 @@ export default function Auth() {
               {!forgotSent && (
                 <form onSubmit={handleForgotPassword} className="space-y-5" noValidate>
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-xs font-medium text-white/50 uppercase tracking-wider">Correo electrónico</Label>
+                    <Label htmlFor="email" className="text-xs font-medium text-white/50 uppercase tracking-wider">{t("Correo electrónico")}</Label>
                     <Input id="email" type="email" value={email}
                       onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
-                      placeholder="tu@correo.com" className={inputClass(!!errors.email)} aria-invalid={!!errors.email} />
+                      placeholder={t("tu@correo.com")} className={inputClass(!!errors.email)} aria-invalid={!!errors.email} />
                     {errors.email && <p className="flex items-center gap-1 text-xs text-red-400 animate-fade-in"><AlertCircle className="h-3 w-3" />{errors.email}</p>}
                   </div>
                   <Button type="submit" disabled={submitting}
                     className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-primary-glow text-white font-semibold text-sm border-0 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:brightness-110 active:scale-[0.98] transition-all duration-300">
-                    {submitting ? "Enviando..." : "Enviar enlace"}
+                    {submitting ? t("Enviando...") : t("Enviar enlace")}
                   </Button>
                 </form>
               )}
               <button onClick={() => { setView("login"); setErrors({}); setForgotSent(false); }}
                 className="mt-5 flex items-center gap-1.5 mx-auto text-xs font-medium text-white/40 hover:text-white/70 transition-colors">
-                <ArrowLeft className="h-3 w-3" /> Volver al inicio
+                <ArrowLeft className="h-3 w-3" /> {t("Volver al inicio")}
               </button>
             </>
           ) : (
             <>
               <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-xs font-medium text-white/50 uppercase tracking-wider">Correo electrónico</Label>
+                  <Label htmlFor="email" className="text-xs font-medium text-white/50 uppercase tracking-wider">{t("Correo electrónico")}</Label>
                   <Input id="email" type="email" value={email}
                     onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
-                    placeholder="tu@correo.com" className={inputClass(!!errors.email)} aria-invalid={!!errors.email} />
+                    placeholder={t("tu@correo.com")} className={inputClass(!!errors.email)} aria-invalid={!!errors.email} />
                   {errors.email && <p className="flex items-center gap-1 text-xs text-red-400 animate-fade-in"><AlertCircle className="h-3 w-3" />{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-xs font-medium text-white/50 uppercase tracking-wider">Contraseña</Label>
+                  <Label htmlFor="password" className="text-xs font-medium text-white/50 uppercase tracking-wider">{t("Contraseña")}</Label>
                   <div className="relative">
                     <Input id="password" type={showPassword ? "text" : "password"} value={password}
                       onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
@@ -150,32 +152,32 @@ export default function Auth() {
                     </button>
                   </div>
                   {errors.password && <p className="flex items-center gap-1 text-xs text-red-400 animate-fade-in"><AlertCircle className="h-3 w-3" />{errors.password}</p>}
-                  {view === "register" && !errors.password && <p className="text-[11px] text-white/25">Mínimo {MIN_PASSWORD_LENGTH} caracteres</p>}
+                  {view === "register" && !errors.password && <p className="text-[11px] text-white/25">{t("Mínimo {n} caracteres", { n: MIN_PASSWORD_LENGTH })}</p>}
                 </div>
 
                 {view === "login" && (
                   <div className="text-right">
                     <button type="button" onClick={() => { setView("forgot"); setErrors({}); }}
                       className="text-xs text-white/35 hover:text-white/60 transition-colors">
-                      ¿Olvidaste tu contraseña?
+                      {t("¿Olvidaste tu contraseña?")}
                     </button>
                   </div>
                 )}
 
                 <Button type="submit" disabled={submitting || webauthnLoading}
                   className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-primary-glow text-white font-semibold text-sm border-0 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:brightness-110 active:scale-[0.98] transition-all duration-300">
-                  {submitting ? "Cargando..." : view === "login" ? "Iniciar sesión" : "Crear cuenta"}
+                  {submitting ? t("Cargando...") : view === "login" ? t("Iniciar sesión") : t("Crear cuenta")}
                 </Button>
 
                 {view === "login" && webauthnSupported && (
                   <button type="button" disabled={webauthnLoading || submitting || !email.trim()}
                     onClick={async () => {
-                      if (!email.trim()) { toast({ title: "Correo requerido", description: "Ingresa tu correo para usar biometría.", variant: "destructive" }); return; }
+                      if (!email.trim()) { toast({ title: t("Correo requerido"), description: t("Ingresa tu correo para usar biometría."), variant: "destructive" }); return; }
                       await authenticateWithPasskey(email.trim());
                     }}
                     className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-sm font-medium hover:bg-white/[0.08] hover:text-white/80 active:scale-[0.98] transition-all duration-300 disabled:opacity-30">
                     <Fingerprint className="h-4.5 w-4.5" />
-                    {webauthnLoading ? "Verificando..." : "Huella / Face ID"}
+                    {webauthnLoading ? t("Verificando...") : t("Huella / Face ID")}
                   </button>
                 )}
               </form>
@@ -186,10 +188,10 @@ export default function Auth() {
               </div>
 
               <p className="text-center text-xs text-white/30">
-                {view === "login" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
+                {view === "login" ? t("¿No tienes cuenta?") : t("¿Ya tienes cuenta?")}{" "}
                 <button onClick={() => { setView(view === "login" ? "register" : "login"); setErrors({}); }}
                   className="font-semibold text-blue-400 hover:text-blue-300 transition-colors">
-                  {view === "login" ? "Regístrate" : "Inicia sesión"}
+                  {view === "login" ? t("Regístrate") : t("Inicia sesión")}
                 </button>
               </p>
             </>

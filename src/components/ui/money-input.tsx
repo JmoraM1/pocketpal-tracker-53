@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
+import { getActiveCurrency, getCurrencyInfo } from "@/lib/currency";
 
 interface MoneyInputProps extends Omit<React.ComponentProps<"input">, "onChange" | "value" | "type"> {
   value: string | number | undefined;
@@ -10,8 +11,11 @@ function formatDisplay(raw: string): string {
   if (!raw) return "";
   const digits = raw.replace(/\D/g, "");
   if (!digits) return "";
-  const withSep = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `$${withSep}`;
+  const info = getCurrencyInfo(getActiveCurrency());
+  const symbolParts = new Intl.NumberFormat(info.locale, { style: "currency", currency: info.code }).formatToParts(1);
+  const symbol = symbolParts.find((p) => p.type === "currency")?.value ?? "$";
+  const grouped = new Intl.NumberFormat(info.locale, { maximumFractionDigits: 0 }).format(Number(digits));
+  return `${symbol}${grouped}`;
 }
 
 export const MoneyInput = React.forwardRef<HTMLInputElement, MoneyInputProps>(

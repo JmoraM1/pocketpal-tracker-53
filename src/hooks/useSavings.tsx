@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMonthKey } from "@/lib/constants";
+import { getActiveCurrency } from "@/lib/currency";
 
 export type SavingsGoal = {
   id: string;
   name: string;
   target_amount: number;
   is_completed: boolean;
+  currency: string;
 };
 
 export type GoalContribution = {
@@ -20,6 +22,7 @@ export type GoalContribution = {
 export type FreeSaving = {
   id: string;
   name: string;
+  currency: string;
 };
 
 export type FreeContribution = {
@@ -62,7 +65,7 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
     if (!userId) return;
     const { data } = await supabase
       .from("savings_goals")
-      .insert({ user_id: userId, name, target_amount: target })
+      .insert({ user_id: userId, name, target_amount: target, currency: getActiveCurrency() })
       .select()
       .single();
     if (data && initial > 0) {
@@ -123,7 +126,7 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
     if (!userId) return;
     const { data } = await supabase
       .from("free_savings")
-      .insert({ user_id: userId, name })
+      .insert({ user_id: userId, name, currency: getActiveCurrency() })
       .select()
       .single();
     if (data && initial > 0) {

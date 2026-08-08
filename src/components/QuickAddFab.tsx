@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Receipt, CreditCard, Target, PiggyBank } from "lucide-react";
 import type { AppView } from "@/components/BottomNav";
+import { useT } from "@/lib/i18n";
 
 interface QuickAddFabProps {
   onNavigate: (v: AppView) => void;
@@ -15,6 +16,7 @@ const ACTIONS: { label: string; icon: typeof Plus; view: AppView; tint: string }
 ];
 
 export function QuickAddFab({ onNavigate }: QuickAddFabProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
 
   return (
@@ -23,7 +25,7 @@ export function QuickAddFab({ onNavigate }: QuickAddFabProps) {
         {open && (
           <motion.button
             key="scrim"
-            aria-label="Cerrar acciones rápidas"
+            aria-label={t("Cerrar acciones rápidas")}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -53,7 +55,7 @@ export function QuickAddFab({ onNavigate }: QuickAddFabProps) {
                   <span className={`flex h-8 w-8 items-center justify-center rounded-full ${a.tint}`}>
                     <Icon className="h-4 w-4" />
                   </span>
-                  {a.label}
+                  {t(a.label)}
                 </motion.button>
               );
             })}
@@ -64,7 +66,7 @@ export function QuickAddFab({ onNavigate }: QuickAddFabProps) {
           whileHover={{ scale: 1.05 }}
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          aria-label="Acciones rápidas"
+          aria-label={t("Acciones rápidas")}
           className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground shadow-float"
         >
           <motion.span animate={{ rotate: open ? 45 : 0 }} transition={{ type: "spring", stiffness: 380, damping: 22 }}>

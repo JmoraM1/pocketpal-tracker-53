@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { setActiveCurrency } from "@/lib/currency";
+import { useI18n, type Language } from "@/lib/i18n";
 
 export interface Profile {
   alias: string;
@@ -10,7 +12,8 @@ export interface Profile {
 const DEFAULT_PROFILE: Profile = { alias: "", currency: "COP", language: "es" };
 
 export function useProfile(userId: string | undefined) {
-  const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
+  const { language, setLanguage } = useI18n();
+  const [profile, setProfile] = useState<Profile>({ ...DEFAULT_PROFILE, language });
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -22,23 +25,33 @@ export function useProfile(userId: string | undefined) {
       .eq("id", userId)
       .maybeSingle();
     if (data) {
-      setProfile({
+      const next: Profile = {
         alias: data.alias ?? "",
         currency: data.currency ?? "COP",
         language: data.language ?? "es",
-      });
+      };
+      setProfile(next);
+      setActiveCurrency(next.currency);
+      setLanguage(next.language === "en" ? "en" : "es");
     }
     setLoading(false);
-  }, [userId]);
+  }, [userId, setLanguage]);
 
   useEffect(() => {
     load();
   }, [load]);
 
+  // Keep the money formatter in sync with the selected currency.
+  useEffect(() => {
+    setActiveCurrency(profile.currency);
+  }, [profile.currency]);
+
   const saveProfile = async (updates: Partial<Profile>) => {
     if (!userId) return;
     const next = { ...profile, ...updates };
     setProfile(next);
+    setActiveCurrency(next.currency);
+    if (updates.language) setLanguage((updates.language === "en" ? "en" : "es") as Language);
     await supabase.from("profiles").upsert({ id: userId, ...next });
   };
 

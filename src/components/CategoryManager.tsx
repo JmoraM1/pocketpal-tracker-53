@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Settings2, Plus, X, Pencil, Check } from "lucide-react";
 import { isSavingsCategory } from "@/lib/constants";
 import type { CategoryInfo } from "@/hooks/useCategories";
+import { useT } from "@/lib/i18n";
 
 interface CategoryManagerProps {
   categories: CategoryInfo[];
@@ -18,6 +19,7 @@ interface CategoryManagerProps {
 }
 
 export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleCumulative }: CategoryManagerProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newCumulative, setNewCumulative] = useState(false);
@@ -41,12 +43,12 @@ export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleC
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-1">
           <Settings2 className="h-4 w-4" />
-          Categorías
+          {t("Categorías")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Gestionar Categorías</DialogTitle>
+          <DialogTitle>{t("Gestionar Categorías")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           <div className="space-y-2">
@@ -54,7 +56,7 @@ export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleC
               <Input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                placeholder="Nueva categoría"
+                placeholder={t("Nueva categoría")}
                 onKeyDown={(e) => e.key === "Enter" && handleAdd()}
               />
               <Button size="sm" onClick={handleAdd} disabled={!newName.trim()}>
@@ -64,7 +66,7 @@ export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleC
             {showCumulativeOption && (
               <div className="flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 p-2">
                 <Switch checked={newCumulative} onCheckedChange={setNewCumulative} />
-                <Label className="text-sm">Ahorro acumulativo</Label>
+                <Label className="text-sm">{t("Ahorro acumulativo")}</Label>
               </div>
             )}
           </div>
@@ -131,7 +133,7 @@ export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleC
                         onCheckedChange={(v) => onToggleCumulative(cat.name, v)}
                         className="scale-75"
                       />
-                      <span className="text-xs text-muted-foreground">Acumulativo</span>
+                      <span className="text-xs text-muted-foreground">{t("Acumulativo")}</span>
                     </div>
                   )}
                 </div>
@@ -139,7 +141,7 @@ export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleC
             ))}
           </div>
           {categories.length === 0 && (
-            <p className="text-sm text-muted-foreground">No hay categorías. Agrega una arriba.</p>
+            <p className="text-sm text-muted-foreground">{t("No hay categorías. Agrega una arriba.")}</p>
           )}
         </div>
       </DialogContent>

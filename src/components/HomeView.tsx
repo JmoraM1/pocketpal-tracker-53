@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCOP } from "@/lib/constants";
+import { formatCompactNumber } from "@/lib/currency";
+import { useI18n } from "@/lib/i18n";
 import { getCategoryVisual } from "@/lib/categoryIcons";
 import { SmartMessage } from "@/components/SmartMessage";
 import {
@@ -14,7 +16,6 @@ import {
   Receipt,
   Target,
   PiggyBank,
-  LayoutGrid,
   type LucideIcon,
 } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -53,14 +54,14 @@ const BAR_COLORS = [
   "hsl(var(--accent-cool))",
 ];
 
-function relativeDay(dateStr: string | null): string {
+function relativeDay(dateStr: string | null, t: (s: string, v?: Record<string, string | number>) => string, locale: string): string {
   if (!dateStr) return "";
   const d = new Date(dateStr);
   const diff = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(d).setHours(0, 0, 0, 0)) / 86400000);
-  if (diff <= 0) return "Hoy";
-  if (diff === 1) return "Ayer";
-  if (diff < 7) return `Hace ${diff} días`;
-  return d.toLocaleDateString("es-CO", { day: "numeric", month: "short" });
+  if (diff <= 0) return t("Hoy");
+  if (diff === 1) return t("Ayer");
+  if (diff < 7) return t("Hace {n} días", { n: diff });
+  return d.toLocaleDateString(locale, { day: "numeric", month: "short" });
 }
 
 export function HomeView({
@@ -74,6 +75,7 @@ export function HomeView({
   installmentMonthTotal,
   onNavigate,
 }: HomeViewProps) {
+  const { t, locale } = useI18n();
   const name = alias?.trim() || (userEmail ? userEmail.split("@")[0] : "");
   const spentPct = income > 0 ? Math.min(Math.round((totalExpenses / income) * 100), 999) : 0;
 
@@ -87,38 +89,38 @@ export function HomeView({
     view: AppView;
   }[] = [
     {
-      label: "Ingresos",
+      label: t("Ingresos"),
       value: income,
       icon: TrendingUp,
       tint: "bg-success/10 text-success",
-      trend: "Este mes",
+      trend: t("Este mes"),
       up: true,
       view: "home",
     },
     {
-      label: "Disponible",
+      label: t("Disponible"),
       value: available,
       icon: Wallet,
       tint: "bg-info/10 text-info",
-      trend: income > 0 ? `${Math.max(100 - spentPct, 0)}% libre` : "—",
+      trend: income > 0 ? t("{n}% libre", { n: Math.max(100 - spentPct, 0) }) : "—",
       up: available >= 0,
       view: "expenses",
     },
     {
-      label: "Gastos",
+      label: t("Gastos"),
       value: totalExpenses,
       icon: TrendingDown,
       tint: "bg-destructive/10 text-destructive",
-      trend: income > 0 ? `${spentPct}% del ingreso` : "—",
+      trend: income > 0 ? t("{n}% del ingreso", { n: spentPct }) : "—",
       up: false,
       view: "expenses",
     },
     {
-      label: "Deudas",
+      label: t("Deudas"),
       value: installmentMonthTotal,
       icon: CreditCard,
       tint: "bg-accent-violet/10 text-accent-violet",
-      trend: `${monthPayments.length} cuota${monthPayments.length === 1 ? "" : "s"}`,
+      trend: monthPayments.length === 1 ? t("{n} cuota", { n: 1 }) : t("{n} cuotas", { n: monthPayments.length }),
       up: false,
       view: "debts",
     },
@@ -133,17 +135,24 @@ export function HomeView({
       acc += Number(e.amount);
       return { name: e.category?.slice(0, 12) ?? `#${i + 1}`, Ingresos: income, Gastos: acc };
     });
-    return [{ name: "Inicio", Ingresos: income, Gastos: 0 }, ...points];
-  }, [expenses, income]);
+    return [{ name: t("Inicio"), Ingresos: income, Gastos: 0 }, ...points];
+  }, [expenses, income, t]);
+
+  // El ancho del eje Y se adapta al valor más alto (miles, millones, decenas de millones)
+  const yAxisWidth = useMemo(() => {
+    const max = flowData.reduce((m, d) => Math.max(m, d.Ingresos, d.Gastos), 0);
+    const label = formatCompactNumber(max);
+    return Math.min(96, Math.max(44, label.length * 9 + 16));
+  }, [flowData]);
 
   const categoryData = useMemo(() => {
     const map = new Map<string, number>();
     expenses.forEach((e) => map.set(e.category, (map.get(e.category) ?? 0) + Number(e.amount)));
-    monthPayments.forEach((p) => map.set("Deudas", (map.get("Deudas") ?? 0) + Number(p.amount)));
+    monthPayments.forEach((p) => map.set(t("Deudas"), (map.get(t("Deudas")) ?? 0) + Number(p.amount)));
     const all = [...map.entries()].sort((a, b) => b[1] - a[1]);
     const top = all.slice(0, 5);
     const rest = all.slice(5).reduce((s, [, v]) => s + v, 0);
-    if (rest > 0) top.push(["Otros", rest]);
+    if (rest > 0) top.push([t("Otros"), rest]);
     const total = all.reduce((s, [, v]) => s + v, 0) || 1;
     return top.map(([label, value], i) => ({
       label,
@@ -157,7 +166,7 @@ export function HomeView({
     const fromExpenses = expenses.map((e) => ({
       id: e.id,
       title: e.description || e.category,
-      subtitle: `Gastos · ${e.category}`,
+      subtitle: `${t("Gastos")} · ${e.category}`,
       amount: -Number(e.amount),
       date: e.updated_at ?? e.created_at,
       category: e.category,
@@ -166,8 +175,8 @@ export function HomeView({
       .filter((p) => p.is_paid)
       .map((p) => ({
         id: p.id,
-        title: `Pago cuota ${p.plan_name}`,
-        subtitle: `Deudas · Cuota ${p.payment_number}`,
+        title: `${t("Pago cuota")} ${p.plan_name}`,
+        subtitle: `${t("Deudas")} · ${t("Cuota")} ${p.payment_number}`,
         amount: -Number(p.amount),
         date: p.paid_at ?? p.created_at,
         category: "deuda",
@@ -176,8 +185,8 @@ export function HomeView({
     if (income > 0) {
       list.push({
         id: "income",
-        title: "Ingreso del mes",
-        subtitle: "Ingresos",
+        title: t("Ingreso del mes"),
+        subtitle: t("Ingresos"),
         amount: income,
         date: new Date().toISOString(),
         category: "ingreso",
@@ -187,12 +196,11 @@ export function HomeView({
   }, [expenses, monthPayments, income]);
 
   const shortcuts: { label: string; icon: LucideIcon; view: AppView; tint: string }[] = [
-    { label: "Nueva meta", icon: Target, view: "goals", tint: "bg-success/10 text-success" },
-    { label: "Nuevo gasto", icon: Receipt, view: "expenses", tint: "bg-destructive/10 text-destructive" },
-    { label: "Nuevo ahorro", icon: PiggyBank, view: "savings", tint: "bg-info/10 text-info" },
-    { label: "Nueva deuda", icon: CreditCard, view: "debts", tint: "bg-accent-violet/10 text-accent-violet" },
-    { label: "Ver deudas", icon: Wallet, view: "debts", tint: "bg-warning/10 text-warning" },
-    { label: "Categorías", icon: LayoutGrid, view: "categories", tint: "bg-accent-cool/10 text-accent-cool" },
+    { label: t("Nueva meta"), icon: Target, view: "goals", tint: "bg-success/10 text-success" },
+    { label: t("Nuevo gasto"), icon: Receipt, view: "expenses", tint: "bg-destructive/10 text-destructive" },
+    { label: t("Nuevo ahorro"), icon: PiggyBank, view: "savings", tint: "bg-info/10 text-info" },
+    { label: t("Nueva deuda"), icon: CreditCard, view: "debts", tint: "bg-accent-violet/10 text-accent-violet" },
+    { label: t("Ver deudas"), icon: Wallet, view: "debts", tint: "bg-warning/10 text-warning" },
   ];
 
   return (
@@ -200,9 +208,9 @@ export function HomeView({
       {/* Saludo */}
       <motion.div variants={item}>
         <h2 className="font-display text-2xl font-semibold tracking-tight capitalize sm:text-3xl">
-          Hola {name} 👋
+          {t("Hola {name} 👋", { name })}
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">Este mes tienes el control de tus finanzas.</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("Este mes tienes el control de tus finanzas.")}</p>
       </motion.div>
 
       {/* Mensaje inteligente */}
@@ -248,20 +256,20 @@ export function HomeView({
           <Card className="h-full overflow-hidden rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-display text-base font-semibold">Evolución de ingresos y gastos</h3>
+                <h3 className="font-display text-base font-semibold">{t("Evolución de ingresos y gastos")}</h3>
                 <div className="flex items-center gap-4 text-xs font-medium">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-success" /> Ingresos
+                    <span className="h-2.5 w-2.5 rounded-full bg-success" /> {t("Ingresos")}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-destructive" /> Gastos
+                    <span className="h-2.5 w-2.5 rounded-full bg-destructive" /> {t("Gastos")}
                   </span>
                 </div>
               </div>
 
               <div className="mt-5 h-60 w-full sm:h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={flowData} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+                  <AreaChart data={flowData} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
                     <defs>
                       <linearGradient id="gIncome" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="hsl(var(--success))" stopOpacity={0.3} />
@@ -284,8 +292,11 @@ export function HomeView({
                       tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                       tickLine={false}
                       axisLine={false}
-                      tickFormatter={(v) => `${Math.round(Number(v) / 1000)}k`}
-                      width={48}
+                      tickFormatter={(v) => formatCompactNumber(Number(v))}
+                      width={yAxisWidth}
+                      domain={[0, "auto"]}
+                      allowDecimals={false}
+                      tickCount={5}
                     />
                     <Tooltip
                       contentStyle={{
@@ -310,11 +321,11 @@ export function HomeView({
         <motion.div variants={item} className="lg:col-span-2">
           <Card className="h-full rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
-              <h3 className="font-display text-base font-semibold">Gastos por categoría</h3>
+              <h3 className="font-display text-base font-semibold">{t("Gastos por categoría")}</h3>
 
               <div className="mt-5 space-y-4">
                 {categoryData.length === 0 && (
-                  <p className="text-sm text-muted-foreground">Aún no hay gastos registrados.</p>
+                  <p className="text-sm text-muted-foreground">{t("Aún no hay gastos registrados.")}</p>
                 )}
                 {categoryData.map((c) => {
                   const visual = getCategoryVisual(c.label);
@@ -356,11 +367,11 @@ export function HomeView({
         <motion.div variants={item} className="lg:col-span-3">
           <Card className="h-full rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
-              <h3 className="font-display text-base font-semibold">Actividad reciente</h3>
+              <h3 className="font-display text-base font-semibold">{t("Actividad reciente")}</h3>
 
               <div className="mt-4 divide-y divide-border">
                 {activity.length === 0 && (
-                  <p className="py-6 text-sm text-muted-foreground">Sin movimientos todavía.</p>
+                  <p className="py-6 text-sm text-muted-foreground">{t("Sin movimientos todavía.")}</p>
                 )}
                 {activity.map((a) => {
                   const visual = getCategoryVisual(a.category);
@@ -369,7 +380,7 @@ export function HomeView({
                   return (
                     <div key={a.id} className="flex items-center gap-3 py-3">
                       <span className="w-16 shrink-0 text-[11px] font-medium text-muted-foreground">
-                        {relativeDay(a.date)}
+                        {relativeDay(a.date, t, locale)}
                       </span>
                       <span
                         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
@@ -402,7 +413,7 @@ export function HomeView({
         <motion.div variants={item} className="lg:col-span-2">
           <Card className="h-full rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
-              <h3 className="font-display text-base font-semibold">Acciones rápidas</h3>
+              <h3 className="font-display text-base font-semibold">{t("Acciones rápidas")}</h3>
               <div className="mt-4 grid grid-cols-3 gap-3">
                 {shortcuts.map((s) => {
                   const Icon = s.icon;

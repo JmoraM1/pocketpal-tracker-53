@@ -22,12 +22,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { QuickAddFab } from "@/components/QuickAddFab";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AnimatePresence, motion } from "framer-motion";
+import { useT } from "@/lib/i18n";
 import {
   Wallet,
   ChevronRight,
   PiggyBank,
   CreditCard,
-  LayoutGrid,
   BarChart3,
   Download,
   Settings,
@@ -39,7 +39,6 @@ const TITLES: Record<AppView, string> = {
   savings: "Ahorros",
   expenses: "Gastos",
   debts: "Deudas",
-  categories: "Categorías",
   reports: "Reportes",
   export: "Exportar",
   settings: "Configuración",
@@ -47,6 +46,7 @@ const TITLES: Record<AppView, string> = {
 };
 
 export default function Dashboard() {
+  const t = useT();
   const { user, signOut } = useAuth();
   const [view, setView] = useState<AppView>("home");
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -62,7 +62,14 @@ export default function Dashboard() {
 
   const { categories, categoryNames, addCategory, removeCategory, editCategory, toggleCumulativeSavings } = useCategories(user?.id);
   const { plans, monthPayments, allPayments, createPlan, togglePayment, updatePaymentAmount, deletePlan, monthlyInstallmentTotal } = useInstallments(user?.id, selectedMonth);
-  const { loading: webauthnLoading, registerPasskey, isSupported: webauthnSupported } = useWebAuthn();
+  const {
+    loading: webauthnLoading,
+    registerPasskey,
+    isSupported: webauthnSupported,
+    credentials: passkeys,
+    removePasskey,
+    platformAvailable,
+  } = useWebAuthn();
   const { profile, saveProfile } = useProfile(user?.id);
 
   const combinedTotalExpenses = totalExpenses + monthlyInstallmentTotal;
@@ -83,7 +90,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Cargando...</div>
+        <div className="animate-pulse text-muted-foreground">{t("Cargando...")}</div>
       </div>
     );
   }
@@ -101,7 +108,7 @@ export default function Dashboard() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary shadow-soft">
                 <Wallet className="h-4.5 w-4.5 text-primary-foreground" />
               </span>
-              <h1 className="font-display text-base font-semibold tracking-tight">{TITLES[view]}</h1>
+              <h1 className="font-display text-base font-semibold tracking-tight">{t(TITLES[view])}</h1>
             </div>
             <ThemeToggle />
           </div>
@@ -178,26 +185,6 @@ export default function Dashboard() {
                 />
               )}
 
-              {view === "categories" && (
-                <Card className="rounded-2xl border shadow-soft">
-                  <CardContent className="space-y-4 p-6">
-                    <div>
-                      <h3 className="font-display text-base font-semibold">Categorías</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Administra las categorías que usas en tus gastos.
-                      </p>
-                    </div>
-                    <CategoryManager
-                      categories={categories}
-                      onAdd={addCategory}
-                      onRemove={removeCategory}
-                      onEdit={editCategory}
-                      onToggleCumulative={toggleCumulativeSavings}
-                    />
-                  </CardContent>
-                </Card>
-              )}
-
               {view === "reports" && (
                 <ExpenseCharts expenses={expenses} />
               )}
@@ -222,6 +209,9 @@ export default function Dashboard() {
                   onRegisterPasskey={registerPasskey}
                   biometricSupported={webauthnSupported}
                   biometricLoading={webauthnLoading}
+                  passkeys={passkeys}
+                  onRemovePasskey={(id) => { void removePasskey(id); }}
+                  biometricPlatformAvailable={platformAvailable}
                   onSignOut={signOut}
                 />
               )}
@@ -242,13 +232,13 @@ export default function Dashboard() {
 const MORE_ITEMS: { key: AppView; label: string; icon: typeof PiggyBank }[] = [
   { key: "savings", label: "Ahorros", icon: PiggyBank },
   { key: "debts", label: "Deudas", icon: CreditCard },
-  { key: "categories", label: "Categorías", icon: LayoutGrid },
   { key: "reports", label: "Reportes", icon: BarChart3 },
   { key: "export", label: "Exportar", icon: Download },
   { key: "settings", label: "Configuración", icon: Settings },
 ];
 
 function MoreView({ onNavigate }: { onNavigate: (v: AppView) => void }) {
+  const t = useT();
   return (
     <Card className="rounded-2xl border shadow-soft">
       <CardContent className="p-2">
@@ -261,7 +251,7 @@ function MoreView({ onNavigate }: { onNavigate: (v: AppView) => void }) {
               className="flex w-full items-center justify-between rounded-xl px-3 py-3.5 text-left transition-colors hover:bg-muted"
             >
               <span className="flex items-center gap-3 text-sm font-medium">
-                <Icon className="h-4 w-4 text-primary" /> {it.label}
+                <Icon className="h-4 w-4 text-primary" /> {t(it.label)}
               </span>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>

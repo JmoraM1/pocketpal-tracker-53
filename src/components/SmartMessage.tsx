@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Mascot, type MascotMood } from "@/components/Mascot";
+import { useT } from "@/lib/i18n";
 
 interface SmartMessageProps {
   /** Porcentaje del ingreso comprometido */
@@ -70,10 +71,11 @@ function resolve(pct: number): MoodConfig {
 }
 
 export function SmartMessage({ pct, hasIncome }: SmartMessageProps) {
+  const t = useT();
   const cfg = resolve(pct);
   const description = !hasIncome
-    ? "Registra tu ingreso del mes para ver tu resumen inteligente."
-    : `Llevas el ${pct}% de tus ingresos comprometidos.`;
+    ? t("Registra tu ingreso del mes para ver tu resumen inteligente.")
+    : t("Llevas el {n}% de tus ingresos comprometidos.", { n: pct });
 
   return (
     <motion.div
@@ -84,7 +86,7 @@ export function SmartMessage({ pct, hasIncome }: SmartMessageProps) {
     >
       <div className="min-w-0 flex-1">
         <p className={`font-display text-lg font-semibold ${cfg.title_color}`}>
-          {cfg.title} {cfg.emoji}
+          {t(cfg.title)} {cfg.emoji}
         </p>
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         <div className={`mt-4 h-2.5 w-full max-w-md overflow-hidden rounded-full ${cfg.track}`}>

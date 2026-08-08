@@ -48,4 +48,14 @@ export const EN_HOME: Record<string, string> = {
   "Total Gastos": "Total Expenses",
   "Disponible para Ahorro": "Available for Savings",
   "Ahorro Acumulado": "Accumulated Savings",
+
+  // Smart message
+  "¡Excelente!": "Excellent!",
+  "¡Vas muy bien!": "You're doing great!",
+  "Buen ritmo": "Good pace",
+  "Atención": "Careful",
+  Excedido: "Over budget",
+  "Registra tu ingreso del mes para ver tu resumen inteligente.":
+    "Add your monthly income to see your smart summary.",
+  "Llevas el {n}% de tus ingresos comprometidos.": "You've committed {n}% of your income.",
 };

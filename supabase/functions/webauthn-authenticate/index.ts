@@ -140,9 +140,16 @@ Deno.serve(async (req) => {
           expectedOrigin: origin,
           expectedRPID: rpId,
           requireUserVerification: true,
+          // v11+ shape
           credential: {
             id: storedCred.credential_id,
             publicKey: isoBase64URL.toBuffer(storedCred.public_key),
+            counter: storedCred.counter ?? 0,
+          },
+          // v10 shape (ignored by newer versions)
+          authenticator: {
+            credentialID: storedCred.credential_id,
+            credentialPublicKey: isoBase64URL.toBuffer(storedCred.public_key),
             counter: storedCred.counter ?? 0,
           },
         });

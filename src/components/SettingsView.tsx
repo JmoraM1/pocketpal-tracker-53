@@ -64,9 +64,12 @@ export function SettingsView({
 
   const handleSave = async () => {
     setSaving(true);
-    await onSaveProfile({ alias: alias.trim(), language: pendingLanguage });
-    setSaving(false);
-    toast({ title: t("Perfil actualizado"), description: t("Tus datos se guardaron correctamente.") });
+    try {
+      await onSaveProfile({ alias: alias.trim(), language: pendingLanguage });
+      toast({ title: t("Perfil actualizado"), description: t("Tus datos se guardaron correctamente.") });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handlePassword = async () => {

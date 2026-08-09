@@ -49,10 +49,16 @@ export function useProfile(userId: string | undefined) {
   const saveProfile = async (updates: Partial<Profile>) => {
     if (!userId) return;
     const next = { ...profile, ...updates };
+    const { error } = await supabase.from("profiles").upsert({ id: userId, ...next });
+
+    if (error) throw error;
+
+    // Apply user-facing preferences only after the profile was saved successfully.
     setProfile(next);
     setActiveCurrency(next.currency);
-    if (updates.language) setLanguage((updates.language === "en" ? "en" : "es") as Language);
-    await supabase.from("profiles").upsert({ id: userId, ...next });
+    if (updates.language) {
+      setLanguage((updates.language === "en" ? "en" : "es") as Language);
+    }
   };
 
   return { profile, loading, saveProfile, reload: load };

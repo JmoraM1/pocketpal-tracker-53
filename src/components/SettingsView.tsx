@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,11 +53,18 @@ export function SettingsView({
   const t = useT();
   const { language } = useI18n();
   const [alias, setAlias] = useState(profile.alias);
+  // Pending (unsaved) language selection: only applied on "Guardar cambios".
+  const [pendingLanguage, setPendingLanguage] = useState(profile.language);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setAlias(profile.alias);
+    setPendingLanguage(profile.language);
+  }, [profile.alias, profile.language]);
 
   const handleSave = async () => {
     setSaving(true);
-    await onSaveProfile({ alias: alias.trim() });
+    await onSaveProfile({ alias: alias.trim(), language: pendingLanguage });
     setSaving(false);
     toast({ title: t("Perfil actualizado"), description: t("Tus datos se guardaron correctamente.") });
   };
@@ -110,13 +117,18 @@ export function SettingsView({
             </div>
             <div className="space-y-2">
               <Label>{t("Idioma")}</Label>
-              <Select value={profile.language} onValueChange={(v) => onSaveProfile({ language: v })}>
+              <Select value={pendingLanguage} onValueChange={setPendingLanguage}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="es">{t("Español")}</SelectItem>
                   <SelectItem value="en">English</SelectItem>
                 </SelectContent>
               </Select>
+              {pendingLanguage !== profile.language && (
+                <p className="text-xs text-muted-foreground">
+                  {t("Pulsa \u201cGuardar cambios\u201d para aplicar el idioma.")}
+                </p>
+              )}
             </div>
           </div>
 

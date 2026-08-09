@@ -238,7 +238,11 @@ export function useWebAuthn() {
 
   const authenticateWithPasskey = useCallback(async (email: string) => {
     if (!isWebAuthnSupported()) {
-      toast({ title: "No soportado", description: "Tu navegador no soporta autenticación biométrica.", variant: "destructive" });
+      toast({
+        title: t("No soportado"),
+        description: t("Este dispositivo o navegador no admite autenticación biométrica."),
+        variant: "destructive",
+      });
       return false;
     }
 
@@ -257,8 +261,8 @@ export function useWebAuthn() {
         const err = await optionsRes.json().catch(() => ({}));
         if (err.error === "No passkeys registered") {
           toast({
-            title: "Sin biometría",
-            description: "No tienes huella registrada. Inicia sesión con contraseña y regístrala desde el menú.",
+            title: t("Sin biometría"),
+            description: t("No tienes huella registrada. Inicia sesión con contraseña y regístrala desde el menú."),
             variant: "destructive",
           });
           return false;
@@ -328,7 +332,7 @@ export function useWebAuthn() {
           throw new Error("No se pudo iniciar sesión. Intenta con tu contraseña.");
         }
 
-        toast({ title: "¡Bienvenido!", description: "Sesión iniciada con biometría." });
+        toast({ title: t("¡Bienvenido!"), description: t("Sesión iniciada con biometría.") });
         return true;
       }
 
@@ -336,7 +340,7 @@ export function useWebAuthn() {
     } catch (err: any) {
       const message = getWebAuthnErrorMessage(err);
       if (message) {
-        toast({ title: "Error de autenticación", description: message, variant: "destructive" });
+        toast({ title: t("Error de autenticación"), description: t(message), variant: "destructive" });
       }
       return false;
     } finally {

@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useT } from "@/lib/i18n";
 
 function base64UrlToBuffer(base64url: string): ArrayBuffer {
   const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
@@ -53,6 +54,7 @@ export interface WebAuthnCredential {
 }
 
 export function useWebAuthn() {
+  const t = useT();
   const [loading, setLoading] = useState(false);
   const [credentials, setCredentials] = useState<WebAuthnCredential[]>([]);
   const [platformAvailable, setPlatformAvailable] = useState(false);
@@ -91,17 +93,21 @@ export function useWebAuthn() {
   const removePasskey = useCallback(async (id: string) => {
     const { error } = await supabase.from("webauthn_credentials").delete().eq("id", id);
     if (error) {
-      toast({ title: "Error", description: "No se pudo eliminar la huella.", variant: "destructive" });
+      toast({ title: t("Error"), description: t("No se pudo eliminar la huella."), variant: "destructive" });
       return false;
     }
-    toast({ title: "Biometría desactivada", description: "La huella fue eliminada correctamente." });
+    toast({ title: t("Biometría desactivada"), description: t("La huella fue eliminada correctamente.") });
     await loadCredentials();
     return true;
-  }, [loadCredentials]);
+  }, [loadCredentials, t]);
 
   const registerPasskey = useCallback(async () => {
     if (!isWebAuthnSupported()) {
-      toast({ title: "No soportado", description: "Tu navegador no soporta autenticación biométrica.", variant: "destructive" });
+      toast({
+        title: t("No soportado"),
+        description: t("Este dispositivo o navegador no admite autenticación biométrica."),
+        variant: "destructive",
+      });
       return false;
     }
 
@@ -129,6 +135,10 @@ export function useWebAuthn() {
         throw new Error(errData.error || "No se pudieron obtener las opciones de registro.");
       }
       const options = await optionsRes.json();
+      if (!options?.challenge || !options?.user?.id || !options?.rp) {
+        console.error("[webauthn] unexpected registration options", options);
+        throw new Error("INVALID_OPTIONS");
+      }
 
       // 2. Create credential using browser API
       const publicKeyOptions: PublicKeyCredentialCreationOptions = {
@@ -153,7 +163,7 @@ export function useWebAuthn() {
         publicKey: publicKeyOptions,
       })) as PublicKeyCredential | null;
 
-      if (!credential) throw new Error("Registro cancelado.");
+      if (!credential || !credential.rawId || !credential.response) throw new Error("CANCELLED");
 
       const response = credential.response as AuthenticatorAttestationResponse;
 
@@ -190,23 +200,49 @@ export function useWebAuthn() {
         throw new Error(errData.error || "No se pudo verificar el registro.");
       }
 
-      toast({ title: "¡Listo!", description: "Huella/Face ID registrado exitosamente." });
+      toast({ title: t("¡Listo!"), description: t("Biometría activada correctamente.") });
       await loadCredentials();
       return true;
     } catch (err: any) {
-      const message = getWebAuthnErrorMessage(err);
-      if (message) {
-        toast({ title: "Error de registro", description: message, variant: "destructive" });
+      console.error("[webauthn] register error:", err?.name, err?.message);
+      if (err?.name === "NotAllowedError" || err?.name === "AbortError" || err?.message === "CANCELLED") {
+        toast({ title: t("Biometría"), description: t("No se activó la biometría.") });
+        return false;
       }
+      if (err?.name === "InvalidStateError") {
+        toast({
+          title: t("Biometría"),
+          description: t("Este dispositivo ya tiene una huella registrada."),
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (err?.name === "NotSupportedError" || err?.name === "SecurityError") {
+        toast({
+          title: t("No soportado"),
+          description: t("Este dispositivo o navegador no admite autenticación biométrica."),
+          variant: "destructive",
+        });
+        return false;
+      }
+      toast({
+        title: t("Error de registro"),
+        description: t("No se pudo activar la biometría. Inténtalo de nuevo."),
+        variant: "destructive",
+      });
       return false;
     } finally {
       setLoading(false);
     }
-  }, [loadCredentials]);
+  }, [loadCredentials, t]);
 
   const authenticateWithPasskey = useCallback(async (email: string) => {
     if (!isWebAuthnSupported()) {
-      toast({ title: "No soportado", description: "Tu navegador no soporta autenticación biométrica.", variant: "destructive" });
+      toast({
+        title: t("No soportado"),
+        description: t("Este dispositivo o navegador no admite autenticación biométrica."),
+        variant: "destructive",
+      });
       return false;
     }
 
@@ -225,8 +261,8 @@ export function useWebAuthn() {
         const err = await optionsRes.json().catch(() => ({}));
         if (err.error === "No passkeys registered") {
           toast({
-            title: "Sin biometría",
-            description: "No tienes huella registrada. Inicia sesión con contraseña y regístrala desde el menú.",
+            title: t("Sin biometría"),
+            description: t("No tienes huella registrada. Inicia sesión con contraseña y regístrala desde el menú."),
             variant: "destructive",
           });
           return false;
@@ -296,7 +332,7 @@ export function useWebAuthn() {
           throw new Error("No se pudo iniciar sesión. Intenta con tu contraseña.");
         }
 
-        toast({ title: "¡Bienvenido!", description: "Sesión iniciada con biometría." });
+        toast({ title: t("¡Bienvenido!"), description: t("Sesión iniciada con biometría.") });
         return true;
       }
 
@@ -304,7 +340,7 @@ export function useWebAuthn() {
     } catch (err: any) {
       const message = getWebAuthnErrorMessage(err);
       if (message) {
-        toast({ title: "Error de autenticación", description: message, variant: "destructive" });
+        toast({ title: t("Error de autenticación"), description: t(message), variant: "destructive" });
       }
       return false;
     } finally {

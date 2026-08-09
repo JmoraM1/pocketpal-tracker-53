@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import { formatCOP } from "@/lib/constants";
 import type { Tables } from "@/integrations/supabase/types";
+import { useT } from "@/lib/i18n";
 
 type Expense = Tables<"expenses">;
 
@@ -27,6 +28,7 @@ interface ExpenseChartsProps {
 }
 
 export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
+  const t = useT();
   const data = expenses
     .filter((e) => Number(e.amount) > 0)
     .map((e) => ({
@@ -38,7 +40,7 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
     return (
       <Card>
         <CardContent className="flex h-48 items-center justify-center text-muted-foreground">
-          Agrega montos a tus gastos para ver las gráficas
+          {t("Agrega montos a tus gastos para ver las gráficas")}
         </CardContent>
       </Card>
     );
@@ -48,7 +50,7 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
     if (active && payload?.[0]) {
       return (
         <div className="rounded-lg border bg-card p-2 text-xs shadow-lg">
-          <p className="font-semibold">{payload[0].name ?? payload[0].payload?.name}</p>
+          <p className="font-semibold">{payload[0].payload?.name ?? t("Valor")}</p>
           <p>{formatCOP(payload[0].value)}</p>
         </div>
       );
@@ -60,7 +62,7 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
     <div className="grid gap-4 lg:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Distribución de Gastos</CardTitle>
+          <CardTitle className="text-lg leading-snug">{t("Distribución de Gastos")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={280}>
@@ -98,7 +100,7 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Comparación por Categoría</CardTitle>
+          <CardTitle className="text-lg leading-snug">{t("Comparación por Categoría")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={280}>
@@ -112,7 +114,7 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
                 tick={{ fontSize: 11 }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+              <Bar dataKey="value" name={t("Valor")} radius={[0, 4, 4, 0]}>
                 {data.map((_, i) => (
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}

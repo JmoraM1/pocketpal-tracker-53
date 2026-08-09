@@ -25,4 +25,27 @@ export const EN_SETTINGS: Record<string, string> = {
   "¿Desactivar biometría?": "Disable biometrics?",
   "¿Estás seguro de que deseas eliminar esta huella? Podrás volver a registrarla cuando quieras.":
     "Are you sure you want to remove this passkey? You can register it again anytime.",
+  "Pulsa “Guardar cambios” para aplicar el idioma.": "Press “Save changes” to apply the language.",
+  "No soportado": "Not supported",
+  "Este dispositivo o navegador no admite autenticación biométrica.":
+    "This device or browser doesn't support biometric authentication.",
+  "¡Listo!": "Done!",
+  "Biometría activada correctamente.": "Biometrics enabled successfully.",
+  "No se activó la biometría.": "Biometrics was not enabled.",
+  "Este dispositivo ya tiene una huella registrada.": "This device already has a registered passkey.",
+  "Error de registro": "Registration error",
+  "No se pudo activar la biometría. Inténtalo de nuevo.": "Biometrics could not be enabled. Please try again.",
+  "No se pudo eliminar la huella.": "The passkey could not be removed.",
+  "Biometría desactivada": "Biometrics disabled",
+  "La huella fue eliminada correctamente.": "The passkey was removed successfully.",
+  "Sin biometría": "No biometrics",
+  "No tienes huella registrada. Inicia sesión con contraseña y regístrala desde el menú.":
+    "You have no registered passkey. Sign in with your password and register it from the menu.",
+  "¡Bienvenido!": "Welcome!",
+  "Sesión iniciada con biometría.": "Signed in with biometrics.",
+  "Error de autenticación": "Authentication error",
+  "Distribución de Gastos": "Expense distribution",
+  "Comparación por Categoría": "Comparison by category",
+  "Agrega montos a tus gastos para ver las gráficas": "Add amounts to your expenses to see the charts",
+  Valor: "Value",
 };

@@ -147,15 +147,34 @@ Deno.serve(async (req) => {
         });
       }
 
-      const { credential: verifiedCred } = verification.registrationInfo;
-      const credentialIdB64 = isoBase64URL.fromBuffer(verifiedCred.id as unknown as Uint8Array);
-      const publicKeyB64 = isoBase64URL.fromBuffer(verifiedCred.publicKey);
+      // Support both @simplewebauthn/server v10 (credentialID/credentialPublicKey)
+      // and v11+ (registrationInfo.credential.{id,publicKey}) response shapes.
+      const info = verification.registrationInfo as Record<string, any>;
+      const verifiedCred = info.credential ?? {};
+      const rawId = verifiedCred.id ?? info.credentialID;
+      const rawPublicKey = verifiedCred.publicKey ?? info.credentialPublicKey;
+      const counter = verifiedCred.counter ?? info.counter ?? 0;
+
+      if (!rawId || !rawPublicKey) {
+        console.error("[webauthn-register] unexpected registrationInfo shape");
+        return new Response(JSON.stringify({ error: "Registration not verified" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const credentialIdB64 =
+        typeof rawId === "string" ? rawId : isoBase64URL.fromBuffer(rawId as Uint8Array);
+      const publicKeyB64 =
+        typeof rawPublicKey === "string"
+          ? rawPublicKey
+          : isoBase64URL.fromBuffer(rawPublicKey as Uint8Array);
 
       await supabaseAdmin.from("webauthn_credentials").insert({
         user_id: userId,
         credential_id: credentialIdB64,
         public_key: publicKeyB64,
-        counter: verifiedCred.counter ?? 0,
+        counter,
         device_name: deviceName || "Dispositivo",
       });
 

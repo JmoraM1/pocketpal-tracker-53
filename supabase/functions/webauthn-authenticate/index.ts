@@ -55,11 +55,21 @@ Deno.serve(async (req) => {
     }
     const rpId = new URL(origin).hostname;
 
-    const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
-    const user = userData?.users?.find((u) => u.email === email);
+    // Look up the user across all pages (listUsers is paginated: a user beyond
+    // the first page would otherwise never be found).
+    const normalizedEmail = email.trim().toLowerCase();
+    let user: { id: string; email?: string | null } | undefined;
+    for (let page = 1; page <= 20 && !user; page++) {
+      const { data: pageData } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 });
+      const users = pageData?.users ?? [];
+      user = users.find((u) => u.email?.toLowerCase() === normalizedEmail);
+      if (users.length < 1000) break;
+    }
 
     if (action === "options") {
-      if (!user) return json({ error: "User not found" }, 404);
+      // Same response for "unknown user" and "user without passkeys" so the
+      // endpoint cannot be used to enumerate registered accounts.
+      if (!user) return json({ error: "No passkeys registered" }, 404);
 
       const { data: credentials } = await supabaseAdmin
         .from("webauthn_credentials")

@@ -11,8 +11,16 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-function getOrigin(req: Request): string {
-  return req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, "") || "https://localhost";
+const CHALLENGE_TTL_MS = 5 * 60 * 1000;
+
+function getOrigin(req: Request): string | null {
+  const raw = req.headers.get("origin") || req.headers.get("referer");
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
 }
 
 Deno.serve(async (req) => {
@@ -56,6 +64,13 @@ Deno.serve(async (req) => {
     const { action, credential, deviceName } = body;
 
     const origin = getOrigin(req);
+    if (!origin) {
+      console.error("[webauthn-register] missing or invalid origin header");
+      return new Response(JSON.stringify({ error: "Invalid request origin" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const rpId = new URL(origin).hostname;
 
     if (action === "options") {
@@ -112,7 +127,7 @@ Deno.serve(async (req) => {
         .eq("type", "registration")
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (!challengeData) {
         return new Response(JSON.stringify({ error: "Challenge expired or not found" }), {
@@ -121,7 +136,27 @@ Deno.serve(async (req) => {
         });
       }
 
-      await supabaseAdmin.from("webauthn_challenges").delete().eq("id", challengeData.id);
+      // Burn the challenge before verification so it can never be replayed.
+      const { data: consumed } = await supabaseAdmin
+        .from("webauthn_challenges")
+        .delete()
+        .eq("id", challengeData.id)
+        .select("id");
+
+      if (!consumed || consumed.length === 0) {
+        console.error("[webauthn-register] challenge already consumed");
+        return new Response(JSON.stringify({ error: "Challenge expired or not found" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (Date.now() - new Date(challengeData.created_at).getTime() > CHALLENGE_TTL_MS) {
+        return new Response(JSON.stringify({ error: "Challenge expired or not found" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       let verification;
       try {
@@ -170,13 +205,26 @@ Deno.serve(async (req) => {
           ? rawPublicKey
           : isoBase64URL.fromBuffer(rawPublicKey as Uint8Array);
 
-      await supabaseAdmin.from("webauthn_credentials").insert({
+      const safeDeviceName =
+        typeof deviceName === "string" && deviceName.trim().length > 0
+          ? deviceName.trim().slice(0, 60)
+          : "Dispositivo";
+
+      const { error: insertError } = await supabaseAdmin.from("webauthn_credentials").insert({
         user_id: userId,
         credential_id: credentialIdB64,
         public_key: publicKeyB64,
         counter,
-        device_name: deviceName || "Dispositivo",
+        device_name: safeDeviceName,
       });
+
+      if (insertError) {
+        console.error("[webauthn-register] insert failed:", insertError.message);
+        return new Response(JSON.stringify({ error: "Registration not verified" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -189,7 +237,7 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error("[webauthn-register] error:", (err as Error).message);
-    return new Response(JSON.stringify({ error: (err as Error).message }), {
+    return new Response(JSON.stringify({ error: "Unexpected error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

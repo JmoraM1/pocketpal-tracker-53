@@ -11,8 +11,16 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-function getOrigin(req: Request): string {
-  return req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, "") || "https://localhost";
+const CHALLENGE_TTL_MS = 5 * 60 * 1000;
+
+function getOrigin(req: Request): string | null {
+  const raw = req.headers.get("origin") || req.headers.get("referer");
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
 }
 
 Deno.serve(async (req) => {

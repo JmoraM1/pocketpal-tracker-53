@@ -205,13 +205,26 @@ Deno.serve(async (req) => {
           ? rawPublicKey
           : isoBase64URL.fromBuffer(rawPublicKey as Uint8Array);
 
-      await supabaseAdmin.from("webauthn_credentials").insert({
+      const safeDeviceName =
+        typeof deviceName === "string" && deviceName.trim().length > 0
+          ? deviceName.trim().slice(0, 60)
+          : "Dispositivo";
+
+      const { error: insertError } = await supabaseAdmin.from("webauthn_credentials").insert({
         user_id: userId,
         credential_id: credentialIdB64,
         public_key: publicKeyB64,
         counter,
-        device_name: deviceName || "Dispositivo",
+        device_name: safeDeviceName,
       });
+
+      if (insertError) {
+        console.error("[webauthn-register] insert failed:", insertError.message);
+        return new Response(JSON.stringify({ error: "Registration not verified" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

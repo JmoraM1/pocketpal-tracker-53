@@ -237,7 +237,7 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error("[webauthn-register] error:", (err as Error).message);
-    return new Response(JSON.stringify({ error: (err as Error).message }), {
+    return new Response(JSON.stringify({ error: "Unexpected error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

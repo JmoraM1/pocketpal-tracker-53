@@ -64,6 +64,13 @@ Deno.serve(async (req) => {
     const { action, credential, deviceName } = body;
 
     const origin = getOrigin(req);
+    if (!origin) {
+      console.error("[webauthn-register] missing or invalid origin header");
+      return new Response(JSON.stringify({ error: "Invalid request origin" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const rpId = new URL(origin).hostname;
 
     if (action === "options") {

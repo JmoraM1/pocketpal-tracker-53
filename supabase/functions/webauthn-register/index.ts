@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
         .eq("type", "registration")
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (!challengeData) {
         return new Response(JSON.stringify({ error: "Challenge expired or not found" }), {
@@ -136,7 +136,27 @@ Deno.serve(async (req) => {
         });
       }
 
-      await supabaseAdmin.from("webauthn_challenges").delete().eq("id", challengeData.id);
+      // Burn the challenge before verification so it can never be replayed.
+      const { data: consumed } = await supabaseAdmin
+        .from("webauthn_challenges")
+        .delete()
+        .eq("id", challengeData.id)
+        .select("id");
+
+      if (!consumed || consumed.length === 0) {
+        console.error("[webauthn-register] challenge already consumed");
+        return new Response(JSON.stringify({ error: "Challenge expired or not found" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (Date.now() - new Date(challengeData.created_at).getTime() > CHALLENGE_TTL_MS) {
+        return new Response(JSON.stringify({ error: "Challenge expired or not found" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       let verification;
       try {

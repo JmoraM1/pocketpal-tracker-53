@@ -2,8 +2,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.95.3";
 import {
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
-} from "https://esm.sh/@simplewebauthn/server@10.0.1?target=deno";
-import { isoBase64URL } from "https://esm.sh/@simplewebauthn/server@10.0.1/helpers?target=deno";
+} from "https://esm.sh/@simplewebauthn/server@13.1.1?target=deno";
+import { isoBase64URL } from "https://esm.sh/@simplewebauthn/server@13.1.1/helpers?target=deno";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,8 +11,23 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-function getOrigin(req: Request): string {
-  return req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, "") || "https://localhost";
+const CHALLENGE_TTL_MS = 5 * 60 * 1000;
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+function getOrigin(req: Request): string | null {
+  const raw = req.headers.get("origin") || req.headers.get("referer");
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
 }
 
 Deno.serve(async (req) => {
@@ -30,24 +45,21 @@ Deno.serve(async (req) => {
     const { action, email, credential } = body;
 
     if (!email || typeof email !== "string") {
-      return new Response(JSON.stringify({ error: "Email is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json({ error: "Email is required" }, 400);
     }
 
     const origin = getOrigin(req);
+    if (!origin) {
+      console.error("[webauthn-auth] missing or invalid origin header");
+      return json({ error: "Invalid request origin" }, 400);
+    }
     const rpId = new URL(origin).hostname;
 
+    const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
+    const user = userData?.users?.find((u) => u.email === email);
+
     if (action === "options") {
-      const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
-      const user = userData?.users?.find((u) => u.email === email);
-      if (!user) {
-        return new Response(JSON.stringify({ error: "User not found" }), {
-          status: 404,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      if (!user) return json({ error: "User not found" }, 404);
 
       const { data: credentials } = await supabaseAdmin
         .from("webauthn_credentials")
@@ -55,10 +67,7 @@ Deno.serve(async (req) => {
         .eq("user_id", user.id);
 
       if (!credentials || credentials.length === 0) {
-        return new Response(JSON.stringify({ error: "No passkeys registered" }), {
-          status: 404,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return json({ error: "No passkeys registered" }, 404);
       }
 
       const options = await generateAuthenticationOptions({
@@ -67,7 +76,7 @@ Deno.serve(async (req) => {
         userVerification: "required",
         allowCredentials: credentials.map((c) => ({
           id: c.credential_id,
-          type: "public-key",
+          type: "public-key" as const,
         })),
       });
 
@@ -78,19 +87,19 @@ Deno.serve(async (req) => {
         type: "authentication",
       });
 
-      return new Response(JSON.stringify(options), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json(options);
     }
 
     if (action === "verify") {
-      if (!credential?.id || !credential?.response) {
-        return new Response(JSON.stringify({ error: "Missing credential data" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      if (!credential?.id || !credential?.response?.signature || !credential?.response?.authenticatorData) {
+        return json({ error: "Missing credential data" }, 400);
+      }
+      if (!user) {
+        console.error("[webauthn-auth] verify for unknown user");
+        return json({ error: "Authentication failed" }, 401);
       }
 
+      // 1. Fetch and immediately consume the challenge (single use).
       const { data: challengeData } = await supabaseAdmin
         .from("webauthn_challenges")
         .select("*")
@@ -98,40 +107,43 @@ Deno.serve(async (req) => {
         .eq("type", "authentication")
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (!challengeData) {
-        return new Response(JSON.stringify({ error: "Challenge expired" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return json({ error: "Challenge expired" }, 400);
       }
 
-      await supabaseAdmin.from("webauthn_challenges").delete().eq("id", challengeData.id);
+      // Burn the challenge before any verification so it can never be replayed.
+      const { data: consumed } = await supabaseAdmin
+        .from("webauthn_challenges")
+        .delete()
+        .eq("id", challengeData.id)
+        .select("id");
 
+      if (!consumed || consumed.length === 0) {
+        console.error("[webauthn-auth] challenge already consumed");
+        return json({ error: "Challenge expired" }, 400);
+      }
+
+      if (Date.now() - new Date(challengeData.created_at).getTime() > CHALLENGE_TTL_MS) {
+        return json({ error: "Challenge expired" }, 400);
+      }
+
+      // 2. The credential must exist AND belong to the user claiming this email.
       const { data: storedCred } = await supabaseAdmin
         .from("webauthn_credentials")
         .select("*")
         .eq("credential_id", credential.id)
-        .single();
+        .eq("user_id", user.id)
+        .maybeSingle();
 
       if (!storedCred) {
-        return new Response(JSON.stringify({ error: "Credential not found. You may need to re-register." }), {
-          status: 404,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        console.error("[webauthn-auth] credential not found for this user");
+        return json({ error: "Authentication failed" }, 401);
       }
 
-      // The credential must belong to the user claiming this email
-      const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
-      const user = userData?.users?.find((u) => u.id === storedCred.user_id);
-      if (!user || user.email !== email) {
-        return new Response(JSON.stringify({ error: "Credential does not belong to this account" }), {
-          status: 403,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
+      // 3. Full cryptographic verification of the assertion signature against
+      //    the stored public key, challenge, origin, RP ID and UV flag.
       let verification;
       try {
         verification = await verifyAuthenticationResponse({
@@ -140,42 +152,28 @@ Deno.serve(async (req) => {
           expectedOrigin: origin,
           expectedRPID: rpId,
           requireUserVerification: true,
-          // v11+ shape
           credential: {
             id: storedCred.credential_id,
             publicKey: isoBase64URL.toBuffer(storedCred.public_key),
-            counter: storedCred.counter ?? 0,
-          },
-          // v10 shape (ignored by newer versions)
-          authenticator: {
-            credentialID: storedCred.credential_id,
-            credentialPublicKey: isoBase64URL.toBuffer(storedCred.public_key),
-            counter: storedCred.counter ?? 0,
+            counter: Number(storedCred.counter ?? 0),
           },
         });
       } catch (e) {
         console.error("[webauthn-auth] verification error:", (e as Error).message);
-        return new Response(JSON.stringify({ error: "Verification failed" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return json({ error: "Authentication failed" }, 401);
       }
 
-      if (!verification.verified) {
-        return new Response(JSON.stringify({ error: "Authentication not verified" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      if (!verification.verified || !verification.authenticationInfo) {
+        console.error("[webauthn-auth] assertion not verified");
+        return json({ error: "Authentication failed" }, 401);
       }
 
-      // Signature counter regression check (defense against cloned authenticators)
+      // 4. Signature counter regression check (cloned authenticator defense).
       const newCounter = verification.authenticationInfo.newCounter;
-      if (storedCred.counter > 0 && newCounter !== 0 && newCounter <= storedCred.counter) {
+      const storedCounter = Number(storedCred.counter ?? 0);
+      if (storedCounter > 0 && newCounter !== 0 && newCounter <= storedCounter) {
         console.error("[webauthn-auth] counter regression detected");
-        return new Response(JSON.stringify({ error: "Authenticator compromised" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return json({ error: "Authentication failed" }, 401);
       }
 
       await supabaseAdmin
@@ -183,36 +181,31 @@ Deno.serve(async (req) => {
         .update({ counter: newCounter })
         .eq("id", storedCred.id);
 
+      // 5. Only now — after full verification — issue a session.
       const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
         type: "magiclink",
         email: user.email!,
       });
 
       if (linkError || !linkData) {
-        return new Response(JSON.stringify({ error: "Failed to generate session" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        console.error("[webauthn-auth] generateLink failed");
+        return json({ error: "Failed to generate session" }, 500);
       }
 
       const actionLink = linkData.properties?.action_link;
       const url = new URL(actionLink);
       const token_hash = url.searchParams.get("token") || url.hash?.match(/token=([^&]+)/)?.[1];
 
-      return new Response(JSON.stringify({ success: true, token_hash, email: user.email }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      if (!token_hash) {
+        return json({ error: "Failed to generate session" }, 500);
+      }
+
+      return json({ success: true, token_hash, email: user.email });
     }
 
-    return new Response(JSON.stringify({ error: "Invalid action" }), {
-      status: 400,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ error: "Invalid action" }, 400);
   } catch (err) {
     console.error("[webauthn-auth] error:", (err as Error).message);
-    return new Response(JSON.stringify({ error: (err as Error).message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ error: "Unexpected error" }, 500);
   }
 });

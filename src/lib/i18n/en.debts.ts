@@ -1,5 +1,5 @@
 export const EN_DEBTS: Record<string, string> = {
-  "Cuotas del Mes": "Installments This Month",
+  "Cuotas del Mes": "Monthly Installments",
   "Nueva Deuda": "New Debt",
   "Registrar Deuda / Compra a Cuotas": "Register Debt / Installment Purchase",
   "Ej: Celular, Electrodoméstico": "E.g.: Phone, Appliance",

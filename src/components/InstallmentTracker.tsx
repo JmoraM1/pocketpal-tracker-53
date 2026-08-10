@@ -118,18 +118,18 @@ export function InstallmentTracker({
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
             <CreditCard className="h-5 w-5" />
-            t("Cuotas del Mes")
+            {t("Cuotas del Mes")}
           </CardTitle>
           <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1">
                 <Plus className="h-4 w-4" />
-                t("Nueva Deuda")
+                {t("Nueva Deuda")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>t("Registrar Deuda / Compra a Cuotas")</DialogTitle>
+                <DialogTitle>{t("Registrar Deuda / Compra a Cuotas")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 pt-2">
                 <div className="space-y-2">
@@ -163,7 +163,7 @@ export function InstallmentTracker({
                   <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                 </div>
                 <Button className="w-full" onClick={handleCreate}>
-                  t("Crear Plan de Cuotas")
+                  {t("Crear Plan de Cuotas")}
                 </Button>
               </div>
             </DialogContent>

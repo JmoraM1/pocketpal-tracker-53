@@ -51,5 +51,13 @@ export const EN_REPORTS: Record<string, string> = {
     "You have {value} left: put part of it into savings.",
   "Exportar": "Export",
   "Exportar PDF": "Export PDF",
+  "Exportar Excel": "Export Excel",
+  "Fecha": "Date",
+  "Categoría": "Category",
+  "Resumen": "Summary",
+  "Detalle": "Detail",
+  "Conceptos": "Items",
+  "Ingresos": "Income",
   "Período": "Period",
 };
+

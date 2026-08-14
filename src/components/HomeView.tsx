@@ -250,9 +250,9 @@ export function HomeView({
         })}
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         {/* Gráfico de evolución */}
-        <motion.div variants={item} className="lg:col-span-3">
+        <motion.div variants={item} className="min-w-0 lg:col-span-3">
           <Card className="h-full overflow-hidden rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -318,7 +318,7 @@ export function HomeView({
         </motion.div>
 
         {/* Gastos por categoría */}
-        <motion.div variants={item} className="lg:col-span-2">
+        <motion.div variants={item} className="min-w-0 lg:col-span-2">
           <Card className="h-full rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
               <h3 className="font-display text-base font-semibold">{t("Gastos por categoría")}</h3>
@@ -362,9 +362,9 @@ export function HomeView({
         </motion.div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         {/* Actividad reciente */}
-        <motion.div variants={item} className="lg:col-span-3">
+        <motion.div variants={item} className="min-w-0 lg:col-span-3">
           <Card className="h-full rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
               <h3 className="font-display text-base font-semibold">{t("Actividad reciente")}</h3>
@@ -414,7 +414,7 @@ export function HomeView({
         </motion.div>
 
         {/* Acciones rápidas */}
-        <motion.div variants={item} className="lg:col-span-2">
+        <motion.div variants={item} className="min-w-0 lg:col-span-2">
           <Card className="h-full rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
               <h3 className="font-display text-base font-semibold">{t("Acciones rápidas")}</h3>

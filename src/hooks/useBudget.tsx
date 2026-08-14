@@ -28,6 +28,8 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [cumulativeSavings, setCumulativeSavings] = useState(0);
+  const [prevExpenses, setPrevExpenses] = useState<{ category: string; amount: number }[]>([]);
+
 
   const monthKey = getMonthKey(selectedMonth);
 

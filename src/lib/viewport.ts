@@ -19,4 +19,14 @@ export function initVisualViewport() {
   window.addEventListener("orientationchange", apply);
   window.visualViewport?.addEventListener("resize", apply);
   window.visualViewport?.addEventListener("scroll", apply);
+
+  // Al enfocar un campo, asegurar que quede visible sobre el teclado
+  document.addEventListener("focusin", (e) => {
+    const el = e.target as HTMLElement | null;
+    if (!el || !el.matches("input, textarea, select, [contenteditable=true]")) return;
+    window.setTimeout(() => {
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
+    }, 250);
+  });
 }
+

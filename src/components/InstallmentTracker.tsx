@@ -19,7 +19,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { formatCOP } from "@/lib/constants";
+import { formatCOP, formatShortDate } from "@/lib/constants";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { Plus, Trash2, CreditCard, CalendarDays, Pencil, Check, X, Trophy, ListChecks } from "lucide-react";
 import type { InstallmentPlan, InstallmentPayment } from "@/hooks/useInstallments";
 import { useT } from "@/lib/i18n";
@@ -61,6 +63,7 @@ export function InstallmentTracker({
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   });
+  const [startDateOpen, setStartDateOpen] = useState(false);
 
   // Auto-calc installment when total/num change, unless the user overrode it
   useEffect(() => {
@@ -160,7 +163,30 @@ export function InstallmentTracker({
                 </div>
                 <div className="space-y-2">
                   <Label>{t("Fecha de la primera cuota")}</Label>
-                  <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                  <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start gap-2 font-normal">
+                        <CalendarDays className="h-4 w-4" />
+                        {startDate ? formatShortDate(startDate) : t("Seleccionar fecha")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={startDate ? new Date(`${startDate}T12:00:00`) : undefined}
+                        onSelect={(d) => {
+                          if (d) {
+                            setStartDate(
+                              `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
+                            );
+                          }
+                          setStartDateOpen(false);
+                        }}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <Button className="w-full" onClick={handleCreate}>
                   {t("Crear Plan de Cuotas")}

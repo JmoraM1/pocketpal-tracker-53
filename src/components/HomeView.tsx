@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCOP } from "@/lib/constants";
@@ -34,10 +34,13 @@ interface HomeViewProps {
   paidCount: number;
   totalCount: number;
   expenses: Expense[];
+  prevExpenses?: { category: string; amount: number }[];
   monthPayments: (InstallmentPayment & { plan_name: string })[];
   installmentMonthTotal: number;
   onNavigate: (v: AppView) => void;
+  onOpenIncome: () => void;
 }
+
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const item = {
@@ -71,9 +74,11 @@ export function HomeView({
   totalExpenses,
   available,
   expenses,
+  prevExpenses = [],
   monthPayments,
   installmentMonthTotal,
   onNavigate,
+  onOpenIncome,
 }: HomeViewProps) {
   const { t, locale } = useI18n();
   const name = alias?.trim() || (userEmail ? userEmail.split("@")[0] : "");
@@ -86,7 +91,7 @@ export function HomeView({
     tint: string;
     trend: string;
     up: boolean;
-    view: AppView;
+    onClick: () => void;
   }[] = [
     {
       label: t("Ingresos"),
@@ -95,16 +100,16 @@ export function HomeView({
       tint: "bg-success/10 text-success",
       trend: t("Este mes"),
       up: true,
-      view: "home",
+      onClick: onOpenIncome,
     },
     {
       label: t("Disponible"),
       value: available,
       icon: Wallet,
       tint: "bg-info/10 text-info",
-      trend: income > 0 ? t("{n}% libre", { n: Math.max(100 - spentPct, 0) }) : "—",
+      trend: income > 0 ? t("{n}% disponible", { n: Math.max(100 - spentPct, 0) }) : "—",
       up: available >= 0,
-      view: "expenses",
+      onClick: () => onNavigate("expenses"),
     },
     {
       label: t("Gastos"),
@@ -113,7 +118,7 @@ export function HomeView({
       tint: "bg-destructive/10 text-destructive",
       trend: income > 0 ? t("{n}% del ingreso", { n: spentPct }) : "—",
       up: false,
-      view: "expenses",
+      onClick: () => onNavigate("expenses"),
     },
     {
       label: t("Deudas"),
@@ -122,9 +127,60 @@ export function HomeView({
       tint: "bg-accent-violet/10 text-accent-violet",
       trend: monthPayments.length === 1 ? t("{n} cuota", { n: 1 }) : t("{n} cuotas", { n: monthPayments.length }),
       up: false,
-      view: "debts",
+      onClick: () => onNavigate("debts"),
     },
   ];
+
+  const insights = useMemo(() => {
+    const out: string[] = [];
+    const prevTotal = prevExpenses.reduce((s, e) => s + Number(e.amount), 0);
+    const currentTotal = expenses.reduce((s, e) => s + Number(e.amount), 0);
+
+    if (prevTotal > 0 && currentTotal > 0) {
+      const diff = Math.round(((currentTotal - prevTotal) / prevTotal) * 100);
+      if (Math.abs(diff) >= 3) {
+        out.push(
+          diff > 0
+            ? t("Gastas {n}% más que el mes pasado.", { n: diff })
+            : t("Gastas {n}% menos que el mes pasado.", { n: Math.abs(diff) }),
+        );
+      }
+    }
+
+    // Categoría con mayor aumento (o mayor peso si no hay historial)
+    const curMap = new Map<string, number>();
+    expenses.forEach((e) => curMap.set(e.category, (curMap.get(e.category) ?? 0) + Number(e.amount)));
+    const prevMap = new Map<string, number>();
+    prevExpenses.forEach((e) => prevMap.set(e.category, (prevMap.get(e.category) ?? 0) + Number(e.amount)));
+
+    if (prevMap.size > 0) {
+      let topCat = "";
+      let topDelta = 0;
+      curMap.forEach((v, k) => {
+        const delta = v - (prevMap.get(k) ?? 0);
+        if (delta > topDelta) {
+          topDelta = delta;
+          topCat = k;
+        }
+      });
+      if (topCat && topDelta > 0) {
+        out.push(t("{c} subió {v}.", { c: topCat, v: formatCOP(topDelta) }));
+      }
+    } else if (curMap.size > 0 && currentTotal > 0) {
+      const [cat, val] = [...curMap.entries()].sort((a, b) => b[1] - a[1])[0];
+      out.push(t("{c} es tu mayor gasto: {p}% del total.", { c: cat, p: Math.round((val / currentTotal) * 100) }));
+    }
+
+    if (income > 0 && installmentMonthTotal > 0) {
+      const debtPct = Math.round((installmentMonthTotal / income) * 100);
+      if (debtPct >= 10) out.push(t("Las cuotas consumen el {n}% de tus ingresos.", { n: debtPct }));
+    } else if (income > 0 && available > 0 && spentPct < 70) {
+      out.push(t("Puedes ahorrar {v} este mes.", { v: formatCOP(Math.round(available * 0.2)) }));
+    }
+
+    return out.slice(0, 3);
+  }, [expenses, prevExpenses, income, installmentMonthTotal, available, spentPct, t]);
+
 
   const flowData = useMemo(() => {
     const sorted = [...expenses].sort(
@@ -215,40 +271,14 @@ export function HomeView({
 
       {/* Mensaje inteligente */}
       <motion.div variants={item}>
-        <SmartMessage pct={spentPct} hasIncome={income > 0} />
+        <SmartMessage pct={spentPct} hasIncome={income > 0} insights={insights} />
       </motion.div>
 
-      {/* Tarjetas principales */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((s) => {
-          const Icon = s.icon;
-          const Trend = s.up ? ArrowUpRight : ArrowDownRight;
-          return (
-            <motion.button
-              key={s.label}
-              variants={item}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onNavigate(s.view)}
-              className="rounded-2xl border bg-card p-5 text-left shadow-soft transition-shadow hover:shadow-card"
-            >
-              <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.tint}`}>
-                <Icon className="h-5 w-5" />
-              </span>
-              <p className="mt-4 text-sm font-medium text-muted-foreground">{s.label}</p>
-              <p className="mt-1 font-display text-2xl font-semibold tracking-tight">{formatCOP(s.value)}</p>
-              <span
-                className={`mt-2 inline-flex items-center gap-1 text-xs font-medium ${
-                  s.up ? "text-success" : "text-destructive"
-                }`}
-              >
-                <Trend className="h-3.5 w-3.5" />
-                {s.trend}
-              </span>
-            </motion.button>
-          );
-        })}
-      </div>
+      {/* Tarjetas principales: slider en móvil, grid en desktop */}
+      <motion.div variants={item}>
+        <StatSlider stats={stats} />
+      </motion.div>
+
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         {/* Gráfico de evolución */}
@@ -413,8 +443,9 @@ export function HomeView({
           </Card>
         </motion.div>
 
-        {/* Acciones rápidas */}
-        <motion.div variants={item} className="min-w-0 lg:col-span-2">
+        {/* Acciones rápidas (solo desktop: en móvil se usa el botón +) */}
+        <motion.div variants={item} className="hidden min-w-0 md:block lg:col-span-2">
+
           <Card className="h-full rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
               <h3 className="font-display text-base font-semibold">{t("Acciones rápidas")}</h3>
@@ -442,5 +473,90 @@ export function HomeView({
         </motion.div>
       </div>
     </motion.div>
+  );
+}
+
+interface StatItem {
+  label: string;
+  value: number;
+  icon: LucideIcon;
+  tint: string;
+  trend: string;
+  up: boolean;
+  onClick: () => void;
+}
+
+function StatCard({ s }: { s: StatItem }) {
+  const Icon = s.icon;
+  const Trend = s.up ? ArrowUpRight : ArrowDownRight;
+  return (
+    <motion.button
+      whileHover={{ y: -3 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={s.onClick}
+      className="h-full w-full rounded-2xl border bg-card p-5 text-left shadow-soft transition-shadow hover:shadow-card"
+    >
+      <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.tint}`}>
+        <Icon className="h-5 w-5" />
+      </span>
+      <p className="mt-4 truncate text-sm font-medium text-muted-foreground">{s.label}</p>
+      <p className="mt-1 truncate font-display text-2xl font-semibold tracking-tight">{formatCOP(s.value)}</p>
+      <span
+        className={`mt-2 inline-flex max-w-full items-center gap-1 text-xs font-medium ${
+          s.up ? "text-success" : "text-destructive"
+        }`}
+      >
+        <Trend className="h-3.5 w-3.5 shrink-0" />
+        <span className="truncate">{s.trend}</span>
+      </span>
+    </motion.button>
+  );
+}
+
+function StatSlider({ stats }: { stats: StatItem[] }) {
+  const scroller = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const onScroll = () => {
+    const el = scroller.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / (el.clientWidth * 0.85));
+    setActive(Math.max(0, Math.min(stats.length - 1, idx)));
+  };
+
+  return (
+    <>
+      {/* Móvil: slider táctil */}
+      <div className="md:hidden">
+        <div
+          ref={scroller}
+          onScroll={onScroll}
+          className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {stats.map((s) => (
+            <div key={s.label} className="w-[85%] shrink-0 snap-center">
+              <StatCard s={s} />
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 flex justify-center gap-1.5">
+          {stats.map((s, i) => (
+            <span
+              key={s.label}
+              className={`h-1.5 rounded-full transition-all ${
+                i === active ? "w-5 bg-primary" : "w-1.5 bg-muted-foreground/30"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: grid de 4 tarjetas */}
+      <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
+        {stats.map((s) => (
+          <StatCard key={s.label} s={s} />
+        ))}
+      </div>
+    </>
   );
 }

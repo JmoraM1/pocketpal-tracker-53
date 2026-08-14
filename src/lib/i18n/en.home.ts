@@ -58,4 +58,30 @@ export const EN_HOME: Record<string, string> = {
   "Registra tu ingreso del mes para ver tu resumen inteligente.":
     "Add your monthly income to see your smart summary.",
   "Llevas el {n}% de tus ingresos comprometidos.": "You've committed {n}% of your income.",
+
+  // Insights
+  "Gastas {n}% más que el mes pasado.": "You're spending {n}% more than last month.",
+  "Gastas {n}% menos que el mes pasado.": "You're spending {n}% less than last month.",
+  "{c} subió {v}.": "{c} went up by {v}.",
+  "{c} es tu mayor gasto: {p}% del total.": "{c} is your biggest expense: {p}% of the total.",
+  "Las cuotas consumen el {n}% de tus ingresos.": "Installments take up {n}% of your income.",
+  "Puedes ahorrar {v} este mes.": "You could save {v} this month.",
+  "{n}% disponible": "{n}% available",
+
+  // Ingresos
+  "Ingresos del mes": "Monthly income",
+  "Gestiona tu salario y tus ingresos adicionales.": "Manage your salary and additional income.",
+  Salario: "Salary",
+  "Aún no hay ingresos adicionales.": "No additional income yet.",
+  "Agregar ingreso": "Add income",
+  "Nombre del ingreso": "Income name",
+  "Ej: Freelance": "e.g. Freelance",
+  "Repetir todos los meses": "Repeat every month",
+  "Todos los meses": "Every month",
+  "Solo este mes": "This month only",
+  "Ingresos totales": "Total income",
+  "Eliminar ingreso": "Delete income",
+  "¿Estás seguro de que deseas eliminar este ingreso? Esta acción no se puede deshacer.":
+    "Are you sure you want to delete this income? This action cannot be undone.",
+  Ingreso: "Income",
 };

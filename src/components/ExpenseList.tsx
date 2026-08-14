@@ -67,6 +67,7 @@ function ExpenseForm({
   const [isPaid, setIsPaid] = useState(initial?.is_paid ?? false);
   const [dueDate, setDueDate] = useState<string | null>(initial?.due_date ?? null);
   const [frequency, setFrequency] = useState(initial?.frequency ?? "unico");
+  const [dateOpen, setDateOpen] = useState(false);
 
   return (
     <div className="space-y-4 pt-2">
@@ -90,7 +91,7 @@ function ExpenseForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>{t("Fecha de vencimiento")}</Label>
-          <Popover>
+          <Popover open={dateOpen} onOpenChange={setDateOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start gap-2 font-normal">
                 <CalendarIcon className="h-4 w-4" />
@@ -101,7 +102,10 @@ function ExpenseForm({
               <Calendar
                 mode="single"
                 selected={dueDate ? new Date(`${dueDate}T12:00:00`) : undefined}
-                onSelect={(d) => setDueDate(d ? toIsoDate(d) : null)}
+                onSelect={(d) => {
+                  setDueDate(d ? toIsoDate(d) : null);
+                  setDateOpen(false);
+                }}
                 initialFocus
                 className="pointer-events-auto"
               />

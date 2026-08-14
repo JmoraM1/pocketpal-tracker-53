@@ -180,5 +180,16 @@
     max-height: calc(var(--app-vh, 100dvh) - 1.5rem);
     top: calc(var(--app-vp-offset, 0px) + var(--app-vh, 100dvh) / 2);
     scrollbar-width: thin;
+    overscroll-behavior: contain;
+    /* Cambio suave cuando el teclado abre/cierra: sin saltos bruscos */
+    transition: top 180ms ease, max-height 180ms ease;
+    scroll-padding-bottom: 5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .responsive-dialog {
+      transition: none;
+    }
   }
 }
+

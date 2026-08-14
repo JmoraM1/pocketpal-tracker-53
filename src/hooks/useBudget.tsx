@@ -28,6 +28,8 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [cumulativeSavings, setCumulativeSavings] = useState(0);
+  const [prevExpenses, setPrevExpenses] = useState<{ category: string; amount: number }[]>([]);
+
 
   const monthKey = getMonthKey(selectedMonth);
 
@@ -63,6 +65,27 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
         .order("created_at");
       setExpenses(expensesData ?? []);
     }
+
+    // Gastos del mes anterior (solo lectura, para los insights)
+    const prevDate = new Date(selectedMonth);
+    prevDate.setMonth(prevDate.getMonth() - 1);
+    const { data: prevBudgetData } = await supabase
+      .from("monthly_budgets")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("month", getMonthKey(prevDate))
+      .maybeSingle();
+
+    if (prevBudgetData) {
+      const { data: prevExpensesData } = await supabase
+        .from("expenses")
+        .select("category, amount")
+        .eq("budget_id", prevBudgetData.id);
+      setPrevExpenses(prevExpensesData ?? []);
+    } else {
+      setPrevExpenses([]);
+    }
+
 
     // Calculate cumulative savings
     await calculateCumulativeSavings(userId, selectedMonth);
@@ -217,6 +240,8 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
     available,
     paidCount,
     cumulativeSavings,
+    prevExpenses,
+
     updateIncome,
     updateExpense,
     addExpense,

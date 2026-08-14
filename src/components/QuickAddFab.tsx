@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Receipt, CreditCard, Target, PiggyBank } from "lucide-react";
+import { Plus, CreditCard, PiggyBank } from "lucide-react";
 import type { AppView } from "@/components/BottomNav";
 import { useT } from "@/lib/i18n";
 
@@ -9,9 +9,7 @@ interface QuickAddFabProps {
 }
 
 const ACTIONS: { label: string; icon: typeof Plus; view: AppView; tint: string }[] = [
-  { label: "Nuevo gasto", icon: Receipt, view: "expenses", tint: "bg-destructive/10 text-destructive" },
   { label: "Nueva deuda", icon: CreditCard, view: "debts", tint: "bg-warning/10 text-warning" },
-  { label: "Nueva meta", icon: Target, view: "goals", tint: "bg-primary/10 text-primary" },
   { label: "Nuevo ahorro", icon: PiggyBank, view: "savings", tint: "bg-success/10 text-success" },
 ];
 
@@ -20,7 +18,7 @@ export function QuickAddFab({ onNavigate }: QuickAddFabProps) {
   const [open, setOpen] = useState(false);
 
   return (
-    <>
+    <div className="md:hidden">
       <AnimatePresence>
         {open && (
           <motion.button
@@ -35,7 +33,7 @@ export function QuickAddFab({ onNavigate }: QuickAddFabProps) {
         )}
       </AnimatePresence>
 
-      <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 flex-col items-center gap-3 md:bottom-8 md:left-auto md:right-8 md:translate-x-0 md:items-end">
+      <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 flex-col items-center gap-3">
         <AnimatePresence>
           {open &&
             ACTIONS.map((a, i) => {
@@ -74,6 +72,6 @@ export function QuickAddFab({ onNavigate }: QuickAddFabProps) {
           </motion.span>
         </motion.button>
       </div>
-    </>
+    </div>
   );
 }

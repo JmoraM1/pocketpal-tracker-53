@@ -6,7 +6,10 @@ interface SmartMessageProps {
   /** Porcentaje del ingreso comprometido */
   pct: number;
   hasIncome: boolean;
+  /** Máximo 3 datos breves basados en datos reales */
+  insights?: string[];
 }
+
 
 interface MoodConfig {
   mood: MascotMood;
@@ -70,12 +73,13 @@ function resolve(pct: number): MoodConfig {
   };
 }
 
-export function SmartMessage({ pct, hasIncome }: SmartMessageProps) {
+export function SmartMessage({ pct, hasIncome, insights = [] }: SmartMessageProps) {
   const t = useT();
   const cfg = resolve(pct);
   const description = !hasIncome
     ? t("Registra tu ingreso del mes para ver tu resumen inteligente.")
     : t("Llevas el {n}% de tus ingresos comprometidos.", { n: pct });
+  const list = insights.slice(0, 3);
 
   return (
     <motion.div
@@ -97,7 +101,18 @@ export function SmartMessage({ pct, hasIncome }: SmartMessageProps) {
             className={`h-full rounded-full ${cfg.bar}`}
           />
         </div>
+        {list.length > 0 && (
+          <ul className="mt-3 space-y-1">
+            {list.map((i) => (
+              <li key={i} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${cfg.bar}`} />
+                <span className="min-w-0">{i}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
+
       <Mascot mood={cfg.mood} className="h-24 w-24 shrink-0 sm:h-28 sm:w-28" />
     </motion.div>
   );

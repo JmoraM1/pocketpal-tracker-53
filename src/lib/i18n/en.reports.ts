@@ -6,7 +6,11 @@ export const EN_REPORTS: Record<string, string> = {
   "Personalizado": "Custom",
   "Gastos totales": "Total spending",
   "Gastos + deudas": "Expenses + debts",
+  "Gastos + cuotas de deudas": "Expenses + debt installments",
+  "Conceptos registrados": "Items recorded",
+  "Gastos y deudas": "Expenses and debts",
   "Categorías usadas": "Categories used",
+
   "Conceptos con movimiento": "Items with activity",
   "Mayor salida de dinero": "Largest outflow",
   "Disponible del mes": "Available this month",

@@ -263,13 +263,8 @@ export function HomeView({
     return list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 6);
   }, [expenses, monthPayments, income]);
 
-  const shortcuts: { label: string; icon: LucideIcon; view: AppView; tint: string }[] = [
-    { label: t("Nueva meta"), icon: Target, view: "goals", tint: "bg-success/10 text-success" },
-    { label: t("Nuevo gasto"), icon: Receipt, view: "expenses", tint: "bg-destructive/10 text-destructive" },
-    { label: t("Nuevo ahorro"), icon: PiggyBank, view: "savings", tint: "bg-info/10 text-info" },
-    { label: t("Nueva deuda"), icon: CreditCard, view: "debts", tint: "bg-accent-violet/10 text-accent-violet" },
-    { label: t("Ver deudas"), icon: Wallet, view: "debts", tint: "bg-warning/10 text-warning" },
-  ];
+
+
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">

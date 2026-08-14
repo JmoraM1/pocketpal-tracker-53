@@ -64,6 +64,27 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
       setExpenses(expensesData ?? []);
     }
 
+    // Gastos del mes anterior (solo lectura, para los insights)
+    const prevDate = new Date(selectedMonth);
+    prevDate.setMonth(prevDate.getMonth() - 1);
+    const { data: prevBudgetData } = await supabase
+      .from("monthly_budgets")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("month", getMonthKey(prevDate))
+      .maybeSingle();
+
+    if (prevBudgetData) {
+      const { data: prevExpensesData } = await supabase
+        .from("expenses")
+        .select("category, amount")
+        .eq("budget_id", prevBudgetData.id);
+      setPrevExpenses(prevExpensesData ?? []);
+    } else {
+      setPrevExpenses([]);
+    }
+
+
     // Calculate cumulative savings
     await calculateCumulativeSavings(userId, selectedMonth);
 

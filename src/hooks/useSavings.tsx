@@ -65,7 +65,7 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
 
   // Reload + tell other instances to reload too
   const refresh = useCallback(async () => {
-    await loadData();
+    await refresh();
     notifySavingsChanged(loadData);
   }, [loadData]);
 
@@ -94,7 +94,7 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
         await supabase.from("savings_goals").update({ is_completed: true }).eq("id", data.id);
       }
     }
-    await loadData();
+    await refresh();
   };
 
   const updateGoal = async (id: string, updates: Partial<Pick<SavingsGoal, "name" | "target_amount">>) => {
@@ -110,12 +110,12 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
       }
     }
 
-    await loadData();
+    await refresh();
   };
 
   const deleteGoal = async (id: string) => {
     await supabase.from("savings_goals").delete().eq("id", id);
-    await loadData();
+    await refresh();
   };
 
   const setGoalContribution = async (goalId: string, amount: number) => {
@@ -131,12 +131,12 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
     if (goal && !goal.is_completed && totalForGoal >= Number(goal.target_amount) && Number(goal.target_amount) > 0) {
       await supabase.from("savings_goals").update({ is_completed: true }).eq("id", goalId);
     }
-    await loadData();
+    await refresh();
   };
 
   const deleteGoalContribution = async (id: string) => {
     await supabase.from("savings_goal_contributions").delete().eq("id", id);
-    await loadData();
+    await refresh();
   };
 
   // --- FREE SAVINGS ---
@@ -152,17 +152,17 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
         user_id: userId, saving_id: data.id, month: monthKey, amount: initial,
       });
     }
-    await loadData();
+    await refresh();
   };
 
   const updateFreeSaving = async (id: string, name: string) => {
     await supabase.from("free_savings").update({ name }).eq("id", id);
-    await loadData();
+    await refresh();
   };
 
   const deleteFreeSaving = async (id: string) => {
     await supabase.from("free_savings").delete().eq("id", id);
-    await loadData();
+    await refresh();
   };
 
   const setFreeContribution = async (savingId: string, amount: number) => {
@@ -170,12 +170,12 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
     await supabase.from("free_savings_contributions").insert({
       user_id: userId, saving_id: savingId, month: monthKey, amount,
     });
-    await loadData();
+    await refresh();
   };
 
   const deleteFreeContribution = async (id: string) => {
     await supabase.from("free_savings_contributions").delete().eq("id", id);
-    await loadData();
+    await refresh();
   };
 
   const goalTotal = (goalId: string) =>

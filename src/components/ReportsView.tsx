@@ -385,7 +385,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
             <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
-          <div className="-mx-3 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth px-3 pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+          <div className="-mx-3 flex w-[calc(100%+1.5rem)] min-w-0 max-w-none flex-nowrap gap-2 overflow-x-auto overscroll-x-contain scroll-smooth px-3 pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [touch-action:pan-x] sm:mx-0 sm:w-auto sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
             {PERIODS.map((p) =>
               p.id === "custom" ? (
                 <Popover key={p.id}>

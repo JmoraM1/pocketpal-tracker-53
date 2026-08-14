@@ -29,7 +29,6 @@ import {
   Wallet,
   ChevronRight,
   BarChart3,
-  Download,
   Settings,
 } from "lucide-react";
 

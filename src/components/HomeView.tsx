@@ -495,18 +495,22 @@ interface StatItem {
   tint: string;
   trend: string;
   up: boolean;
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 function StatCard({ s }: { s: StatItem }) {
   const Icon = s.icon;
   const Trend = s.up ? ArrowUpRight : ArrowDownRight;
+  const interactive = Boolean(s.onClick);
+  const Comp = interactive ? motion.button : motion.div;
   return (
-    <motion.button
-      whileHover={{ y: -3 }}
-      whileTap={{ scale: 0.98 }}
+    <Comp
+      whileHover={interactive ? { y: -3 } : undefined}
+      whileTap={interactive ? { scale: 0.98 } : undefined}
       onClick={s.onClick}
-      className="h-full w-full rounded-2xl border bg-card p-5 text-left shadow-soft transition-shadow hover:shadow-card"
+      className={`h-full w-full rounded-2xl border bg-card p-5 text-left shadow-soft transition-shadow ${
+        interactive ? "hover:shadow-card" : "cursor-default"
+      }`}
     >
       <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.tint}`}>
         <Icon className="h-5 w-5" />
@@ -521,8 +525,9 @@ function StatCard({ s }: { s: StatItem }) {
         <Trend className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{s.trend}</span>
       </span>
-    </motion.button>
+    </Comp>
   );
+
 }
 
 function StatSlider({ stats }: { stats: StatItem[] }) {

@@ -443,8 +443,9 @@ export function HomeView({
           </Card>
         </motion.div>
 
-        {/* Acciones rápidas */}
-        <motion.div variants={item} className="min-w-0 lg:col-span-2">
+        {/* Acciones rápidas (solo desktop: en móvil se usa el botón +) */}
+        <motion.div variants={item} className="hidden min-w-0 md:block lg:col-span-2">
+
           <Card className="h-full rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
               <h3 className="font-display text-base font-semibold">{t("Acciones rápidas")}</h3>

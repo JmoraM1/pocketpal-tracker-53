@@ -279,7 +279,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{t("Historial —")} {goal.name}</DialogTitle></DialogHeader>
-            <div className="space-y-1 max-h-[60vh] overflow-y-auto">
+            <div className="space-y-1 max-h-[45vh] overflow-y-auto">
               {[...contributions].sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).map((c: any) => (
                 <div key={c.id} className="flex items-center justify-between rounded p-2 hover:bg-muted/50">
                   <span className="text-sm">{formatDateTime(c.created_at)}</span>
@@ -351,7 +351,7 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{t("Historial —")} {saving.name}</DialogTitle></DialogHeader>
-            <div className="space-y-1 max-h-[60vh] overflow-y-auto">
+            <div className="space-y-1 max-h-[45vh] overflow-y-auto">
               {[...contributions].sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).map((c: any) => (
                 <div key={c.id} className="flex items-center justify-between rounded p-2 hover:bg-muted/50">
                   <span className="text-sm">{formatDateTime(c.created_at)}</span>

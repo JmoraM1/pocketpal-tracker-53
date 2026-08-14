@@ -357,7 +357,7 @@ function ScheduleDialog({
         <DialogHeader>
           <DialogTitle>{t("Cronograma —")} {plan.name}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+        <div className="space-y-2 max-h-[45vh] overflow-y-auto">
           {payments.length === 0 && (
             <p className="text-center text-sm text-muted-foreground py-4">{t("Sin cuotas registradas.")}</p>
           )}

@@ -166,3 +166,19 @@
     @apply transition-transform duration-150 active:scale-[0.97];
   }
 }
+
+@layer base {
+  html, body, #root {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  /* Modales adaptables al viewport visible (incluye teclado virtual) */
+  .responsive-dialog {
+    max-height: calc(var(--app-vh, 100dvh) - 1.5rem);
+    top: calc(var(--app-vp-offset, 0px) + var(--app-vh, 100dvh) / 2);
+    scrollbar-width: thin;
+  }
+}

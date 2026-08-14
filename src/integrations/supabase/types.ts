@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      additional_incomes: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          is_recurring: boolean
+          month: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_recurring?: boolean
+          month?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_recurring?: boolean
+          month?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number

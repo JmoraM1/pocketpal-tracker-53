@@ -271,40 +271,14 @@ export function HomeView({
 
       {/* Mensaje inteligente */}
       <motion.div variants={item}>
-        <SmartMessage pct={spentPct} hasIncome={income > 0} />
+        <SmartMessage pct={spentPct} hasIncome={income > 0} insights={insights} />
       </motion.div>
 
-      {/* Tarjetas principales */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((s) => {
-          const Icon = s.icon;
-          const Trend = s.up ? ArrowUpRight : ArrowDownRight;
-          return (
-            <motion.button
-              key={s.label}
-              variants={item}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onNavigate(s.view)}
-              className="rounded-2xl border bg-card p-5 text-left shadow-soft transition-shadow hover:shadow-card"
-            >
-              <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.tint}`}>
-                <Icon className="h-5 w-5" />
-              </span>
-              <p className="mt-4 text-sm font-medium text-muted-foreground">{s.label}</p>
-              <p className="mt-1 font-display text-2xl font-semibold tracking-tight">{formatCOP(s.value)}</p>
-              <span
-                className={`mt-2 inline-flex items-center gap-1 text-xs font-medium ${
-                  s.up ? "text-success" : "text-destructive"
-                }`}
-              >
-                <Trend className="h-3.5 w-3.5" />
-                {s.trend}
-              </span>
-            </motion.button>
-          );
-        })}
-      </div>
+      {/* Tarjetas principales: slider en móvil, grid en desktop */}
+      <motion.div variants={item}>
+        <StatSlider stats={stats} />
+      </motion.div>
+
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         {/* Gráfico de evolución */}

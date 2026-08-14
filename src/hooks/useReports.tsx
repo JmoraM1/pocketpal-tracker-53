@@ -9,7 +9,12 @@ export interface ReportItem {
   name: string;
   type: "gasto" | "deuda";
   amount: number;
+  /** Fecha identificable del movimiento (YYYY-MM-DD) */
+  date: string;
+  category: string;
+  description: string;
 }
+
 
 export interface CategoryTotal {
   name: string;

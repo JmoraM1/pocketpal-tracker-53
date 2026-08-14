@@ -167,6 +167,12 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
 
   const setFreeContribution = async (savingId: string, amount: number) => {
     if (!userId || amount <= 0) return;
+    // Optimistic: reflect the contribution instantly everywhere
+    const tempId = `temp-${Date.now()}`;
+    setFreeContribs((prev) => [
+      ...prev,
+      { id: tempId, saving_id: savingId, month: monthKey, amount, created_at: new Date().toISOString() },
+    ]);
     await supabase.from("free_savings_contributions").insert({
       user_id: userId, saving_id: savingId, month: monthKey, amount,
     });

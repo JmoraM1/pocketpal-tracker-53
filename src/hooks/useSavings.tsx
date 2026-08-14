@@ -33,6 +33,12 @@ export type FreeContribution = {
   created_at: string;
 };
 
+// Global listeners so every mounted useSavings instance stays in sync instantly
+const savingsListeners = new Set<() => void>();
+function notifySavingsChanged(except?: () => void) {
+  savingsListeners.forEach((l) => { if (l !== except) l(); });
+}
+
 export function useSavings(userId: string | undefined, selectedMonth: Date) {
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [goalContribs, setGoalContribs] = useState<GoalContribution[]>([]);
@@ -44,7 +50,6 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
 
   const loadData = useCallback(async () => {
     if (!userId) return;
-    setLoading(true);
     const [g, gc, f, fc] = await Promise.all([
       supabase.from("savings_goals").select("*").eq("user_id", userId).order("created_at"),
       supabase.from("savings_goal_contributions").select("*").eq("user_id", userId),
@@ -58,7 +63,20 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
     setLoading(false);
   }, [userId]);
 
+  // Reload + tell other instances to reload too
+  const refresh = useCallback(async () => {
+    await loadData();
+    notifySavingsChanged(loadData);
+  }, [loadData]);
+
   useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    savingsListeners.add(loadData);
+    return () => { savingsListeners.delete(loadData); };
+  }, [loadData]);
+
+
 
   // --- GOALS ---
   const createGoal = async (name: string, target: number, initial: number = 0) => {

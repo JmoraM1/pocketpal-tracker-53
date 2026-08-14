@@ -14,7 +14,7 @@ import { ExportButton } from "@/components/ExportButton";
 import { CategoryManager } from "@/components/CategoryManager";
 import { InstallmentTracker } from "@/components/InstallmentTracker";
 import { SavingsModule } from "@/components/SavingsModule";
-import { ExpenseCharts } from "@/components/ExpenseCharts";
+import { ReportsView } from "@/components/ReportsView";
 import { BottomNav, type AppView } from "@/components/BottomNav";
 import { AppSidebar } from "@/components/AppSidebar";
 import { HomeView } from "@/components/HomeView";
@@ -196,8 +196,9 @@ export default function Dashboard() {
               )}
 
               {view === "reports" && (
-                <ExpenseCharts expenses={expenses} />
+                <ReportsView userId={user?.id} selectedMonth={selectedMonth} />
               )}
+
 
               {view === "export" && (
                 <Card className="rounded-2xl border shadow-soft">

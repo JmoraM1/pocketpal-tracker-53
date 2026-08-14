@@ -20,13 +20,19 @@ export function initVisualViewport() {
   window.visualViewport?.addEventListener("resize", apply);
   window.visualViewport?.addEventListener("scroll", apply);
 
-  // Al enfocar un campo, asegurar que quede visible sobre el teclado
+  // Al enfocar un campo, solo desplazarlo si el teclado lo oculta
   document.addEventListener("focusin", (e) => {
     const el = e.target as HTMLElement | null;
     if (!el || !el.matches("input, textarea, select, [contenteditable=true]")) return;
     window.setTimeout(() => {
+      const vv = window.visualViewport;
+      const viewTop = vv?.offsetTop ?? 0;
+      const viewBottom = viewTop + (vv?.height ?? window.innerHeight);
+      const rect = el.getBoundingClientRect();
+      if (rect.top >= viewTop + 8 && rect.bottom <= viewBottom - 8) return;
       el.scrollIntoView({ block: "center", behavior: "smooth" });
     }, 250);
   });
 }
+
 

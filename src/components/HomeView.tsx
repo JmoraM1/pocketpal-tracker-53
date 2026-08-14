@@ -13,8 +13,6 @@ import {
   CreditCard,
   ArrowUpRight,
   ArrowDownRight,
-  Receipt,
-  Target,
   PiggyBank,
   type LucideIcon,
 } from "lucide-react";
@@ -37,9 +35,11 @@ interface HomeViewProps {
   prevExpenses?: { category: string; amount: number }[];
   monthPayments: (InstallmentPayment & { plan_name: string })[];
   installmentMonthTotal: number;
+  savingsTotal?: number;
   onNavigate: (v: AppView) => void;
   onOpenIncome: () => void;
 }
+
 
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
@@ -77,6 +77,7 @@ export function HomeView({
   prevExpenses = [],
   monthPayments,
   installmentMonthTotal,
+  savingsTotal = 0,
   onNavigate,
   onOpenIncome,
 }: HomeViewProps) {
@@ -91,7 +92,7 @@ export function HomeView({
     tint: string;
     trend: string;
     up: boolean;
-    onClick: () => void;
+    onClick?: () => void;
   }[] = [
     {
       label: t("Ingresos"),
@@ -109,7 +110,6 @@ export function HomeView({
       tint: "bg-info/10 text-info",
       trend: income > 0 ? t("{n}% disponible", { n: Math.max(100 - spentPct, 0) }) : "—",
       up: available >= 0,
-      onClick: () => onNavigate("expenses"),
     },
     {
       label: t("Gastos"),
@@ -121,6 +121,15 @@ export function HomeView({
       onClick: () => onNavigate("expenses"),
     },
     {
+      label: t("Ahorros"),
+      value: savingsTotal,
+      icon: PiggyBank,
+      tint: "bg-info/10 text-info",
+      trend: t("Total ahorrado"),
+      up: true,
+      onClick: () => onNavigate("savings"),
+    },
+    {
       label: t("Deudas"),
       value: installmentMonthTotal,
       icon: CreditCard,
@@ -130,6 +139,7 @@ export function HomeView({
       onClick: () => onNavigate("debts"),
     },
   ];
+
 
   const insights = useMemo(() => {
     const out: string[] = [];
@@ -251,13 +261,8 @@ export function HomeView({
     return list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 6);
   }, [expenses, monthPayments, income]);
 
-  const shortcuts: { label: string; icon: LucideIcon; view: AppView; tint: string }[] = [
-    { label: t("Nueva meta"), icon: Target, view: "goals", tint: "bg-success/10 text-success" },
-    { label: t("Nuevo gasto"), icon: Receipt, view: "expenses", tint: "bg-destructive/10 text-destructive" },
-    { label: t("Nuevo ahorro"), icon: PiggyBank, view: "savings", tint: "bg-info/10 text-info" },
-    { label: t("Nueva deuda"), icon: CreditCard, view: "debts", tint: "bg-accent-violet/10 text-accent-violet" },
-    { label: t("Ver deudas"), icon: Wallet, view: "debts", tint: "bg-warning/10 text-warning" },
-  ];
+
+
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
@@ -392,9 +397,9 @@ export function HomeView({
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-5">
         {/* Actividad reciente */}
-        <motion.div variants={item} className="min-w-0 lg:col-span-3">
+        <motion.div variants={item} className="min-w-0">
           <Card className="h-full rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
               <h3 className="font-display text-base font-semibold">{t("Actividad reciente")}</h3>
@@ -435,36 +440,6 @@ export function HomeView({
                         {formatCOP(Math.abs(a.amount))}
                       </span>
                     </div>
-
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Acciones rápidas (solo desktop: en móvil se usa el botón +) */}
-        <motion.div variants={item} className="hidden min-w-0 md:block lg:col-span-2">
-
-          <Card className="h-full rounded-2xl border shadow-soft">
-            <CardContent className="p-5 sm:p-6">
-              <h3 className="font-display text-base font-semibold">{t("Acciones rápidas")}</h3>
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                {shortcuts.map((s) => {
-                  const Icon = s.icon;
-                  return (
-                    <motion.button
-                      key={s.label}
-                      whileHover={{ y: -3 }}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => onNavigate(s.view)}
-                      className="flex flex-col items-center gap-2 rounded-2xl border bg-card p-3 text-center transition-colors hover:bg-muted"
-                    >
-                      <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.tint}`}>
-                        <Icon className="h-5 w-5" />
-                      </span>
-                      <span className="text-[11px] font-medium leading-tight">{s.label}</span>
-                    </motion.button>
                   );
                 })}
               </div>
@@ -472,6 +447,7 @@ export function HomeView({
           </Card>
         </motion.div>
       </div>
+
     </motion.div>
   );
 }
@@ -483,18 +459,22 @@ interface StatItem {
   tint: string;
   trend: string;
   up: boolean;
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 function StatCard({ s }: { s: StatItem }) {
   const Icon = s.icon;
   const Trend = s.up ? ArrowUpRight : ArrowDownRight;
+  const interactive = Boolean(s.onClick);
+  const Comp = interactive ? motion.button : motion.div;
   return (
-    <motion.button
-      whileHover={{ y: -3 }}
-      whileTap={{ scale: 0.98 }}
+    <Comp
+      whileHover={interactive ? { y: -3 } : undefined}
+      whileTap={interactive ? { scale: 0.98 } : undefined}
       onClick={s.onClick}
-      className="h-full w-full rounded-2xl border bg-card p-5 text-left shadow-soft transition-shadow hover:shadow-card"
+      className={`h-full w-full rounded-2xl border bg-card p-5 text-left shadow-soft transition-shadow ${
+        interactive ? "hover:shadow-card" : "cursor-default"
+      }`}
     >
       <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.tint}`}>
         <Icon className="h-5 w-5" />
@@ -509,8 +489,9 @@ function StatCard({ s }: { s: StatItem }) {
         <Trend className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{s.trend}</span>
       </span>
-    </motion.button>
+    </Comp>
   );
+
 }
 
 function StatSlider({ stats }: { stats: StatItem[] }) {
@@ -552,7 +533,7 @@ function StatSlider({ stats }: { stats: StatItem[] }) {
       </div>
 
       {/* Desktop: grid de 4 tarjetas */}
-      <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
+      <div className="hidden gap-4 md:grid md:grid-cols-3 xl:grid-cols-5">
         {stats.map((s) => (
           <StatCard key={s.label} s={s} />
         ))}

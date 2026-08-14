@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Copy, ChevronLeft, ChevronRight } from "lucide-react";
-import { getMonthKey } from "@/lib/constants";
+import { ChevronLeft, ChevronRight, Copy, CalendarDays } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatMonthLabel, getMonthKey, getShortMonthNames } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
 
 interface MonthSelectorProps {
   selectedMonth: Date;
@@ -13,27 +13,9 @@ interface MonthSelectorProps {
 
 export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: MonthSelectorProps) {
   const { t, locale } = useI18n();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const selectedRef = useRef<HTMLButtonElement>(null);
-
-  const months = useMemo(() => {
-    const out: { key: string; date: Date; label: string; year: number }[] = [];
-    const center = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
-    // 12 meses antes y 12 después para dar margen de desplazamiento
-    const start = new Date(center.getFullYear(), center.getMonth() - 12, 1);
-    const end = new Date(center.getFullYear(), center.getMonth() + 12, 1);
-    const cur = new Date(start);
-    while (cur <= end) {
-      out.push({
-        key: getMonthKey(cur),
-        date: new Date(cur),
-        label: cur.toLocaleDateString(locale, { month: "short" }).replace(".", ""),
-        year: cur.getFullYear(),
-      });
-      cur.setMonth(cur.getMonth() + 1);
-    }
-    return out;
-  }, [selectedMonth.getTime(), locale]);
+  const MONTH_NAMES = getShortMonthNames(locale);
+  const [open, setOpen] = useState(false);
+  const [viewYear, setViewYear] = useState(selectedMonth.getFullYear());
 
   const goBack = () => {
     const d = new Date(selectedMonth);
@@ -47,60 +29,66 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
     onChangeMonth(d);
   };
 
-  useEffect(() => {
-    if (selectedRef.current && scrollRef.current) {
-      const container = scrollRef.current;
-      const el = selectedRef.current;
-      const containerWidth = container.clientWidth;
-      const elLeft = el.offsetLeft;
-      const elWidth = el.offsetWidth;
-      container.scrollTo({
-        left: elLeft - containerWidth / 2 + elWidth / 2,
-        behavior: "smooth",
-      });
-    }
-  }, [selectedMonth.getTime()]);
+  const selectMonth = (monthIndex: number) => {
+    onChangeMonth(new Date(viewYear, monthIndex, 1));
+    setOpen(false);
+  };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen) setViewYear(selectedMonth.getFullYear());
+    setOpen(isOpen);
+  };
 
   return (
-    <div className="flex w-full items-center gap-2">
-      <Button variant="outline" size="icon" onClick={goBack} aria-label={t("Mes anterior")}>
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="icon" onClick={goBack}>
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
-      <div
-        ref={scrollRef}
-        className="relative flex flex-1 snap-x snap-mandatory gap-1 overflow-x-auto scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {months.map((m) => {
-          const isSelected =
-            selectedMonth.getFullYear() === m.date.getFullYear() &&
-            selectedMonth.getMonth() === m.date.getMonth();
-          return (
-            <button
-              key={m.key}
-              ref={isSelected ? selectedRef : undefined}
-              onClick={() => onChangeMonth(m.date)}
-              className={cn(
-                "shrink-0 snap-center rounded-xl px-3 py-2 text-xs font-medium transition-colors",
-                isSelected
-                  ? "bg-primary text-primary-foreground shadow-soft"
-                  : "bg-muted text-muted-foreground hover:bg-muted/70 hover:text-foreground",
-              )}
-            >
-              <span className="block capitalize leading-none">{m.label}</span>
-              <span className="mt-0.5 block text-[10px] opacity-80 leading-none">{m.year}</span>
-            </button>
-          );
-        })}
-      </div>
+      <Popover open={open} onOpenChange={handleOpenChange}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="min-w-[160px] gap-2 capitalize">
+            <CalendarDays className="h-4 w-4" />
+            {formatMonthLabel(getMonthKey(selectedMonth), locale)}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[280px] p-3" align="start">
+          <div className="flex items-center justify-between mb-3">
+            <Button variant="ghost" size="icon" onClick={() => setViewYear((y) => y - 1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm font-semibold">{viewYear}</span>
+            <Button variant="ghost" size="icon" onClick={() => setViewYear((y) => y + 1)}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {MONTH_NAMES.map((name, i) => {
+              const isSelected =
+                selectedMonth.getFullYear() === viewYear && selectedMonth.getMonth() === i;
+              return (
+                <Button
+                  key={name}
+                  variant={isSelected ? "default" : "ghost"}
+                  size="sm"
+                  className="h-9"
+                  onClick={() => selectMonth(i)}
+                >
+                  {name}
+                </Button>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
 
-      <Button variant="outline" size="icon" onClick={goForward} aria-label={t("Mes siguiente")}>
+      <Button variant="outline" size="icon" onClick={goForward}>
         <ChevronRight className="h-4 w-4" />
       </Button>
 
-      <Button variant="outline" size="sm" onClick={onCopyPrevious} className="hidden gap-1 sm:flex">
+      <Button variant="outline" size="sm" onClick={onCopyPrevious} className="ml-2 gap-1">
         <Copy className="h-3.5 w-3.5" />
-        <span>{t("Copiar mes anterior")}</span>
+        <span className="hidden sm:inline">{t("Copiar mes anterior")}</span>
       </Button>
     </div>
   );

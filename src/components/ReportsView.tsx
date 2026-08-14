@@ -378,21 +378,21 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
         </DropdownMenu>
       </div>
 
-      {/* Filtros: slider táctil en celular, fila fija en desktop */}
+      {/* Filtros: slider táctil/arrastrable en celular, fila fija en desktop */}
       <Card className="rounded-2xl border shadow-soft">
-        <CardContent className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <CardContent className="flex flex-col gap-3 overflow-hidden p-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex h-6 items-center gap-2 text-sm font-medium">
             <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
-          <div className="-mx-3 flex w-[calc(100%+1.5rem)] min-w-0 max-w-none flex-nowrap gap-2 overflow-x-auto overscroll-x-contain scroll-smooth px-3 pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [touch-action:pan-x] sm:mx-0 sm:w-auto sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+          <DragScroll className="-mx-3 px-3 pb-1 sm:mx-0 sm:px-0 sm:pb-0">
             {PERIODS.map((p) =>
               p.id === "custom" ? (
                 <Popover key={p.id}>
                   <PopoverTrigger asChild>
                     <button
                       className={cn(
-                        "shrink-0 snap-start whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                        "shrink-0 snap-center whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                         period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                       )}
                     >
@@ -416,7 +416,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                   key={p.id}
                   onClick={() => setPeriod(p.id)}
                   className={cn(
-                    "shrink-0 snap-start whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                    "shrink-0 snap-center whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                     period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                   )}
                 >
@@ -424,9 +424,11 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                 </button>
               ),
             )}
-          </div>
+          </DragScroll>
         </CardContent>
       </Card>
+
+
 
       {/* Resumen: mismo espacio siempre, skeleton interno al cargar */}
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">

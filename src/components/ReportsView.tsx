@@ -697,9 +697,27 @@ function CompareRow({
   );
 }
 
-function DragScroll({ children, className }: { children: React.ReactNode; className?: string }) {
+function DragScroll({
+  children,
+  className,
+  activeKey,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  activeKey?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const drag = useRef({ down: false, startX: 0, startLeft: 0, moved: false });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const active = el.querySelector<HTMLElement>("[data-active='true']");
+    if (!active) return;
+    const target = active.offsetLeft - (el.clientWidth - active.offsetWidth) / 2;
+    el.scrollTo({ left: Math.max(0, Math.min(target, el.scrollWidth - el.clientWidth)), behavior: "smooth" });
+  }, [activeKey]);
+
 
   const onPointerDown = (e: React.PointerEvent) => {
     const el = ref.current;

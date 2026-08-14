@@ -74,9 +74,11 @@ export function HomeView({
   totalExpenses,
   available,
   expenses,
+  prevExpenses = [],
   monthPayments,
   installmentMonthTotal,
   onNavigate,
+  onOpenIncome,
 }: HomeViewProps) {
   const { t, locale } = useI18n();
   const name = alias?.trim() || (userEmail ? userEmail.split("@")[0] : "");
@@ -89,7 +91,7 @@ export function HomeView({
     tint: string;
     trend: string;
     up: boolean;
-    view: AppView;
+    onClick: () => void;
   }[] = [
     {
       label: t("Ingresos"),
@@ -98,16 +100,16 @@ export function HomeView({
       tint: "bg-success/10 text-success",
       trend: t("Este mes"),
       up: true,
-      view: "home",
+      onClick: onOpenIncome,
     },
     {
       label: t("Disponible"),
       value: available,
       icon: Wallet,
       tint: "bg-info/10 text-info",
-      trend: income > 0 ? t("{n}% libre", { n: Math.max(100 - spentPct, 0) }) : "—",
+      trend: income > 0 ? t("{n}% disponible", { n: Math.max(100 - spentPct, 0) }) : "—",
       up: available >= 0,
-      view: "expenses",
+      onClick: () => onNavigate("expenses"),
     },
     {
       label: t("Gastos"),
@@ -116,7 +118,7 @@ export function HomeView({
       tint: "bg-destructive/10 text-destructive",
       trend: income > 0 ? t("{n}% del ingreso", { n: spentPct }) : "—",
       up: false,
-      view: "expenses",
+      onClick: () => onNavigate("expenses"),
     },
     {
       label: t("Deudas"),
@@ -125,9 +127,60 @@ export function HomeView({
       tint: "bg-accent-violet/10 text-accent-violet",
       trend: monthPayments.length === 1 ? t("{n} cuota", { n: 1 }) : t("{n} cuotas", { n: monthPayments.length }),
       up: false,
-      view: "debts",
+      onClick: () => onNavigate("debts"),
     },
   ];
+
+  const insights = useMemo(() => {
+    const out: string[] = [];
+    const prevTotal = prevExpenses.reduce((s, e) => s + Number(e.amount), 0);
+    const currentTotal = expenses.reduce((s, e) => s + Number(e.amount), 0);
+
+    if (prevTotal > 0 && currentTotal > 0) {
+      const diff = Math.round(((currentTotal - prevTotal) / prevTotal) * 100);
+      if (Math.abs(diff) >= 3) {
+        out.push(
+          diff > 0
+            ? t("Gastas {n}% más que el mes pasado.", { n: diff })
+            : t("Gastas {n}% menos que el mes pasado.", { n: Math.abs(diff) }),
+        );
+      }
+    }
+
+    // Categoría con mayor aumento (o mayor peso si no hay historial)
+    const curMap = new Map<string, number>();
+    expenses.forEach((e) => curMap.set(e.category, (curMap.get(e.category) ?? 0) + Number(e.amount)));
+    const prevMap = new Map<string, number>();
+    prevExpenses.forEach((e) => prevMap.set(e.category, (prevMap.get(e.category) ?? 0) + Number(e.amount)));
+
+    if (prevMap.size > 0) {
+      let topCat = "";
+      let topDelta = 0;
+      curMap.forEach((v, k) => {
+        const delta = v - (prevMap.get(k) ?? 0);
+        if (delta > topDelta) {
+          topDelta = delta;
+          topCat = k;
+        }
+      });
+      if (topCat && topDelta > 0) {
+        out.push(t("{c} subió {v}.", { c: topCat, v: formatCOP(topDelta) }));
+      }
+    } else if (curMap.size > 0 && currentTotal > 0) {
+      const [cat, val] = [...curMap.entries()].sort((a, b) => b[1] - a[1])[0];
+      out.push(t("{c} es tu mayor gasto: {p}% del total.", { c: cat, p: Math.round((val / currentTotal) * 100) }));
+    }
+
+    if (income > 0 && installmentMonthTotal > 0) {
+      const debtPct = Math.round((installmentMonthTotal / income) * 100);
+      if (debtPct >= 10) out.push(t("Las cuotas consumen el {n}% de tus ingresos.", { n: debtPct }));
+    } else if (income > 0 && available > 0 && spentPct < 70) {
+      out.push(t("Puedes ahorrar {v} este mes.", { v: formatCOP(Math.round(available * 0.2)) }));
+    }
+
+    return out.slice(0, 3);
+  }, [expenses, prevExpenses, income, installmentMonthTotal, available, spentPct, t]);
+
 
   const flowData = useMemo(() => {
     const sorted = [...expenses].sort(

@@ -5,6 +5,7 @@ import { EN_SAVINGS } from "./en.savings";
 import { EN_DEBTS } from "./en.debts";
 import { EN_SETTINGS } from "./en.settings";
 import { EN_AUTH } from "./en.auth";
+import { EN_REPORTS } from "./en.reports";
 
 export const EN: Record<string, string> = {
   ...EN_COMMON,
@@ -14,4 +15,5 @@ export const EN: Record<string, string> = {
   ...EN_DEBTS,
   ...EN_SETTINGS,
   ...EN_AUTH,
+  ...EN_REPORTS,
 };

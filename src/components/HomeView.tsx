@@ -13,8 +13,6 @@ import {
   CreditCard,
   ArrowUpRight,
   ArrowDownRight,
-  Receipt,
-  Target,
   PiggyBank,
   type LucideIcon,
 } from "lucide-react";
@@ -535,7 +533,7 @@ function StatSlider({ stats }: { stats: StatItem[] }) {
       </div>
 
       {/* Desktop: grid de 4 tarjetas */}
-      <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
+      <div className="hidden gap-4 md:grid md:grid-cols-3 xl:grid-cols-5">
         {stats.map((s) => (
           <StatCard key={s.label} s={s} />
         ))}

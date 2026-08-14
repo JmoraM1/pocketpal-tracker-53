@@ -33,6 +33,12 @@ export type FreeContribution = {
   created_at: string;
 };
 
+// Global listeners so every mounted useSavings instance stays in sync instantly
+const savingsListeners = new Set<() => void>();
+function notifySavingsChanged(except?: () => void) {
+  savingsListeners.forEach((l) => { if (l !== except) l(); });
+}
+
 export function useSavings(userId: string | undefined, selectedMonth: Date) {
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [goalContribs, setGoalContribs] = useState<GoalContribution[]>([]);
@@ -44,7 +50,6 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
 
   const loadData = useCallback(async () => {
     if (!userId) return;
-    setLoading(true);
     const [g, gc, f, fc] = await Promise.all([
       supabase.from("savings_goals").select("*").eq("user_id", userId).order("created_at"),
       supabase.from("savings_goal_contributions").select("*").eq("user_id", userId),
@@ -58,7 +63,20 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
     setLoading(false);
   }, [userId]);
 
+  // Reload + tell other instances to reload too
+  const refresh = useCallback(async () => {
+    await loadData();
+    notifySavingsChanged(loadData);
+  }, [loadData]);
+
   useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    savingsListeners.add(loadData);
+    return () => { savingsListeners.delete(loadData); };
+  }, [loadData]);
+
+
 
   // --- GOALS ---
   const createGoal = async (name: string, target: number, initial: number = 0) => {
@@ -76,7 +94,7 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
         await supabase.from("savings_goals").update({ is_completed: true }).eq("id", data.id);
       }
     }
-    await loadData();
+    await refresh();
   };
 
   const updateGoal = async (id: string, updates: Partial<Pick<SavingsGoal, "name" | "target_amount">>) => {
@@ -92,16 +110,21 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
       }
     }
 
-    await loadData();
+    await refresh();
   };
 
   const deleteGoal = async (id: string) => {
     await supabase.from("savings_goals").delete().eq("id", id);
-    await loadData();
+    await refresh();
   };
 
   const setGoalContribution = async (goalId: string, amount: number) => {
     if (!userId || amount <= 0) return;
+    const tempId = `temp-${Date.now()}`;
+    setGoalContribs((prev) => [
+      ...prev,
+      { id: tempId, goal_id: goalId, month: monthKey, amount, created_at: new Date().toISOString() },
+    ]);
     await supabase.from("savings_goal_contributions").insert({
       user_id: userId, goal_id: goalId, month: monthKey, amount,
     });
@@ -113,12 +136,12 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
     if (goal && !goal.is_completed && totalForGoal >= Number(goal.target_amount) && Number(goal.target_amount) > 0) {
       await supabase.from("savings_goals").update({ is_completed: true }).eq("id", goalId);
     }
-    await loadData();
+    await refresh();
   };
 
   const deleteGoalContribution = async (id: string) => {
     await supabase.from("savings_goal_contributions").delete().eq("id", id);
-    await loadData();
+    await refresh();
   };
 
   // --- FREE SAVINGS ---
@@ -134,30 +157,36 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
         user_id: userId, saving_id: data.id, month: monthKey, amount: initial,
       });
     }
-    await loadData();
+    await refresh();
   };
 
   const updateFreeSaving = async (id: string, name: string) => {
     await supabase.from("free_savings").update({ name }).eq("id", id);
-    await loadData();
+    await refresh();
   };
 
   const deleteFreeSaving = async (id: string) => {
     await supabase.from("free_savings").delete().eq("id", id);
-    await loadData();
+    await refresh();
   };
 
   const setFreeContribution = async (savingId: string, amount: number) => {
     if (!userId || amount <= 0) return;
+    // Optimistic: reflect the contribution instantly everywhere
+    const tempId = `temp-${Date.now()}`;
+    setFreeContribs((prev) => [
+      ...prev,
+      { id: tempId, saving_id: savingId, month: monthKey, amount, created_at: new Date().toISOString() },
+    ]);
     await supabase.from("free_savings_contributions").insert({
       user_id: userId, saving_id: savingId, month: monthKey, amount,
     });
-    await loadData();
+    await refresh();
   };
 
   const deleteFreeContribution = async (id: string) => {
     await supabase.from("free_savings_contributions").delete().eq("id", id);
-    await loadData();
+    await refresh();
   };
 
   const goalTotal = (goalId: string) =>

@@ -386,38 +386,9 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
             <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
-          <div className="flex w-full min-w-0 flex-wrap gap-2 sm:w-auto sm:justify-end">
-            {PERIODS.map((p) =>
-              p.id === "custom" ? (
-                <Popover key={p.id} open={calendarOpen} onOpenChange={setCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setPeriod("custom");
-                        window.setTimeout(() => setCalendarOpen(true), 350);
-                      }}
-                      className={cn(
-                        "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
-                        period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
-                      )}
-                    >
-                      {t(p.label)}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="end" className="w-auto p-0">
-                    <Calendar
-                      mode="range"
-                      selected={{ from: range.from, to: range.to }}
-                      onSelect={(r: any) => {
-                        setRange({ from: r?.from, to: r?.to });
-                        if (r?.from) setPeriod("custom");
-                      }}
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              ) : (
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end">
+            <div className="flex w-full flex-wrap gap-2 sm:justify-end">
+              {PERIODS.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => setPeriod(p.id)}
@@ -428,8 +399,38 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                 >
                   {t(p.label)}
                 </button>
-              ),
-            )}
+              ))}
+            </div>
+            <div className="flex w-full justify-center sm:justify-end">
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPeriod("custom");
+                      window.setTimeout(() => setCalendarOpen(true), 350);
+                    }}
+                    className={cn(
+                      "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                      period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
+                    )}
+                  >
+                    {t("Personalizado")}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-auto p-0">
+                  <Calendar
+                    mode="range"
+                    selected={{ from: range.from, to: range.to }}
+                    onSelect={(r: any) => {
+                      setRange({ from: r?.from, to: r?.to });
+                      if (r?.from) setPeriod("custom");
+                    }}
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </CardContent>
       </Card>

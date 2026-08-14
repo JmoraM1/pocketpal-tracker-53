@@ -335,7 +335,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
       label: t("Conceptos registrados"),
       hint: t("Gastos y deudas"),
       value: String(categoriesUsed),
-      delta: <Delta value={variation(categoriesUsed, prevCategoriesUsed)} invert />,
+      delta: <Delta value={variation(categoriesUsed, prevCategoriesUsed)} />,
     },
     {
       icon: TrendingUp,

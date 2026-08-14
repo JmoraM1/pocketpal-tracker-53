@@ -385,7 +385,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
             <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
-          <DragScroll className="-mx-3 px-3 pb-1 sm:mx-0 sm:px-0 sm:pb-0">
+          <DragScroll className="pb-0.5 sm:pb-0" activeKey={period}>
             {PERIODS.map((p) =>
               p.id === "custom" ? (
                 <Popover key={p.id}>

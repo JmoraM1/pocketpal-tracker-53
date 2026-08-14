@@ -38,10 +38,10 @@ const PRINT_COLORS = [
 
 const PERIODS: { id: ReportPeriodId; label: string }[] = [
   { id: "current", label: "Este mes" },
-  { id: "custom", label: "Personalizado" },
-  { id: "previous", label: "Mes anterior" },
   { id: "last3", label: "Últimos 3 meses" },
+  { id: "previous", label: "Mes anterior" },
 ];
+// Personalizado se renderiza aparte, centrado debajo de la fila principal.
 
 function variation(current: number, prev: number): number | null {
   if (!prev) return current > 0 ? null : 0;

@@ -34,7 +34,7 @@ export interface ReportData {
   prevAvailable: number;
   categoriesUsed: number;
   prevCategoriesUsed: number;
-  biggest: ReportItem | null;
+  biggest: { name: string; type: "gasto" | "deuda"; amount: number } | null;
   loading: boolean;
 }
 

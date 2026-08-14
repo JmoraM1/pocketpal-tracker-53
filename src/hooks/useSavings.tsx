@@ -65,7 +65,7 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
 
   // Reload + tell other instances to reload too
   const refresh = useCallback(async () => {
-    await refresh();
+    await loadData();
     notifySavingsChanged(loadData);
   }, [loadData]);
 

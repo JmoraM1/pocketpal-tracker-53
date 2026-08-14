@@ -240,6 +240,8 @@ export function useBudget(userId: string | undefined, selectedMonth: Date) {
     available,
     paidCount,
     cumulativeSavings,
+    prevExpenses,
+
     updateIncome,
     updateExpense,
     addExpense,

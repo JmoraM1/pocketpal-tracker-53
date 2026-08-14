@@ -6,6 +6,7 @@ import { useInstallments } from "@/hooks/useInstallments";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { useProfile } from "@/hooks/useProfile";
 import { useAdditionalIncomes } from "@/hooks/useAdditionalIncomes";
+import { useSavings } from "@/hooks/useSavings";
 import { IncomeDialog } from "@/components/IncomeDialog";
 import { MonthSelector } from "@/components/MonthSelector";
 import { ExpenseList } from "@/components/ExpenseList";
@@ -27,8 +28,6 @@ import { useT } from "@/lib/i18n";
 import {
   Wallet,
   ChevronRight,
-  PiggyBank,
-  CreditCard,
   BarChart3,
   Download,
   Settings,
@@ -74,6 +73,9 @@ export default function Dashboard() {
   } = useWebAuthn();
   const { profile, saveProfile } = useProfile(user?.id);
 
+  const { freeContribs } = useSavings(user?.id, selectedMonth);
+  const savingsTotal = freeContribs.reduce((sum, c) => sum + Number(c.amount), 0);
+
   const { incomes: additionalIncomes, additionalTotal, addIncome, updateIncomeItem, deleteIncome } =
     useAdditionalIncomes(user?.id, selectedMonth);
 
@@ -104,10 +106,10 @@ export default function Dashboard() {
   const showMonthSelector = ["home", "goals", "savings", "expenses", "debts", "reports", "export"].includes(view);
 
   return (
-    <div className="flex min-h-dvh bg-background">
+    <div className="flex min-h-dvh bg-background md:h-dvh md:min-h-0 md:overflow-hidden">
       <AppSidebar active={view} onChange={setView} alias={profile.alias} email={user?.email} />
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 md:h-dvh md:overflow-y-auto">
         <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-xl md:hidden">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="flex items-center gap-2.5">
@@ -162,6 +164,7 @@ export default function Dashboard() {
                   prevExpenses={prevExpenses}
                   monthPayments={monthPayments}
                   installmentMonthTotal={monthlyInstallmentTotal}
+                  savingsTotal={savingsTotal}
                   onNavigate={setView}
                   onOpenIncome={() => setIncomeOpen(true)}
                 />
@@ -247,9 +250,7 @@ export default function Dashboard() {
   );
 }
 
-const MORE_ITEMS: { key: AppView; label: string; icon: typeof PiggyBank }[] = [
-  { key: "savings", label: "Ahorros", icon: PiggyBank },
-  { key: "debts", label: "Deudas", icon: CreditCard },
+const MORE_ITEMS: { key: AppView; label: string; icon: typeof BarChart3 }[] = [
   { key: "reports", label: "Reportes", icon: BarChart3 },
   { key: "export", label: "Exportar", icon: Download },
   { key: "settings", label: "Configuración", icon: Settings },

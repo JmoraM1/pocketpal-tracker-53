@@ -391,8 +391,9 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                 <Popover key={p.id}>
                   <PopoverTrigger asChild>
                     <button
+                      data-active={period === "custom"}
                       className={cn(
-                        "shrink-0 snap-center whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                        "shrink-0 snap-start whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                         period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                       )}
                     >
@@ -414,9 +415,10 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
               ) : (
                 <button
                   key={p.id}
+                  data-active={period === p.id}
                   onClick={() => setPeriod(p.id)}
                   className={cn(
-                    "shrink-0 snap-center whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                    "shrink-0 snap-start whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                     period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                   )}
                 >
@@ -751,7 +753,7 @@ function DragScroll({
       onPointerLeave={endDrag}
       onClickCapture={onClickCapture}
       className={cn(
-        "flex w-full min-w-0 flex-nowrap gap-2 overflow-x-auto overscroll-x-contain snap-x scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [touch-action:pan-x] sm:w-auto sm:flex-wrap sm:overflow-visible",
+        "flex w-full min-w-0 max-w-full flex-nowrap gap-2 overflow-x-auto overscroll-x-contain snap-x scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [touch-action:pan-x] sm:w-auto sm:flex-wrap sm:overflow-visible",
         className,
       )}
     >

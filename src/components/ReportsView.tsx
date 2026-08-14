@@ -38,9 +38,9 @@ const PRINT_COLORS = [
 
 const PERIODS: { id: ReportPeriodId; label: string }[] = [
   { id: "current", label: "Este mes" },
+  { id: "custom", label: "Personalizado" },
   { id: "previous", label: "Mes anterior" },
   { id: "last3", label: "Últimos 3 meses" },
-  { id: "custom", label: "Personalizado" },
 ];
 
 function variation(current: number, prev: number): number | null {
@@ -395,7 +395,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                       onClick={(e) => {
                         e.preventDefault();
                         setPeriod("custom");
-                        window.setTimeout(() => setCalendarOpen(true), 1000);
+                        window.setTimeout(() => setCalendarOpen(true), 350);
                       }}
                       className={cn(
                         "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",

@@ -79,6 +79,7 @@ export function HomeView({
   prevExpenses = [],
   monthPayments,
   installmentMonthTotal,
+  savingsTotal = 0,
   onNavigate,
   onOpenIncome,
 }: HomeViewProps) {
@@ -93,7 +94,7 @@ export function HomeView({
     tint: string;
     trend: string;
     up: boolean;
-    onClick: () => void;
+    onClick?: () => void;
   }[] = [
     {
       label: t("Ingresos"),
@@ -111,7 +112,6 @@ export function HomeView({
       tint: "bg-info/10 text-info",
       trend: income > 0 ? t("{n}% disponible", { n: Math.max(100 - spentPct, 0) }) : "—",
       up: available >= 0,
-      onClick: () => onNavigate("expenses"),
     },
     {
       label: t("Gastos"),
@@ -123,6 +123,15 @@ export function HomeView({
       onClick: () => onNavigate("expenses"),
     },
     {
+      label: t("Ahorros"),
+      value: savingsTotal,
+      icon: PiggyBank,
+      tint: "bg-info/10 text-info",
+      trend: t("Total ahorrado"),
+      up: true,
+      onClick: () => onNavigate("savings"),
+    },
+    {
       label: t("Deudas"),
       value: installmentMonthTotal,
       icon: CreditCard,
@@ -132,6 +141,7 @@ export function HomeView({
       onClick: () => onNavigate("debts"),
     },
   ];
+
 
   const insights = useMemo(() => {
     const out: string[] = [];

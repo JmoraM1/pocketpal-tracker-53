@@ -6,7 +6,10 @@ interface SmartMessageProps {
   /** Porcentaje del ingreso comprometido */
   pct: number;
   hasIncome: boolean;
+  /** Máximo 3 datos breves basados en datos reales */
+  insights?: string[];
 }
+
 
 interface MoodConfig {
   mood: MascotMood;

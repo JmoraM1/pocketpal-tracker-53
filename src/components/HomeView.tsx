@@ -404,9 +404,9 @@ export function HomeView({
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-5">
         {/* Actividad reciente */}
-        <motion.div variants={item} className="min-w-0 lg:col-span-3">
+        <motion.div variants={item} className="min-w-0">
           <Card className="h-full rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
               <h3 className="font-display text-base font-semibold">{t("Actividad reciente")}</h3>
@@ -447,36 +447,6 @@ export function HomeView({
                         {formatCOP(Math.abs(a.amount))}
                       </span>
                     </div>
-
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Acciones rápidas (solo desktop: en móvil se usa el botón +) */}
-        <motion.div variants={item} className="hidden min-w-0 md:block lg:col-span-2">
-
-          <Card className="h-full rounded-2xl border shadow-soft">
-            <CardContent className="p-5 sm:p-6">
-              <h3 className="font-display text-base font-semibold">{t("Acciones rápidas")}</h3>
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                {shortcuts.map((s) => {
-                  const Icon = s.icon;
-                  return (
-                    <motion.button
-                      key={s.label}
-                      whileHover={{ y: -3 }}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => onNavigate(s.view)}
-                      className="flex flex-col items-center gap-2 rounded-2xl border bg-card p-3 text-center transition-colors hover:bg-muted"
-                    >
-                      <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.tint}`}>
-                        <Icon className="h-5 w-5" />
-                      </span>
-                      <span className="text-[11px] font-medium leading-tight">{s.label}</span>
-                    </motion.button>
                   );
                 })}
               </div>
@@ -484,6 +454,7 @@ export function HomeView({
           </Card>
         </motion.div>
       </div>
+
     </motion.div>
   );
 }

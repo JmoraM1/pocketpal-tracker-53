@@ -87,15 +87,32 @@ async function fetchPeriod(userId: string, months: string[]) {
 
   const [{ data: budgets }, { data: payments }, { data: extraIncomes }] = await Promise.all([
     supabase.from("monthly_budgets").select("id, income, month").eq("user_id", userId).in("month", months),
-    supabase.from("installment_payments").select("amount, plan_id, due_month").eq("user_id", userId).in("due_month", months),
+    supabase
+      .from("installment_payments")
+      .select("amount, plan_id, due_month, paid_at")
+      .eq("user_id", userId)
+      .in("due_month", months),
     supabase.from("additional_incomes").select("amount").eq("user_id", userId).in("month", months),
   ]);
 
+  const budgetMonth: Record<string, string> = {};
+  for (const b of budgets ?? []) budgetMonth[b.id] = b.month;
+
   const budgetIds = (budgets ?? []).map((b) => b.id);
-  let expenses: { category: string; amount: number }[] = [];
+  let expenses: {
+    category: string;
+    amount: number;
+    description: string | null;
+    due_date: string | null;
+    created_at: string;
+    budget_id: string;
+  }[] = [];
   if (budgetIds.length > 0) {
-    const { data } = await supabase.from("expenses").select("category, amount").in("budget_id", budgetIds);
-    expenses = (data ?? []) as { category: string; amount: number }[];
+    const { data } = await supabase
+      .from("expenses")
+      .select("category, amount, description, due_date, created_at, budget_id")
+      .in("budget_id", budgetIds);
+    expenses = (data ?? []) as typeof expenses;
   }
 
   const planIds = Array.from(new Set((payments ?? []).map((p) => p.plan_id)));
@@ -106,14 +123,25 @@ async function fetchPeriod(userId: string, months: string[]) {
   }
 
   const items: ReportItem[] = [
-    ...expenses.map((e) => ({ name: e.category, type: "gasto" as const, amount: Number(e.amount) })),
+    ...expenses.map((e) => ({
+      name: e.category,
+      type: "gasto" as const,
+      amount: Number(e.amount),
+      date: e.due_date ?? budgetMonth[e.budget_id] ?? e.created_at.slice(0, 10),
+      category: e.category,
+      description: e.description ?? "",
+    })),
     // Las deudas se contabilizan SOLO por la cuota del período
     ...(payments ?? []).map((p) => ({
       name: planNames[p.plan_id] ?? "Deuda",
       type: "deuda" as const,
       amount: Number(p.amount),
+      date: (p.paid_at ?? p.due_month).slice(0, 10),
+      category: planNames[p.plan_id] ?? "Deuda",
+      description: "",
     })),
   ].filter((i) => i.amount > 0);
+
 
   const income =
     (budgets ?? []).reduce((s, b) => s + Number(b.income), 0) +

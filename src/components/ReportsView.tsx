@@ -365,7 +365,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
           <h2 className="font-display text-xl font-semibold tracking-tight">{t("Reportes")}</h2>
           <p className="text-sm text-muted-foreground">{t("Analiza tus finanzas con claridad")}</p>
         </div>
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button size="sm" className="gap-1.5">
               <Download className="h-4 w-4" /> {t("Exportar")} <ChevronDown className="h-3.5 w-3.5" />

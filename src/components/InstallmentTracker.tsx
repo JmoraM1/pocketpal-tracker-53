@@ -19,7 +19,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { formatCOP } from "@/lib/constants";
+import { formatCOP, formatShortDate } from "@/lib/constants";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { Plus, Trash2, CreditCard, CalendarDays, Pencil, Check, X, Trophy, ListChecks } from "lucide-react";
 import type { InstallmentPlan, InstallmentPayment } from "@/hooks/useInstallments";
 import { useT } from "@/lib/i18n";
@@ -61,6 +63,7 @@ export function InstallmentTracker({
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   });
+  const [startDateOpen, setStartDateOpen] = useState(false);
 
   // Auto-calc installment when total/num change, unless the user overrode it
   useEffect(() => {

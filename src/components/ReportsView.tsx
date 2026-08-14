@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -378,21 +378,21 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
         </DropdownMenu>
       </div>
 
-      {/* Filtros: slider táctil en celular, fila fija en desktop */}
+      {/* Filtros: slider táctil/arrastrable en celular, fila fija en desktop */}
       <Card className="rounded-2xl border shadow-soft">
-        <CardContent className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <CardContent className="flex flex-col gap-3 overflow-hidden p-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex h-6 items-center gap-2 text-sm font-medium">
             <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
-          <div className="-mx-3 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth px-3 pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+          <DragScroll className="-mx-3 px-3 pb-1 sm:mx-0 sm:px-0 sm:pb-0">
             {PERIODS.map((p) =>
               p.id === "custom" ? (
                 <Popover key={p.id}>
                   <PopoverTrigger asChild>
                     <button
                       className={cn(
-                        "shrink-0 snap-start whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                        "shrink-0 snap-center whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                         period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                       )}
                     >
@@ -416,7 +416,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                   key={p.id}
                   onClick={() => setPeriod(p.id)}
                   className={cn(
-                    "shrink-0 snap-start whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                    "shrink-0 snap-center whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                     period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                   )}
                 >
@@ -424,9 +424,11 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                 </button>
               ),
             )}
-          </div>
+          </DragScroll>
         </CardContent>
       </Card>
+
+
 
       {/* Resumen: mismo espacio siempre, skeleton interno al cargar */}
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
@@ -692,5 +694,50 @@ function CompareRow({
         </div>
       </div>
     </li>
+  );
+}
+
+function DragScroll({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const drag = useRef({ down: false, startX: 0, startLeft: 0, moved: false });
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    const el = ref.current;
+    if (!el) return;
+    drag.current = { down: true, startX: e.clientX, startLeft: el.scrollLeft, moved: false };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    const el = ref.current;
+    if (!el || !drag.current.down) return;
+    const dx = e.clientX - drag.current.startX;
+    if (Math.abs(dx) > 4) drag.current.moved = true;
+    el.scrollLeft = drag.current.startLeft - dx;
+  };
+  const endDrag = () => {
+    drag.current.down = false;
+  };
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (drag.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      drag.current.moved = false;
+    }
+  };
+
+  return (
+    <div
+      ref={ref}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerLeave={endDrag}
+      onClickCapture={onClickCapture}
+      className={cn(
+        "flex w-full min-w-0 flex-nowrap gap-2 overflow-x-auto overscroll-x-contain snap-x scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [touch-action:pan-x] sm:w-auto sm:flex-wrap sm:overflow-visible",
+        className,
+      )}
+    >
+      {children}
+    </div>
   );
 }

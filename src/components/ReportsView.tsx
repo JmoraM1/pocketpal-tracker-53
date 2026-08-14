@@ -385,15 +385,19 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
             <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
-          <DragScroll className="pb-0.5 sm:pb-0" activeKey={period}>
+          <div className="flex w-full min-w-0 flex-wrap gap-2 sm:w-auto sm:justify-end">
             {PERIODS.map((p) =>
               p.id === "custom" ? (
-                <Popover key={p.id}>
+                <Popover key={p.id} open={calendarOpen} onOpenChange={setCalendarOpen}>
                   <PopoverTrigger asChild>
                     <button
-                      data-active={period === "custom"}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPeriod("custom");
+                        window.setTimeout(() => setCalendarOpen(true), 1000);
+                      }}
                       className={cn(
-                        "shrink-0 snap-start whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                        "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                         period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                       )}
                     >
@@ -415,10 +419,9 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
               ) : (
                 <button
                   key={p.id}
-                  data-active={period === p.id}
                   onClick={() => setPeriod(p.id)}
                   className={cn(
-                    "shrink-0 snap-start whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                    "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                     period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                   )}
                 >
@@ -426,7 +429,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                 </button>
               ),
             )}
-          </DragScroll>
+          </div>
         </CardContent>
       </Card>
 

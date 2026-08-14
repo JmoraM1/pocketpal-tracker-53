@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -365,13 +365,13 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
           <h2 className="font-display text-xl font-semibold tracking-tight">{t("Reportes")}</h2>
           <p className="text-sm text-muted-foreground">{t("Analiza tus finanzas con claridad")}</p>
         </div>
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button size="sm" className="gap-1.5">
               <Download className="h-4 w-4" /> {t("Exportar")} <ChevronDown className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" sideOffset={6} className="z-50">
             <DropdownMenuItem onClick={exportPdf}>{t("Exportar PDF")}</DropdownMenuItem>
             <DropdownMenuItem onClick={exportExcel}>{t("Exportar Excel")}</DropdownMenuItem>
           </DropdownMenuContent>
@@ -385,14 +385,15 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
             <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
-          <DragScroll className="-mx-3 px-3 pb-1 sm:mx-0 sm:px-0 sm:pb-0">
+          <DragScroll className="pb-0.5 sm:pb-0" activeKey={period}>
             {PERIODS.map((p) =>
               p.id === "custom" ? (
                 <Popover key={p.id}>
                   <PopoverTrigger asChild>
                     <button
+                      data-active={period === "custom"}
                       className={cn(
-                        "shrink-0 snap-center whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                        "shrink-0 snap-start whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                         period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                       )}
                     >
@@ -414,9 +415,10 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
               ) : (
                 <button
                   key={p.id}
+                  data-active={period === p.id}
                   onClick={() => setPeriod(p.id)}
                   className={cn(
-                    "shrink-0 snap-center whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                    "shrink-0 snap-start whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                     period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                   )}
                 >
@@ -697,9 +699,27 @@ function CompareRow({
   );
 }
 
-function DragScroll({ children, className }: { children: React.ReactNode; className?: string }) {
+function DragScroll({
+  children,
+  className,
+  activeKey,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  activeKey?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const drag = useRef({ down: false, startX: 0, startLeft: 0, moved: false });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const active = el.querySelector<HTMLElement>("[data-active='true']");
+    if (!active) return;
+    const target = active.offsetLeft - (el.clientWidth - active.offsetWidth) / 2;
+    el.scrollTo({ left: Math.max(0, Math.min(target, el.scrollWidth - el.clientWidth)), behavior: "smooth" });
+  }, [activeKey]);
+
 
   const onPointerDown = (e: React.PointerEvent) => {
     const el = ref.current;
@@ -733,7 +753,7 @@ function DragScroll({ children, className }: { children: React.ReactNode; classN
       onPointerLeave={endDrag}
       onClickCapture={onClickCapture}
       className={cn(
-        "flex w-full min-w-0 flex-nowrap gap-2 overflow-x-auto overscroll-x-contain snap-x scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [touch-action:pan-x] sm:w-auto sm:flex-wrap sm:overflow-visible",
+        "flex w-full min-w-0 max-w-full flex-nowrap gap-2 overflow-x-auto overscroll-x-contain snap-x scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [touch-action:pan-x] sm:w-auto sm:flex-wrap sm:overflow-visible",
         className,
       )}
     >

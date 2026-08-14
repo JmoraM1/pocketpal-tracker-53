@@ -34,10 +34,13 @@ interface HomeViewProps {
   paidCount: number;
   totalCount: number;
   expenses: Expense[];
+  prevExpenses?: { category: string; amount: number }[];
   monthPayments: (InstallmentPayment & { plan_name: string })[];
   installmentMonthTotal: number;
   onNavigate: (v: AppView) => void;
+  onOpenIncome: () => void;
 }
+
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const item = {

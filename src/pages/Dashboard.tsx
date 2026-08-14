@@ -196,8 +196,9 @@ export default function Dashboard() {
               )}
 
               {view === "reports" && (
-                <ExpenseCharts expenses={expenses} />
+                <ReportsView userId={user?.id} selectedMonth={selectedMonth} />
               )}
+
 
               {view === "export" && (
                 <Card className="rounded-2xl border shadow-soft">

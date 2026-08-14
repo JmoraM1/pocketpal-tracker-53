@@ -29,7 +29,6 @@ import {
   Wallet,
   ChevronRight,
   BarChart3,
-  Download,
   Settings,
 } from "lucide-react";
 
@@ -253,7 +252,6 @@ export default function Dashboard() {
 
 const MORE_ITEMS: { key: AppView; label: string; icon: typeof BarChart3 }[] = [
   { key: "reports", label: "Reportes", icon: BarChart3 },
-  { key: "export", label: "Exportar", icon: Download },
   { key: "settings", label: "Configuración", icon: Settings },
 ];
 

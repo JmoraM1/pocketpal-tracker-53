@@ -5,9 +5,10 @@ import { useCategories } from "@/hooks/useCategories";
 import { useInstallments } from "@/hooks/useInstallments";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { useProfile } from "@/hooks/useProfile";
+import { useAdditionalIncomes } from "@/hooks/useAdditionalIncomes";
+import { IncomeDialog } from "@/components/IncomeDialog";
 import { MonthSelector } from "@/components/MonthSelector";
 import { ExpenseList } from "@/components/ExpenseList";
-import { IncomeEditor } from "@/components/IncomeEditor";
 import { ExportButton } from "@/components/ExportButton";
 import { CategoryManager } from "@/components/CategoryManager";
 import { InstallmentTracker } from "@/components/InstallmentTracker";
@@ -49,13 +50,14 @@ export default function Dashboard() {
   const t = useT();
   const { user, signOut } = useAuth();
   const [view, setView] = useState<AppView>("home");
+  const [incomeOpen, setIncomeOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
 
   const {
-    budget, expenses, loading, totalExpenses, paidCount,
+    budget, expenses, loading, totalExpenses, paidCount, prevExpenses,
     cumulativeSavings, updateIncome, updateExpense, addExpense, deleteExpense,
     copyFromPreviousMonth,
   } = useBudget(user?.id, selectedMonth);
@@ -72,8 +74,12 @@ export default function Dashboard() {
   } = useWebAuthn();
   const { profile, saveProfile } = useProfile(user?.id);
 
+  const { incomes: additionalIncomes, additionalTotal, addIncome, updateIncomeItem, deleteIncome } =
+    useAdditionalIncomes(user?.id, selectedMonth);
+
   const combinedTotalExpenses = totalExpenses + monthlyInstallmentTotal;
-  const income = Number(budget?.income ?? 0);
+  const salary = Number(budget?.income ?? 0);
+  const income = salary + additionalTotal;
   const combinedAvailable = income - combinedTotalExpenses;
 
   const exportButton = (
@@ -131,7 +137,6 @@ export default function Dashboard() {
                     onChangeMonth={setSelectedMonth}
                     onCopyPrevious={copyFromPreviousMonth}
                   />
-                  {view === "home" && <IncomeEditor income={income} onSave={updateIncome} />}
                   {view === "expenses" && (
                     <CategoryManager
                       categories={categories}
@@ -154,9 +159,11 @@ export default function Dashboard() {
                   paidCount={paidCount}
                   totalCount={expenses.length}
                   expenses={expenses}
+                  prevExpenses={prevExpenses}
                   monthPayments={monthPayments}
                   installmentMonthTotal={monthlyInstallmentTotal}
                   onNavigate={setView}
+                  onOpenIncome={() => setIncomeOpen(true)}
                 />
               )}
 
@@ -221,6 +228,17 @@ export default function Dashboard() {
           </AnimatePresence>
         </main>
       </div>
+
+      <IncomeDialog
+        open={incomeOpen}
+        onOpenChange={setIncomeOpen}
+        salary={salary}
+        onSaveSalary={updateIncome}
+        incomes={additionalIncomes}
+        onAdd={addIncome}
+        onUpdate={updateIncomeItem}
+        onDelete={deleteIncome}
+      />
 
       <QuickAddFab onNavigate={setView} />
 

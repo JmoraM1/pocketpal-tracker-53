@@ -120,6 +120,11 @@ export function useSavings(userId: string | undefined, selectedMonth: Date) {
 
   const setGoalContribution = async (goalId: string, amount: number) => {
     if (!userId || amount <= 0) return;
+    const tempId = `temp-${Date.now()}`;
+    setGoalContribs((prev) => [
+      ...prev,
+      { id: tempId, goal_id: goalId, month: monthKey, amount, created_at: new Date().toISOString() },
+    ]);
     await supabase.from("savings_goal_contributions").insert({
       user_id: userId, goal_id: goalId, month: monthKey, amount,
     });

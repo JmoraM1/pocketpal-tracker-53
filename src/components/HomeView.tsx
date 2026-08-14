@@ -378,8 +378,8 @@ export function HomeView({
                   const Icon = a.amount > 0 ? TrendingUp : visual.icon;
                   const positive = a.amount > 0;
                   return (
-                    <div key={a.id} className="flex items-center gap-3 py-3">
-                      <span className="w-16 shrink-0 text-[11px] font-medium text-muted-foreground">
+                    <div key={a.id} className="flex items-center gap-2 py-3 sm:gap-3">
+                      <span className="hidden w-16 shrink-0 text-[11px] font-medium text-muted-foreground sm:block">
                         {relativeDay(a.date, t, locale)}
                       </span>
                       <span
@@ -391,10 +391,13 @@ export function HomeView({
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{a.title}</p>
-                        <p className="truncate text-xs text-muted-foreground">{a.subtitle}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          <span className="sm:hidden">{relativeDay(a.date, t, locale)} · </span>
+                          {a.subtitle}
+                        </p>
                       </div>
                       <span
-                        className={`shrink-0 text-sm font-semibold tabular-nums ${
+                        className={`shrink-0 whitespace-nowrap text-xs font-semibold tabular-nums sm:text-sm ${
                           positive ? "text-success" : "text-destructive"
                         }`}
                       >
@@ -402,6 +405,7 @@ export function HomeView({
                         {formatCOP(Math.abs(a.amount))}
                       </span>
                     </div>
+
                   );
                 })}
               </div>

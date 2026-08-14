@@ -14,7 +14,7 @@ import { ExportButton } from "@/components/ExportButton";
 import { CategoryManager } from "@/components/CategoryManager";
 import { InstallmentTracker } from "@/components/InstallmentTracker";
 import { SavingsModule } from "@/components/SavingsModule";
-import { ExpenseCharts } from "@/components/ExpenseCharts";
+import { ReportsView } from "@/components/ReportsView";
 import { BottomNav, type AppView } from "@/components/BottomNav";
 import { AppSidebar } from "@/components/AppSidebar";
 import { HomeView } from "@/components/HomeView";

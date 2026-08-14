@@ -46,7 +46,7 @@ export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleC
           {t("Categorías")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[80vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("Gestionar Categorías")}</DialogTitle>
         </DialogHeader>

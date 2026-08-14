@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCOP } from "@/lib/constants";
@@ -473,5 +473,90 @@ export function HomeView({
         </motion.div>
       </div>
     </motion.div>
+  );
+}
+
+interface StatItem {
+  label: string;
+  value: number;
+  icon: LucideIcon;
+  tint: string;
+  trend: string;
+  up: boolean;
+  onClick: () => void;
+}
+
+function StatCard({ s }: { s: StatItem }) {
+  const Icon = s.icon;
+  const Trend = s.up ? ArrowUpRight : ArrowDownRight;
+  return (
+    <motion.button
+      whileHover={{ y: -3 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={s.onClick}
+      className="h-full w-full rounded-2xl border bg-card p-5 text-left shadow-soft transition-shadow hover:shadow-card"
+    >
+      <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.tint}`}>
+        <Icon className="h-5 w-5" />
+      </span>
+      <p className="mt-4 truncate text-sm font-medium text-muted-foreground">{s.label}</p>
+      <p className="mt-1 truncate font-display text-2xl font-semibold tracking-tight">{formatCOP(s.value)}</p>
+      <span
+        className={`mt-2 inline-flex max-w-full items-center gap-1 text-xs font-medium ${
+          s.up ? "text-success" : "text-destructive"
+        }`}
+      >
+        <Trend className="h-3.5 w-3.5 shrink-0" />
+        <span className="truncate">{s.trend}</span>
+      </span>
+    </motion.button>
+  );
+}
+
+function StatSlider({ stats }: { stats: StatItem[] }) {
+  const scroller = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const onScroll = () => {
+    const el = scroller.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / (el.clientWidth * 0.85));
+    setActive(Math.max(0, Math.min(stats.length - 1, idx)));
+  };
+
+  return (
+    <>
+      {/* Móvil: slider táctil */}
+      <div className="md:hidden">
+        <div
+          ref={scroller}
+          onScroll={onScroll}
+          className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {stats.map((s) => (
+            <div key={s.label} className="w-[85%] shrink-0 snap-center">
+              <StatCard s={s} />
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 flex justify-center gap-1.5">
+          {stats.map((s, i) => (
+            <span
+              key={s.label}
+              className={`h-1.5 rounded-full transition-all ${
+                i === active ? "w-5 bg-primary" : "w-1.5 bg-muted-foreground/30"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: grid de 4 tarjetas */}
+      <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
+        {stats.map((s) => (
+          <StatCard key={s.label} s={s} />
+        ))}
+      </div>
+    </>
   );
 }

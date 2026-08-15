@@ -13,6 +13,9 @@ const corsHeaders = {
 
 const CHALLENGE_TTL_MS = 5 * 60 * 1000;
 
+const EXPECTED_ORIGIN = "https://pocketpal-tracker-53.lovable.app";
+const EXPECTED_RP_ID = "pocketpal-tracker-53.lovable.app";
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -20,7 +23,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-function getOrigin(req: Request): string | null {
+function getReceivedOrigin(req: Request): string | null {
   const raw = req.headers.get("origin") || req.headers.get("referer");
   if (!raw) return null;
   try {
@@ -48,12 +51,11 @@ Deno.serve(async (req) => {
       return json({ error: "Email is required" }, 400);
     }
 
-    const origin = getOrigin(req);
-    if (!origin) {
-      console.error("[webauthn-auth] missing or invalid origin header");
+    const receivedOrigin = getReceivedOrigin(req);
+    if (!receivedOrigin || receivedOrigin !== EXPECTED_ORIGIN) {
+      console.error("[webauthn-auth] invalid or mismatched origin header", receivedOrigin);
       return json({ error: "Invalid request origin" }, 400);
     }
-    const rpId = new URL(origin).hostname;
 
     // Look up the user across all pages (listUsers is paginated: a user beyond
     // the first page would otherwise never be found).
@@ -81,7 +83,7 @@ Deno.serve(async (req) => {
       }
 
       const options = await generateAuthenticationOptions({
-        rpID: rpId,
+        rpID: EXPECTED_RP_ID,
         timeout: 60000,
         userVerification: "required",
         allowCredentials: credentials.map((c) => ({
@@ -159,8 +161,8 @@ Deno.serve(async (req) => {
         verification = await verifyAuthenticationResponse({
           response: credential,
           expectedChallenge: challengeData.challenge,
-          expectedOrigin: origin,
-          expectedRPID: rpId,
+          expectedOrigin: EXPECTED_ORIGIN,
+          expectedRPID: EXPECTED_RP_ID,
           requireUserVerification: true,
           credential: {
             id: storedCred.credential_id,

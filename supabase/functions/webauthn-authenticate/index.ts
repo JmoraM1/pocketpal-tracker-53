@@ -13,6 +13,9 @@ const corsHeaders = {
 
 const CHALLENGE_TTL_MS = 5 * 60 * 1000;
 
+const EXPECTED_ORIGIN = "https://pocketpal-tracker-53.lovable.app";
+const EXPECTED_RP_ID = "pocketpal-tracker-53.lovable.app";
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -20,7 +23,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-function getOrigin(req: Request): string | null {
+function getReceivedOrigin(req: Request): string | null {
   const raw = req.headers.get("origin") || req.headers.get("referer");
   if (!raw) return null;
   try {

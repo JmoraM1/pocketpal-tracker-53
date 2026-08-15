@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
       }
 
       const options = await generateAuthenticationOptions({
-        rpID: rpId,
+        rpID: EXPECTED_RP_ID,
         timeout: 60000,
         userVerification: "required",
         allowCredentials: credentials.map((c) => ({

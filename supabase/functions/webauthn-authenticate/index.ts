@@ -51,12 +51,11 @@ Deno.serve(async (req) => {
       return json({ error: "Email is required" }, 400);
     }
 
-    const origin = getOrigin(req);
-    if (!origin) {
-      console.error("[webauthn-auth] missing or invalid origin header");
+    const receivedOrigin = getReceivedOrigin(req);
+    if (!receivedOrigin || receivedOrigin !== EXPECTED_ORIGIN) {
+      console.error("[webauthn-auth] invalid or mismatched origin header", receivedOrigin);
       return json({ error: "Invalid request origin" }, 400);
     }
-    const rpId = new URL(origin).hostname;
 
     // Look up the user across all pages (listUsers is paginated: a user beyond
     // the first page would otherwise never be found).

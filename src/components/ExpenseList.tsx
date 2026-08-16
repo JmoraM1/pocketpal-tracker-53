@@ -88,7 +88,7 @@ function ExpenseForm({
         <MoneyInput value={amount} onChange={setAmount} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label>{t("Fecha de vencimiento")}</Label>
           <Popover open={dateOpen} onOpenChange={setDateOpen}>
@@ -172,14 +172,14 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-nowrap items-center justify-between gap-2">
-        <div className="scrollbar-none flex min-w-0 flex-1 items-center gap-1 overflow-x-auto rounded-full bg-muted p-1">
+    <div className="app-section">
+      <div className="section-head">
+        <div className="chip-row flex-1 rounded-full bg-muted p-1">
           {(["todos", "pendientes", "pagados"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-1.5 text-[11px] font-medium capitalize sm:px-3.5 sm:text-xs transition-colors ${
+              className={`chip border-transparent capitalize ${
                 filter === f ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -191,7 +191,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="shrink-0 gap-1 whitespace-nowrap rounded-full px-3 text-[11px] sm:gap-1.5 sm:px-4 sm:text-xs">
+            <Button size="sm" className="btn-compact rounded-full">
               <Plus className="h-4 w-4" /> {t("Nuevo")}
             </Button>
 
@@ -210,7 +210,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
         </Dialog>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {visible.map((expense, i) => {
           const visual = getCategoryVisual(expense.category);
           const Icon = visual.icon;
@@ -223,45 +223,45 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
             >
               <Card className="h-full rounded-2xl border shadow-soft transition-shadow hover:shadow-card">
                 <CardContent className="space-y-3 p-4">
-                  <div className="flex items-start gap-3">
+                  <div className="row-item items-start">
                     <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${visual.tint}`}>
                       <Icon className="h-5 w-5" />
                     </span>
-                    <div className="min-w-0 flex-1">
+                    <div className="row-item-body">
                       <p className="truncate text-sm font-semibold">
                         {expense.description || expense.category}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">{expense.category}</p>
                     </div>
-                    <span className="shrink-0 font-display text-sm font-semibold tabular-nums">
+                    <span className="row-item-value font-display text-sm font-semibold tabular-nums">
                       {formatCOP(Number(expense.amount), expense.currency)}
                     </span>
                   </div>
 
-                  <div className="scrollbar-none flex min-w-0 flex-nowrap items-center gap-1.5 overflow-x-auto">
+                  <div className="chip-row gap-1.5">
                     <span
-                      className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                      className={`chip border-transparent ${
                         expense.is_paid ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
                       }`}
                     >
                       {expense.is_paid ? t("Pagado") : t("Pendiente")}
                     </span>
-                    <span className="shrink-0 whitespace-nowrap rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                    <span className="chip border-transparent bg-muted text-muted-foreground">
                       {t(frequencyLabel(expense.frequency))}
                     </span>
                     {expense.due_date && (
-                      <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                      <span className="chip border-transparent bg-muted text-muted-foreground">
                         <CalendarIcon className="h-3 w-3" />
                         {formatShortDate(expense.due_date)}
                       </span>
                     )}
                   </div>
 
-                  <div className="flex min-w-0 flex-nowrap items-center justify-end gap-1 border-t pt-2">
+                  <div className="row-item justify-end gap-1 border-t pt-2">
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="min-w-0 shrink gap-1.5 truncate text-xs"
+                      className="btn-compact min-w-0 shrink truncate"
                       onClick={() => onUpdate(expense.id, { is_paid: !expense.is_paid })}
                     >
                       <Check className={`h-4 w-4 ${expense.is_paid ? "text-success" : "text-muted-foreground"}`} />

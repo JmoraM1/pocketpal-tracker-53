@@ -142,9 +142,17 @@
     @apply border-border;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    /* Evita que palabras largas o fuentes escaladas desborden horizontalmente */
+    overflow-wrap: anywhere;
+    word-break: normal;
   }
 
   h1, h2, h3, h4, .font-display {
@@ -153,6 +161,12 @@
 
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Los botones no crecen indefinidamente ni empujan a sus vecinos
+     cuando el sistema aumenta el tamaño de fuente. */
+  button, [role="tab"], a[role="button"] {
+    max-width: 100%;
   }
 }
 

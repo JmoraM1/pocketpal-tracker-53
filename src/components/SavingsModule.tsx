@@ -67,8 +67,8 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   if (mode === "goals") {
     return (
       <Card className="rounded-2xl border shadow-sm">
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <div>
+        <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
+          <div className="min-w-0">
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
               {t("Metas")}
@@ -79,7 +79,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
           </div>
           <Dialog open={openGoal} onOpenChange={setOpenGoal}>
             <DialogTrigger asChild>
-              <Button size="sm"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
+              <Button size="sm" className="shrink-0 whitespace-nowrap"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>{t("Nueva meta de ahorro")}</DialogTitle></DialogHeader>
@@ -158,8 +158,8 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   // mode === "savings"
   return (
     <Card className="rounded-2xl border shadow-sm">
-      <CardHeader className="flex-row items-center justify-between space-y-0">
-        <div>
+      <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
+        <div className="min-w-0">
           <CardTitle className="flex items-center gap-2">
             <PiggyBank className="h-5 w-5 text-primary" />
             {t("Ahorros")}
@@ -170,7 +170,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
         </div>
         <Dialog open={openSaving} onOpenChange={setOpenSaving}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
+            <Button size="sm" className="shrink-0 whitespace-nowrap"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{t("Nuevo ahorro")}</DialogTitle></DialogHeader>

@@ -40,16 +40,16 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button variant="outline" size="icon" onClick={goBack}>
+    <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto">
+      <Button variant="outline" size="icon" className="shrink-0" onClick={goBack}>
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="min-w-[160px] gap-2 capitalize">
+          <Button variant="outline" className="min-w-0 flex-1 gap-2 capitalize sm:min-w-[160px] sm:flex-none">
             <CalendarDays className="h-4 w-4" />
-            {formatMonthLabel(getMonthKey(selectedMonth), locale)}
+            <span className="truncate">{formatMonthLabel(getMonthKey(selectedMonth), locale)}</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[280px] p-3" align="start">

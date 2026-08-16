@@ -223,3 +223,84 @@
     @apply shrink-0 whitespace-nowrap;
   }
 }
+
+@layer components {
+  /* ============================================================
+     SISTEMA RESPONSIVE CANÓNICO
+     Una sola capa de reglas para todos los módulos.
+     Estructura estable entre 320 y 430 px; único breakpoint
+     estructural: md (escritorio).
+     ============================================================ */
+
+  /* Contenedor de bloque/módulo */
+  .app-section {
+    @apply flex w-full min-w-0 flex-col gap-4;
+  }
+
+  /* Cabecera: título + acciones en una fila fija, sin wrap */
+  .section-head {
+    @apply flex w-full min-w-0 flex-nowrap items-center justify-between gap-2;
+  }
+  .section-head > .section-head-text {
+    @apply flex min-w-0 flex-1 flex-col gap-0.5;
+  }
+  .section-head > .section-head-actions {
+    @apply flex shrink-0 flex-nowrap items-center gap-2;
+  }
+
+  .section-title {
+    @apply truncate font-display text-lg font-semibold leading-tight text-foreground;
+  }
+  .section-sub {
+    @apply text-xs leading-snug text-muted-foreground;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Fila de chips/filtros: nunca envuelve, se desplaza */
+  .chip-row {
+    @apply hscroll w-full gap-2 py-0.5;
+  }
+  .chip {
+    @apply inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-xs font-medium transition-colors;
+  }
+
+  /* Botón de acción compacto y uniforme en toda la app */
+  .btn-compact {
+    @apply inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 text-xs font-semibold;
+  }
+
+  /* Tarjeta estándar */
+  .card-std {
+    @apply surface-card w-full min-w-0 p-4;
+  }
+
+  /* Fila de lista: icono fijo + contenido truncado + valor a la derecha */
+  .row-item {
+    @apply flex w-full min-w-0 flex-nowrap items-center gap-3;
+  }
+  .row-item > .row-item-lead {
+    @apply flex shrink-0 items-center justify-center;
+  }
+  .row-item > .row-item-body {
+    @apply flex min-w-0 flex-1 flex-col;
+  }
+  .row-item > .row-item-body > * {
+    @apply truncate;
+  }
+  .row-item > .row-item-value {
+    @apply shrink-0 whitespace-nowrap text-right;
+  }
+
+  /* Campos de formulario/modal con altura y gap uniformes */
+  .field-row {
+    @apply flex w-full min-w-0 flex-col gap-1.5;
+  }
+  .field-row input,
+  .field-row select,
+  .field-row button[role="combobox"] {
+    @apply h-10 w-full text-sm;
+  }
+}

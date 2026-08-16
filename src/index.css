@@ -208,3 +208,11 @@
     margin-right: 0 !important;
   }
 }
+
+@layer base {
+  /* Resiliencia ante escalado de fuente/pantalla del sistema (Xiaomi, Samsung):
+     el texto largo se parte en vez de desbordar el contenedor. */
+  h1, h2, h3, p, span, button, label, td, th {
+    overflow-wrap: anywhere;
+  }
+}

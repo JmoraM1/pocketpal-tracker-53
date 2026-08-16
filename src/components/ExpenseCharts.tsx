@@ -84,7 +84,7 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
               <Tooltip content={<CustomTooltip />} />
             </PieChart>
           </ResponsiveContainer>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="scrollbar-none mt-2 flex flex-nowrap gap-2 overflow-x-auto [&>*]:shrink-0">
             {data.map((d, i) => (
               <div key={d.name} className="flex items-center gap-1 text-xs">
                 <div

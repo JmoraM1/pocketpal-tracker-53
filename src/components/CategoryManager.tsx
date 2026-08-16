@@ -70,7 +70,7 @@ export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleC
               </div>
             )}
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 [&>*]:shrink-0">
             {categories.map((cat) => (
               editingCat === cat.name ? (
                 <div key={cat.name} className="flex items-center gap-1">

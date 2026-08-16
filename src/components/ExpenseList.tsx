@@ -238,30 +238,30 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-1.5">
+                  <div className="scrollbar-none flex min-w-0 flex-nowrap items-center gap-1.5 overflow-x-auto">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                      className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-medium ${
                         expense.is_paid ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
                       }`}
                     >
                       {expense.is_paid ? t("Pagado") : t("Pendiente")}
                     </span>
-                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                    <span className="shrink-0 whitespace-nowrap rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                       {t(frequencyLabel(expense.frequency))}
                     </span>
                     {expense.due_date && (
-                      <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                      <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                         <CalendarIcon className="h-3 w-3" />
                         {formatShortDate(expense.due_date)}
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-end gap-1 border-t pt-2">
+                  <div className="flex min-w-0 flex-nowrap items-center justify-end gap-1 border-t pt-2">
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="gap-1.5 text-xs"
+                      className="min-w-0 shrink gap-1.5 truncate text-xs"
                       onClick={() => onUpdate(expense.id, { is_paid: !expense.is_paid })}
                     >
                       <Check className={`h-4 w-4 ${expense.is_paid ? "text-success" : "text-muted-foreground"}`} />

@@ -118,14 +118,14 @@ export function InstallmentTracker({
     <div className="space-y-4">
       {/* Month payments section */}
       <Card>
-        <CardHeader className="flex flex-col items-stretch gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
           <CardTitle className="flex min-w-0 items-center gap-2 text-lg">
             <CreditCard className="h-5 w-5 shrink-0" />
             <span className="truncate">{t("Cuotas del Mes")}</span>
           </CardTitle>
           <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button size="sm" className="w-full shrink-0 gap-1 whitespace-nowrap sm:w-auto">
+              <Button size="sm" className="shrink-0 gap-1 whitespace-nowrap">
                 <Plus className="h-4 w-4" />
                 {t("Nueva Deuda")}
               </Button>
@@ -286,14 +286,14 @@ export function InstallmentTracker({
                 const remaining = Math.max(0, totalAmount - paidAmount);
                 return (
                   <div key={plan.id} className="rounded-xl border bg-card/50 backdrop-blur-sm p-5 space-y-4 shadow-sm">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <p className="text-base font-bold">{plan.name}</p>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 space-y-1">
+                        <p className="truncate text-base font-bold">{plan.name}</p>
+                        <div className="scrollbar-none flex min-w-0 flex-nowrap items-center gap-2 overflow-x-auto">
+                          <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                             {t("Cuota {a} de {b}", { a: plan.paid_installments, b: plan.num_installments })}
                           </span>
-                          <span className="text-xs text-muted-foreground">· {t("{amount}/mes", { amount: formatCOP(Number(plan.installment_amount), plan.currency) })}</span>
+                          <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">· {t("{amount}/mes", { amount: formatCOP(Number(plan.installment_amount), plan.currency) })}</span>
                         </div>
                       </div>
                       <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />

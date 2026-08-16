@@ -132,7 +132,7 @@ export default function Dashboard() {
               className="space-y-5"
             >
               {showMonthSelector && (
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <MonthSelector
                     selectedMonth={selectedMonth}
                     onChangeMonth={setSelectedMonth}

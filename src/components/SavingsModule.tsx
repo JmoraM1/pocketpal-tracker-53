@@ -67,7 +67,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   if (mode === "goals") {
     return (
       <Card className="rounded-2xl border shadow-sm">
-        <CardHeader className="flex flex-col items-stretch gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
+        <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
           <div className="min-w-0">
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
@@ -79,7 +79,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
           </div>
           <Dialog open={openGoal} onOpenChange={setOpenGoal}>
             <DialogTrigger asChild>
-              <Button size="sm" className="w-full shrink-0 whitespace-nowrap sm:w-auto"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
+              <Button size="sm" className="shrink-0 whitespace-nowrap"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>{t("Nueva meta de ahorro")}</DialogTitle></DialogHeader>
@@ -158,7 +158,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   // mode === "savings"
   return (
     <Card className="rounded-2xl border shadow-sm">
-      <CardHeader className="flex flex-col items-stretch gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
         <div className="min-w-0">
           <CardTitle className="flex items-center gap-2">
             <PiggyBank className="h-5 w-5 text-primary" />
@@ -170,7 +170,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
         </div>
         <Dialog open={openSaving} onOpenChange={setOpenSaving}>
           <DialogTrigger asChild>
-            <Button size="sm" className="w-full shrink-0 whitespace-nowrap sm:w-auto"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
+            <Button size="sm" className="shrink-0 whitespace-nowrap"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{t("Nuevo ahorro")}</DialogTitle></DialogHeader>
@@ -253,7 +253,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
       </div>
 
       <Progress value={pct} className="h-2.5" />
-      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs">
+      <div className="flex min-w-0 flex-nowrap items-center justify-between gap-2 text-xs">
         <span className="font-semibold text-primary">{formatCOP(total, goal.currency)} {t("ahorrado")}</span>
         <span className="text-muted-foreground">{pct.toFixed(0)}%</span>
         <span className="text-muted-foreground">{t("Faltan")} {formatCOP(Math.max(0, target - total), goal.currency)}</span>

@@ -388,7 +388,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
           <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end">
-            <div className="flex w-full flex-wrap gap-2 sm:justify-end">
+            <div className="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto sm:justify-end">
               {PERIODS.map((p) => (
                 <button
                   key={p.id}

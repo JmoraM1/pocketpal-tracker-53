@@ -47,7 +47,7 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
 
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="btn-compact min-w-0 flex-1 capitalize">
+          <Button variant="outline" className="btn-compact btn-grow min-w-0 capitalize">
             <CalendarDays className="h-4 w-4" />
             <span className="min-w-0 truncate">{formatMonthLabel(getMonthKey(selectedMonth), locale)}</span>
           </Button>

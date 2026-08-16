@@ -346,6 +346,12 @@
     line-height: 1rem;
     font-weight: 600;
   }
+  /* Variante única cuando la acción debe ocupar el espacio disponible
+     (p. ej. el disparador del selector de mes). Mantiene alto/padding/radio. */
+  .btn-compact.btn-grow {
+    flex: 1 1 auto;
+    width: 100%;
+  }
 
   /* Tarjeta estándar: una sola referencia visual para tarjetas equivalentes */
   .card-std.card-std {
@@ -372,7 +378,7 @@
     padding-bottom: var(--nav-safe);
   }
   .app-fab {
-    bottom: calc(var(--nav-safe) + 14px);
+    bottom: calc(var(--nav-safe) + 6px);
   }
   .app-scroll-pad {
     padding-bottom: calc(var(--nav-h) + var(--nav-safe) + 28px);

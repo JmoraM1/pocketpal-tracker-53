@@ -110,7 +110,7 @@ export default function Dashboard() {
 
       <div className="min-w-0 flex-1 md:h-dvh md:overflow-y-auto">
         <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-xl md:hidden">
-          <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="row-item justify-between px-4 py-3">
             <div className="flex items-center gap-2.5">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary shadow-soft">
                 <Wallet className="h-4.5 w-4.5 text-primary-foreground" />
@@ -132,7 +132,7 @@ export default function Dashboard() {
               className="space-y-5"
             >
               {showMonthSelector && (
-                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="section-head flex-col items-start gap-3 md:flex-row md:items-center">
                   <MonthSelector
                     selectedMonth={selectedMonth}
                     onChangeMonth={setSelectedMonth}
@@ -266,7 +266,7 @@ function MoreView({ onNavigate }: { onNavigate: (v: AppView) => void }) {
             <button
               key={it.key}
               onClick={() => onNavigate(it.key)}
-              className="flex w-full items-center justify-between rounded-xl px-3 py-3.5 text-left transition-colors hover:bg-muted"
+              className="row-item w-full justify-between rounded-xl px-3 py-3.5 text-left transition-colors hover:bg-muted"
             >
               <span className="flex items-center gap-3 text-sm font-medium">
                 <Icon className="h-4 w-4 text-primary" /> {t(it.label)}

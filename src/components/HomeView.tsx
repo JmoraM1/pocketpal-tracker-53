@@ -268,7 +268,7 @@ export function HomeView({
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
       {/* Saludo */}
       <motion.div variants={item}>
-        <h2 className="font-display text-2xl font-semibold tracking-tight capitalize sm:text-3xl">
+        <h2 className="section-title text-xl capitalize md:text-2xl">
           {t("Hola {name} 👋", { name })}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">{t("Este mes tienes el control de tus finanzas.")}</p>
@@ -289,8 +289,8 @@ export function HomeView({
         {/* Gráfico de evolución */}
         <motion.div variants={item} className="min-w-0 lg:col-span-3">
           <Card className="h-full overflow-hidden rounded-2xl border shadow-soft">
-            <CardContent className="p-5 sm:p-6">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <CardContent className="p-4 md:p-6">
+              <div className="section-head flex-col items-start gap-2 md:flex-row md:items-center">
                 <h3 className="font-display text-base font-semibold">{t("Evolución de ingresos y gastos")}</h3>
                 <div className="flex items-center gap-4 text-xs font-medium">
                   <span className="flex items-center gap-1.5">
@@ -302,7 +302,7 @@ export function HomeView({
                 </div>
               </div>
 
-              <div className="mt-5 h-60 w-full sm:h-72">
+              <div className="mt-5 h-60 w-full md:h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={flowData} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
                     <defs>
@@ -355,7 +355,7 @@ export function HomeView({
         {/* Gastos por categoría */}
         <motion.div variants={item} className="min-w-0 lg:col-span-2">
           <Card className="h-full rounded-2xl border shadow-soft">
-            <CardContent className="p-5 sm:p-6">
+            <CardContent className="p-4 md:p-6">
               <h3 className="font-display text-base font-semibold">{t("Gastos por categoría")}</h3>
 
               <div className="mt-5 space-y-4">
@@ -370,8 +370,8 @@ export function HomeView({
                       <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${visual.tint}`}>
                         <Icon className="h-4 w-4" />
                       </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-baseline justify-between gap-2 text-sm">
+                      <div className="row-item-body">
+                        <div className="row-item items-baseline justify-between text-sm">
                           <span className="truncate font-medium">{c.label}</span>
                           <span className="shrink-0 text-xs text-muted-foreground">{c.pct}%</span>
                         </div>
@@ -401,7 +401,7 @@ export function HomeView({
         {/* Actividad reciente */}
         <motion.div variants={item} className="min-w-0">
           <Card className="h-full rounded-2xl border shadow-soft">
-            <CardContent className="p-5 sm:p-6">
+            <CardContent className="p-4 md:p-6">
               <h3 className="font-display text-base font-semibold">{t("Actividad reciente")}</h3>
 
               <div className="mt-4 divide-y divide-border">
@@ -413,8 +413,8 @@ export function HomeView({
                   const Icon = a.amount > 0 ? TrendingUp : visual.icon;
                   const positive = a.amount > 0;
                   return (
-                    <div key={a.id} className="flex items-center gap-2 py-3 sm:gap-3">
-                      <span className="hidden w-16 shrink-0 text-[11px] font-medium text-muted-foreground sm:block">
+                    <div key={a.id} className="row-item py-3">
+                      <span className="hidden w-16 shrink-0 text-xs font-medium text-muted-foreground md:block">
                         {relativeDay(a.date, t, locale)}
                       </span>
                       <span
@@ -424,15 +424,15 @@ export function HomeView({
                       >
                         <Icon className="h-4 w-4" />
                       </span>
-                      <div className="min-w-0 flex-1">
+                      <div className="row-item-body">
                         <p className="truncate text-sm font-medium">{a.title}</p>
                         <p className="truncate text-xs text-muted-foreground">
-                          <span className="sm:hidden">{relativeDay(a.date, t, locale)} · </span>
+                          <span className="md:hidden">{relativeDay(a.date, t, locale)} · </span>
                           {a.subtitle}
                         </p>
                       </div>
                       <span
-                        className={`shrink-0 whitespace-nowrap text-xs font-semibold tabular-nums sm:text-sm ${
+                        className={`row-item-value text-xs font-semibold tabular-nums md:text-sm ${
                           positive ? "text-success" : "text-destructive"
                         }`}
                       >

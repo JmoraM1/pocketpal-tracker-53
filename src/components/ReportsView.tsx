@@ -581,7 +581,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
         {/* Comparación */}
         <Card className="min-w-0 rounded-2xl border shadow-soft">
           <CardContent className="space-y-3 p-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex min-w-0 flex-nowrap items-center justify-between gap-2">
               <h3 className="font-display text-base font-semibold">{t("Comparación por categoría")}</h3>
               <div className="flex items-center gap-1 rounded-full bg-muted p-0.5 text-xs">
                 {(["monto", "porcentaje"] as const).map((m) => (

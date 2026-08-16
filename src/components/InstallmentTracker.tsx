@@ -286,14 +286,14 @@ export function InstallmentTracker({
                 const remaining = Math.max(0, totalAmount - paidAmount);
                 return (
                   <div key={plan.id} className="rounded-xl border bg-card/50 backdrop-blur-sm p-5 space-y-4 shadow-sm">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <p className="text-base font-bold">{plan.name}</p>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 space-y-1">
+                        <p className="truncate text-base font-bold">{plan.name}</p>
+                        <div className="scrollbar-none flex min-w-0 flex-nowrap items-center gap-2 overflow-x-auto">
+                          <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                             {t("Cuota {a} de {b}", { a: plan.paid_installments, b: plan.num_installments })}
                           </span>
-                          <span className="text-xs text-muted-foreground">· {t("{amount}/mes", { amount: formatCOP(Number(plan.installment_amount), plan.currency) })}</span>
+                          <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">· {t("{amount}/mes", { amount: formatCOP(Number(plan.installment_amount), plan.currency) })}</span>
                         </div>
                       </div>
                       <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />

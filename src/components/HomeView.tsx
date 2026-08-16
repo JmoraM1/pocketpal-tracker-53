@@ -368,8 +368,8 @@ export function HomeView({
                   const visual = getCategoryVisual(c.label);
                   const Icon = visual.icon;
                   return (
-                    <div key={c.label} className="flex items-center gap-3">
-                      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${visual.tint}`}>
+                    <div key={c.label} className="row-item">
+                      <span className={`row-item-lead h-8 w-8 rounded-lg ${visual.tint}`}>
                         <Icon className="h-4 w-4" />
                       </span>
                       <div className="row-item-body">
@@ -387,7 +387,7 @@ export function HomeView({
                           />
                         </div>
                       </div>
-                      <span className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
+                      <span className="row-item-value w-20 text-xs font-medium tabular-nums text-muted-foreground">
                         {formatCOP(c.value)}
                       </span>
                     </div>

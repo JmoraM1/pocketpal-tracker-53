@@ -207,39 +207,3 @@
   }
 }
 
-
-@layer base {
-  /* ---------------------------------------------------------------
-     Geometría estable: el diseño no cambia mientras haya espacio.
-     Estas reglas solo actúan cuando el contenido realmente no cabe
-     (pantallas pequeñas o escalado de fuente del sistema), evitando
-     solapamientos y desbordes sin alterar tamaños, colores ni textos.
-     --------------------------------------------------------------- */
-
-  /* Los hijos de flex/grid pueden encogerse hasta su contenedor en vez
-     de forzar overflow. No afecta el layout cuando hay espacio. */
-  .flex > *,
-  .grid > * {
-    min-width: 0;
-  }
-
-  /* Los iconos nunca se deforman ni se encogen. */
-  svg {
-    flex-shrink: 0;
-  }
-
-  /* Media y controles no exceden su contenedor. */
-  img, video, canvas, svg:not([width]) {
-    max-width: 100%;
-  }
-
-  input, select, textarea {
-    max-width: 100%;
-  }
-
-  /* Contenido tabular o preformateado hace scroll propio en lugar de
-     romper la composición de la página. */
-  table, pre {
-    max-width: 100%;
-  }
-}

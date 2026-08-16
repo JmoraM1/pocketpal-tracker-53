@@ -174,41 +174,45 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
   return (
     <div className="app-section">
       <div className="section-head">
-        <div className="chip-row flex-1 rounded-full bg-muted p-1">
-          {(["todos", "pendientes", "pagados"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`chip border-transparent capitalize ${
-                filter === f ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {filterLabels[f]}
-            </button>
-          ))}
+        <div className="section-head-text">
+          <h2 className="section-title">{t("Gastos")}</h2>
+          <p className="section-sub">{t("Registra y controla tus gastos del mes.")}</p>
         </div>
-
-
-        <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="btn-compact rounded-full">
-              <Plus className="h-4 w-4" /> {t("Nuevo")}
-            </Button>
-
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{t("Nuevo gasto")}</DialogTitle></DialogHeader>
-            <ExpenseForm
-              categories={categories}
-              submitLabel={t("Agregar")}
-              onSubmit={(v) => {
-                onAdd(v);
-                setAddOpen(false);
-              }}
-            />
-          </DialogContent>
-        </Dialog>
+        <div className="section-head-actions">
+          <Dialog open={addOpen} onOpenChange={setAddOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="btn-compact">
+                <Plus className="h-4 w-4" /> {t("Nuevo")}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>{t("Nuevo gasto")}</DialogTitle></DialogHeader>
+              <ExpenseForm
+                categories={categories}
+                submitLabel={t("Agregar")}
+                onSubmit={(v) => {
+                  onAdd(v);
+                  setAddOpen(false);
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
+      <div className="filter-bar">
+        {(["todos", "pendientes", "pagados"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            data-active={filter === f}
+            className="filter-chip capitalize"
+          >
+            {filterLabels[f]}
+          </button>
+        ))}
+      </div>
+
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {visible.map((expense, i) => {

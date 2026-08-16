@@ -40,16 +40,16 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
   };
 
   return (
-    <div className="row-item w-full md:w-auto">
-      <Button variant="outline" size="icon" className="shrink-0" onClick={goBack}>
+    <div className="row-item gap-2">
+      <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={goBack}>
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="btn-compact h-10 min-w-0 flex-1 capitalize md:min-w-[160px] md:flex-none">
+          <Button variant="outline" className="btn-compact min-w-0 flex-1 capitalize">
             <CalendarDays className="h-4 w-4" />
-            <span className="truncate">{formatMonthLabel(getMonthKey(selectedMonth), locale)}</span>
+            <span className="min-w-0 truncate">{formatMonthLabel(getMonthKey(selectedMonth), locale)}</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[280px] p-3" align="start">
@@ -82,11 +82,11 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
         </PopoverContent>
       </Popover>
 
-      <Button variant="outline" size="icon" onClick={goForward}>
+      <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={goForward}>
         <ChevronRight className="h-4 w-4" />
       </Button>
 
-      <Button variant="outline" size="sm" onClick={onCopyPrevious} className="ml-2 gap-1">
+      <Button variant="outline" size="sm" onClick={onCopyPrevious} className="btn-compact">
         <Copy className="h-3.5 w-3.5" />
         <span className="hidden md:inline">{t("Copiar mes anterior")}</span>
       </Button>

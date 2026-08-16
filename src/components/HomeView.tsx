@@ -358,7 +358,7 @@ export function HomeView({
         <motion.div variants={item} className="min-w-0 lg:col-span-2">
           <Card className="card-std h-full">
             <CardContent className="p-0">
-              <h3 className="font-display text-base font-semibold">{t("Gastos por categoría")}</h3>
+              <h3 className="section-title text-base">{t("Gastos por categoría")}</h3>
 
               <div className="mt-5 space-y-4">
                 {categoryData.length === 0 && (
@@ -404,7 +404,7 @@ export function HomeView({
         <motion.div variants={item} className="min-w-0">
           <Card className="card-std h-full">
             <CardContent className="p-0">
-              <h3 className="font-display text-base font-semibold">{t("Actividad reciente")}</h3>
+              <h3 className="section-title text-base">{t("Actividad reciente")}</h3>
 
               <div className="mt-4 divide-y divide-border">
                 {activity.length === 0 && (

@@ -271,16 +271,16 @@
   }
   .section-head.section-head > .section-head-actions {
     display: flex;
-  }
-  /* Las utilidades de visibilidad siguen mandando sobre el contrato */
-  .section-head.section-head > .section-head-actions.hidden,
-  .section-head.section-head > .section-head-text.hidden {
-    display: none;
     flex: 0 0 auto;
     flex-wrap: nowrap;
     align-items: center;
     gap: 0.5rem;
   }
+  /* Las utilidades de visibilidad siguen mandando sobre el contrato */
+  .section-head.section-head > .hidden {
+    display: none;
+  }
+
   /* Título con icono: el icono vive dentro del bloque de texto */
   .section-title-icon {
     @apply flex min-w-0 flex-row items-center gap-2;

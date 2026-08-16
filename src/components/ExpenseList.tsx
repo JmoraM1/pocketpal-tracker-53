@@ -173,13 +173,13 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1 rounded-full bg-muted p-1">
+      <div className="flex flex-nowrap items-center justify-between gap-2">
+        <div className="scrollbar-none flex min-w-0 flex-1 items-center gap-1 overflow-x-auto rounded-full bg-muted p-1">
           {(["todos", "pendientes", "pagados"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-colors ${
+              className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium capitalize transition-colors ${
                 filter === f ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -187,6 +187,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
             </button>
           ))}
         </div>
+
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger asChild>

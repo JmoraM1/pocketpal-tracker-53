@@ -359,16 +359,16 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
   ];
 
   return (
-    <div className="w-full min-w-0 space-y-4 overflow-x-hidden">
+    <div className="app-section overflow-x-hidden">
       {/* Encabezado */}
-      <div className="flex flex-nowrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="font-display text-xl font-semibold tracking-tight">{t("Reportes")}</h2>
-          <p className="text-sm text-muted-foreground">{t("Analiza tus finanzas con claridad")}</p>
+      <div className="section-head items-start">
+        <div className="section-head-text">
+          <h2 className="section-title">{t("Reportes")}</h2>
+          <p className="section-sub">{t("Analiza tus finanzas con claridad")}</p>
         </div>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button size="sm" className="shrink-0 gap-1.5 whitespace-nowrap">
+            <Button size="sm" className="btn-compact">
               <Download className="h-4 w-4" /> {t("Exportar")} <ChevronDown className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
@@ -382,19 +382,19 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
 
       {/* Filtros: slider táctil/arrastrable en celular, fila fija en desktop */}
       <Card className="rounded-2xl border shadow-soft">
-        <CardContent className="flex flex-col gap-3 overflow-hidden p-3 sm:flex-row sm:items-center sm:justify-between">
+        <CardContent className="flex flex-col gap-3 overflow-hidden p-3 md:flex-row md:items-center md:justify-between">
           <div className="flex h-6 items-center gap-2 text-sm font-medium">
             <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
-          <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end">
-            <div className="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto sm:justify-end">
+          <div className="flex w-full min-w-0 flex-col gap-2 md:w-auto md:items-end">
+            <div className="grid w-full grid-cols-3 gap-2 md:flex md:w-auto md:justify-end">
               {PERIODS.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => setPeriod(p.id)}
                   className={cn(
-                    "min-w-0 rounded-full px-2.5 py-2 text-center text-[11px] font-medium leading-tight transition-colors sm:whitespace-nowrap sm:px-3.5 sm:text-xs",
+                    "chip w-full justify-center border-transparent px-2.5 text-center",
 
                     period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                   )}
@@ -403,7 +403,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                 </button>
               ))}
             </div>
-            <div className="flex w-full justify-center sm:justify-end">
+            <div className="flex w-full justify-center md:justify-end">
               <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                 <PopoverTrigger asChild>
                   <button
@@ -413,7 +413,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                       window.setTimeout(() => setCalendarOpen(true), 350);
                     }}
                     className={cn(
-                      "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                      "chip justify-center border-transparent",
                       period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                     )}
                   >
@@ -452,7 +452,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                   </span>
                   <div className="min-w-0">
                     <p className="text-xs font-medium leading-tight">{c.label}</p>
-                    <p className="truncate text-[11px] text-muted-foreground">{c.hint}</p>
+                    <p className="truncate text-xs text-muted-foreground">{c.hint}</p>
                   </div>
                 </div>
                 {loading ? (
@@ -463,7 +463,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                 ) : (
                   <>
                     <p className="truncate text-lg font-semibold tracking-tight">{c.value}</p>
-                    <div className="text-[11px]">{c.delta}</div>
+                    <div className="text-xs">{c.delta}</div>
                   </>
                 )}
               </CardContent>
@@ -478,7 +478,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
           <CardContent className="space-y-3 p-4">
             <h3 className="font-display text-base font-semibold">{t("Distribución de gastos")}</h3>
             {loading ? (
-              <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-[200px_1fr]">
+              <div className="grid min-w-0 grid-cols-1 items-center gap-3 md:grid-cols-[200px_1fr]">
                 <Skeleton className="mx-auto h-[190px] w-[190px] rounded-full" />
                 <div className="space-y-2">
                   {[0, 1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-4 w-full" />)}
@@ -490,7 +490,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
               </div>
             ) : (
               <>
-                <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-[200px_1fr]">
+                <div className="grid min-w-0 grid-cols-1 items-center gap-3 md:grid-cols-[200px_1fr]">
                   <div className="relative mx-auto h-[190px] w-full max-w-[220px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -523,7 +523,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                       </PieChart>
                     </ResponsiveContainer>
                     <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-[11px] text-muted-foreground">{t("Total")}</span>
+                      <span className="text-xs text-muted-foreground">{t("Total")}</span>
                       <span className="text-sm font-semibold">{formatCOP(totalOut)}</span>
                     </div>
                   </div>
@@ -581,7 +581,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
         {/* Comparación */}
         <Card className="min-w-0 rounded-2xl border shadow-soft">
           <CardContent className="space-y-3 p-4">
-            <div className="flex min-w-0 flex-nowrap items-center justify-between gap-2">
+            <div className="row-item justify-between">
               <h3 className="font-display text-base font-semibold">{t("Comparación por categoría")}</h3>
               <div className="flex items-center gap-1 rounded-full bg-muted p-0.5 text-xs">
                 {(["monto", "porcentaje"] as const).map((m) => (
@@ -599,7 +599,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
               </div>
             </div>
             {prevLabel && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {t("Comparado con")} <span className="capitalize">{prevLabel}</span>
               </p>
             )}
@@ -638,9 +638,9 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
 
       {/* Insights IA */}
       <Card className="rounded-2xl border border-primary/20 bg-primary/5 shadow-soft">
-        <CardContent className="flex min-w-0 items-start gap-3 p-4">
-          <Mascot mood={mood as any} className="hidden h-16 w-16 shrink-0 sm:block" />
-          <div className="min-w-0 flex-1 space-y-2">
+        <CardContent className="row-item items-start p-4">
+          <Mascot mood={mood as any} className="hidden h-16 w-16 shrink-0 md:block" />
+          <div className="row-item-body gap-2">
             <h3 className="font-display text-base font-semibold">{t("Insights IA")}</h3>
             {loading ? (
               <div className="space-y-2">
@@ -693,7 +693,7 @@ function CompareRow({
             <div className="h-2 rounded-full bg-muted-foreground/30" style={{ width: `${Math.max(prevWidth, 1)}%` }} />
           </div>
         </div>
-        <div className="w-20 shrink-0 text-right text-[11px] tabular-nums sm:w-24">
+        <div className="w-20 shrink-0 text-right text-xs tabular-nums md:w-24">
           <p className="font-medium">{mode === "monto" ? formatCOP(item.amount) : `${share}%`}</p>
           <p className="text-muted-foreground">
             {mode === "monto"

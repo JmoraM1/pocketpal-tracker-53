@@ -331,7 +331,7 @@ export function InstallmentTracker({
                 <div key={plan.id} className="row-item rounded-xl border border-success/20 bg-success/5 p-3">
                   <div className="row-item-body flex-row items-center gap-2">
                     <Trophy className="h-4 w-4 shrink-0 text-success" />
-                    <div className="row-item-body">
+                    <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">{plan.name}</p>
                       <p className="text-xs text-muted-foreground">
                         {formatCOP(Number(plan.total_amount), plan.currency)} — {t("{n} cuotas", { n: plan.num_installments })}

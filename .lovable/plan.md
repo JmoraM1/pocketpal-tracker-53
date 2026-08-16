@@ -54,3 +54,13 @@ Script Playwright que recorre Inicio, Gastos, Reportes, Metas, Ahorros, Deudas, 
 - alturas y paddings de botones/chips equivalentes idénticos entre anchos;
 - ausencia de wrapping en filas marcadas como fijas;
 - capturas comparativas por ancho para revisión visual.
+
+## 6. Criterio de aceptación (no basta con las pantallas de ejemplo)
+
+La implementación no se da por buena solo porque las pantallas revisadas se vean bien. Tras aplicar la capa global se hace un barrido completo del proyecto buscando:
+
+`flex-wrap`, `justify-between`, `flex-1`, `w-full`, `min-w-*`, `max-w-*`, tamaños arbitrarios (`text-[..]`, `w-[..]`, `h-[..]`), `grid-cols-*` y reglas responsive duplicadas (`sm:`/`md:` repetidos por módulo).
+
+- Todo caso encontrado que no use el sistema global se migra al sistema global.
+- No se crean excepciones para una pantalla o un ancho concreto.
+- Si aparece un problema en un módulo, se corrige la regla compartida responsable, nunca con un parche local.

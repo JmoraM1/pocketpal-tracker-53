@@ -387,13 +387,13 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
           <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end">
-            <div className="control-rail gap-1 w-full sm:justify-end">
+            <div className="control-rail w-full sm:justify-end">
               {PERIODS.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => setPeriod(p.id)}
                   className={cn(
-                    "whitespace-nowrap rounded-full px-2.5 py-2 text-xs font-medium transition-colors",
+                    "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                     period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                   )}
                 >
@@ -411,7 +411,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                       window.setTimeout(() => setCalendarOpen(true), 350);
                     }}
                     className={cn(
-                      "whitespace-nowrap rounded-full px-2.5 py-2 text-xs font-medium transition-colors",
+                      "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                       period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                     )}
                   >

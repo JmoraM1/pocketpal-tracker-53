@@ -179,7 +179,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
+              className={`rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-colors ${
                 filter === f ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -190,7 +190,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="filter-bar__action gap-1 rounded-full whitespace-nowrap px-2.5">
+            <Button size="sm" className="filter-bar__action gap-1.5 rounded-full whitespace-nowrap">
               <Plus className="h-4 w-4" /> {t("Nuevo")}
             </Button>
           </DialogTrigger>

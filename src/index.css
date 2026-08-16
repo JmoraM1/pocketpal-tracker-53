@@ -204,3 +204,22 @@
     display: none;
   }
 }
+
+@layer components {
+  /* Reglas globales de composición: la estructura no depende del ancho del móvil */
+  .row-fixed {
+    @apply flex min-w-0 flex-nowrap items-center gap-2;
+  }
+  .row-fixed > * {
+    @apply min-w-0;
+  }
+  /* Adaptación controlada cuando un grupo no cabe: scroll horizontal contenido */
+  .hscroll {
+    @apply scrollbar-none flex min-w-0 flex-nowrap items-center overflow-x-auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  .hscroll > * {
+    @apply shrink-0 whitespace-nowrap;
+  }
+}

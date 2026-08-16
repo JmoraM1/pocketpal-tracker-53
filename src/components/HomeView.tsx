@@ -290,7 +290,7 @@ export function HomeView({
         <motion.div variants={item} className="min-w-0 lg:col-span-3">
           <Card className="h-full overflow-hidden rounded-2xl border shadow-soft">
             <CardContent className="p-5 sm:p-6">
-              <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="font-display text-base font-semibold">{t("Evolución de ingresos y gastos")}</h3>
                 <div className="flex items-center gap-4 text-xs font-medium">
                   <span className="flex items-center gap-1.5">

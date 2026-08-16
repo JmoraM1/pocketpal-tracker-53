@@ -142,9 +142,18 @@
     @apply border-border;
   }
 
+  html {
+    /* Métrica tipográfica estable: iOS/Android no reescalan el texto */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-synthesis-weight: none;
+    text-rendering: optimizeSpeed;
   }
 
   h1, h2, h3, h4, .font-display {
@@ -155,6 +164,7 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
+
 
 @layer components {
   .surface-card {

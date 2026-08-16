@@ -158,36 +158,41 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
 
   // mode === "savings"
   return (
-    <Card className="rounded-2xl border shadow-sm">
-      <CardHeader className="section-head space-y-0">
-        <CardTitle className="section-head-text flex-row items-center gap-2 section-title">
-          <PiggyBank className="h-5 w-5 shrink-0 text-primary" />
-          <span className="truncate">{t("Ahorros")}</span>
-        </CardTitle>
-        <Dialog open={openSaving} onOpenChange={setOpenSaving}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="btn-compact"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{t("Nuevo ahorro")}</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div>
-                <Label>{t("Nombre")}</Label>
-                <Input value={newSavingName} onChange={(e) => setNewSavingName(e.target.value)} placeholder={t("Ej: Ahorro libre")} />
+    <Card className="card-std p-0">
+      <CardHeader className="section-head space-y-0 p-4 pb-3">
+        <div className="section-head-text">
+          <CardTitle className="section-title-icon section-title">
+            <PiggyBank className="h-5 w-5 shrink-0 text-primary" />
+            <span className="truncate">{t("Ahorros")}</span>
+          </CardTitle>
+          <p className="section-sub">{t("Registra aportes libres y consulta el total acumulado.")}</p>
+        </div>
+        <div className="section-head-actions">
+          <Dialog open={openSaving} onOpenChange={setOpenSaving}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="btn-compact"><Plus className="h-4 w-4" />{t("Nuevo ahorro")}</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>{t("Nuevo ahorro")}</DialogTitle></DialogHeader>
+              <div className="space-y-3">
+                <div className="field-row">
+                  <Label>{t("Nombre")}</Label>
+                  <Input value={newSavingName} onChange={(e) => setNewSavingName(e.target.value)} placeholder={t("Ej: Ahorro libre")} />
+                </div>
+                <div className="field-row">
+                  <Label>{t("Monto inicial (opcional)")}</Label>
+                  <MoneyInput value={newSavingInitial} onChange={(v) => setNewSavingInitial(v)} />
+                </div>
               </div>
-              <div>
-                <Label>{t("Monto inicial (opcional)")}</Label>
-                <MoneyInput value={newSavingInitial} onChange={(v) => setNewSavingInitial(v)} />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={handleCreateSaving}>{t("Crear")}</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        <p className="section-sub w-full">{t("Registra aportes libres y consulta el total acumulado.")}</p>
+              <DialogFooter>
+                <Button onClick={handleCreateSaving}>{t("Crear")}</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 p-4 pt-0">
+
         {s.freeSavings.length === 0 && (
           <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes ahorros registrados.")}</p>
         )}

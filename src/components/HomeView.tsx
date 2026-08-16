@@ -474,9 +474,10 @@ function StatCard({ s }: { s: StatItem }) {
       whileHover={interactive ? { y: -3 } : undefined}
       whileTap={interactive ? { scale: 0.98 } : undefined}
       onClick={s.onClick}
-      className={`h-full w-full rounded-2xl border bg-card p-5 text-left shadow-soft transition-shadow ${
+      className={`card-std h-full text-left transition-shadow ${
         interactive ? "hover:shadow-card" : "cursor-default"
       }`}
+
     >
       <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.tint}`}>
         <Icon className="h-5 w-5" />

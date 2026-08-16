@@ -67,7 +67,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   if (mode === "goals") {
     return (
       <Card className="rounded-2xl border shadow-sm">
-        <CardHeader className="section-head flex-wrap-none space-y-0">
+        <CardHeader className="section-head space-y-0">
           <CardTitle className="section-head-text flex-row items-center gap-2 section-title">
             <Target className="h-5 w-5 shrink-0 text-primary" />
             <span className="truncate">{t("Metas")}</span>
@@ -218,13 +218,13 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
   const pct = target > 0 ? Math.min(100, (total / target) * 100) : 0;
 
   return (
-    <div className="rounded-lg border bg-card/50 backdrop-blur-sm p-4 space-y-3">
+    <div className="card-std space-y-3 bg-card/50 backdrop-blur-sm">
       <div className="row-item items-start">
-        <div className="min-w-0">
+        <div className="row-item-body">
           <h3 className="truncate font-semibold">{goal.name}</h3>
           <p className="text-xs text-muted-foreground">{t("Objetivo:")} {formatCOP(target, goal.currency)}</p>
         </div>
-        <div className="flex shrink-0 gap-1">
+        <div className="row-item-value flex gap-1">
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
             <DialogTrigger asChild>
               <Button size="icon" variant="ghost" className="h-7 w-7"><Pencil className="h-3.5 w-3.5" /></Button>
@@ -251,7 +251,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
         <span className="text-muted-foreground">{t("Faltan")} {formatCOP(Math.max(0, target - total), goal.currency)}</span>
       </div>
 
-      <div className="flex items-end gap-2 pt-2 border-t">
+      <div className="row-item items-end border-t pt-2">
         <div className="min-w-0 flex-1">
           <Label className="text-xs">{t("Nuevo aporte")}</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
@@ -300,13 +300,13 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
   const [histOpen, setHistOpen] = useState(false);
 
   return (
-    <div className="rounded-lg border bg-card/50 backdrop-blur-sm p-4 space-y-3">
+    <div className="card-std space-y-3 bg-card/50 backdrop-blur-sm">
       <div className="row-item items-start">
-        <div className="min-w-0">
+        <div className="row-item-body">
           <h3 className="truncate font-semibold">{saving.name}</h3>
           <p className="text-xs text-muted-foreground">{t("Acumulado:")} <span className="font-semibold text-primary">{formatCOP(total, saving.currency)}</span></p>
         </div>
-        <div className="flex shrink-0 gap-1">
+        <div className="row-item-value flex gap-1">
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
             <DialogTrigger asChild>
               <Button size="icon" variant="ghost" className="h-7 w-7"><Pencil className="h-3.5 w-3.5" /></Button>
@@ -323,7 +323,7 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
         </div>
       </div>
 
-      <div className="flex items-end gap-2 pt-2 border-t">
+      <div className="row-item items-end border-t pt-2">
         <div className="min-w-0 flex-1">
           <Label className="text-xs">{t("Nuevo aporte")}</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />

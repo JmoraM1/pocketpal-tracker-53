@@ -361,11 +361,12 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
   return (
     <div className="app-section overflow-x-hidden">
       {/* Encabezado */}
-      <div className="section-head items-start">
+      <div className="section-head">
         <div className="section-head-text">
           <h2 className="section-title">{t("Reportes")}</h2>
           <p className="section-sub">{t("Analiza tus finanzas con claridad")}</p>
         </div>
+        <div className="section-head-actions">
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button size="sm" className="btn-compact">
@@ -378,74 +379,62 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
             <DropdownMenuItem onClick={exportExcel}>{t("Exportar Excel")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </div>
 
-      {/* Filtros: slider táctil/arrastrable en celular, fila fija en desktop */}
-      <Card className="rounded-2xl border shadow-soft">
-        <CardContent className="flex flex-col gap-3 overflow-hidden p-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex h-6 items-center gap-2 text-sm font-medium">
-            <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
-            <span className="truncate capitalize">{periodLabel}</span>
-          </div>
-          <div className="flex w-full min-w-0 flex-col gap-2 md:w-auto md:items-end">
-            <div className="grid w-full grid-cols-3 gap-2 md:flex md:w-auto md:justify-end">
-              {PERIODS.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => setPeriod(p.id)}
-                  className={cn(
-                    "chip w-full justify-center border-transparent px-2.5 text-center",
-
-                    period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
-                  )}
-                >
-                  {t(p.label)}
-                </button>
-              ))}
-            </div>
-            <div className="flex w-full justify-center md:justify-end">
-              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPeriod("custom");
-                      window.setTimeout(() => setCalendarOpen(true), 350);
-                    }}
-                    className={cn(
-                      "chip justify-center border-transparent",
-                      period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
-                    )}
-                  >
-                    {t("Personalizado")}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-auto p-0">
-                  <Calendar
-                    mode="range"
-                    selected={{ from: range.from, to: range.to }}
-                    onSelect={(r: any) => {
-                      setRange({ from: r?.from, to: r?.to });
-                      if (r?.from) setPeriod("custom");
-                    }}
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-
+      {/* Filtros: patrón global único (chips en una línea con scroll contenido) */}
+      <div className="card-std space-y-3">
+        <div className="row-item text-sm font-medium">
+          <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
+          <span className="truncate capitalize">{periodLabel}</span>
+        </div>
+        <div className="filter-bar">
+          {PERIODS.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => setPeriod(p.id)}
+              data-active={period === p.id}
+              className="filter-chip"
+            >
+              {t(p.label)}
+            </button>
+          ))}
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPeriod("custom");
+                  window.setTimeout(() => setCalendarOpen(true), 350);
+                }}
+                data-active={period === "custom"}
+                className="filter-chip"
+              >
+                {t("Personalizado")}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-auto p-0">
+              <Calendar
+                mode="range"
+                selected={{ from: range.from, to: range.to }}
+                onSelect={(r: any) => {
+                  setRange({ from: r?.from, to: r?.to });
+                  if (r?.from) setPeriod("custom");
+                }}
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
 
       {/* Resumen: mismo espacio siempre, skeleton interno al cargar */}
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {cards.map((c) => {
           const Icon = c.icon;
           return (
-            <Card key={c.label} className="min-w-0 rounded-2xl border shadow-soft">
-              <CardContent className="space-y-1.5 p-3.5">
+            <Card key={c.label} className="card-stat">
+              <CardContent className="space-y-1.5 p-0">
                 <div className="flex items-start gap-2">
                   <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-xl", c.tone)}>
                     <Icon className="h-4 w-4" />
@@ -474,8 +463,8 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
 
       {/* Distribución + comparación (estructura estable) */}
       <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card className="min-w-0 rounded-2xl border shadow-soft">
-          <CardContent className="space-y-3 p-4">
+        <Card className="card-std">
+          <CardContent className="space-y-3 p-0">
             <h3 className="font-display text-base font-semibold">{t("Distribución de gastos")}</h3>
             {loading ? (
               <div className="grid min-w-0 grid-cols-1 items-center gap-3 md:grid-cols-[200px_1fr]">
@@ -579,8 +568,8 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
         </Card>
 
         {/* Comparación */}
-        <Card className="min-w-0 rounded-2xl border shadow-soft">
-          <CardContent className="space-y-3 p-4">
+        <Card className="card-std">
+          <CardContent className="space-y-3 p-0">
             <div className="row-item justify-between">
               <h3 className="font-display text-base font-semibold">{t("Comparación por categoría")}</h3>
               <div className="flex items-center gap-1 rounded-full bg-muted p-0.5 text-xs">
@@ -637,8 +626,8 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
       </div>
 
       {/* Insights IA */}
-      <Card className="rounded-2xl border border-primary/20 bg-primary/5 shadow-soft">
-        <CardContent className="row-item items-start p-4">
+      <Card className="card-std border-primary/20 bg-primary/5">
+        <CardContent className="row-item items-start p-0">
           <Mascot mood={mood as any} className="hidden h-16 w-16 shrink-0 md:block" />
           <div className="row-item-body gap-2">
             <h3 className="font-display text-base font-semibold">{t("Insights IA")}</h3>

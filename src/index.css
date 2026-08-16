@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import './fonts.css';
 
 @tailwind base;
 @tailwind components;
@@ -142,9 +142,18 @@
     @apply border-border;
   }
 
+  html {
+    /* Métrica tipográfica estable: iOS/Android no reescalan el texto */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-synthesis-weight: none;
+    text-rendering: optimizeSpeed;
   }
 
   h1, h2, h3, h4, .font-display {
@@ -155,6 +164,7 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
+
 
 @layer components {
   .surface-card {
@@ -237,15 +247,38 @@
     @apply flex w-full min-w-0 flex-col gap-4;
   }
 
-  /* Cabecera: título + acciones en una fila fija, sin wrap */
-  .section-head {
-    @apply flex w-full min-w-0 flex-nowrap items-center justify-between gap-2;
+  /* Cabecera: SOLO dos hijos → bloque de texto + bloque de acciones.
+     Se usa doble clase para ganar especificidad frente a utilidades locales
+     (flex-col, items-start, md:flex-row…) y garantizar la misma estructura
+     entre 320 y 430 px. */
+  .section-head.section-head {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
-  .section-head > .section-head-text {
-    @apply flex min-w-0 flex-1 flex-col gap-0.5;
+  .section-head.section-head > .section-head-text {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
   }
-  .section-head > .section-head-actions {
-    @apply flex shrink-0 flex-nowrap items-center gap-2;
+  .section-head.section-head > .section-head-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  /* Título con icono: el icono vive dentro del bloque de texto */
+  .section-title-icon {
+    @apply flex min-w-0 flex-row items-center gap-2;
   }
 
   .section-title {
@@ -266,16 +299,91 @@
   .chip {
     @apply inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-xs font-medium transition-colors;
   }
-
-  /* Botón de acción compacto y uniforme en toda la app */
-  .btn-compact {
-    @apply inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 text-xs font-semibold;
+  /* Patrón ÚNICO de filtros (Gastos, Reportes, cualquier módulo):
+     chips en una sola línea con desplazamiento horizontal contenido. */
+  .filter-bar.filter-bar {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filter-bar.filter-bar::-webkit-scrollbar {
+    display: none;
+  }
+  .filter-bar.filter-bar > * {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .filter-chip {
+    @apply chip cursor-pointer border-transparent bg-muted text-muted-foreground;
+  }
+  .filter-chip[data-active="true"] {
+    @apply bg-primary text-primary-foreground;
   }
 
-  /* Tarjeta estándar */
-  .card-std {
-    @apply surface-card w-full min-w-0 p-4;
+  /* Botón de acción compacto y uniforme en toda la app.
+     Doble clase: mismo alto/padding/radio aunque llegue variant/size locales. */
+  .btn-compact.btn-compact {
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 2.25rem;
+    width: auto;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    white-space: nowrap;
+    border-radius: 0.75rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
   }
+  /* Variante única cuando la acción debe ocupar el espacio disponible
+     (p. ej. el disparador del selector de mes). Mantiene alto/padding/radio. */
+  .btn-compact.btn-grow {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  /* Tarjeta estándar: una sola referencia visual para tarjetas equivalentes */
+  .card-std.card-std {
+    @apply surface-card;
+    width: 100%;
+    min-width: 0;
+    padding: 1rem;
+  }
+  /* Tarjeta compacta (métricas del resumen) */
+  .card-stat.card-stat {
+    @apply surface-card;
+    width: 100%;
+    min-width: 0;
+    padding: 0.875rem;
+  }
+
+  /* Geometría única de navegación inferior + FAB */
+  :root {
+    --nav-h: 60px;
+    --nav-safe: env(safe-area-inset-bottom, 0px);
+  }
+  .app-bottom-nav {
+    height: calc(var(--nav-h) + var(--nav-safe));
+    padding-bottom: var(--nav-safe);
+  }
+  .app-fab {
+    bottom: calc(var(--nav-safe) + 6px);
+  }
+  .app-scroll-pad {
+    padding-bottom: calc(var(--nav-h) + var(--nav-safe) + 28px);
+  }
+
 
   /* Fila de lista: icono fijo + contenido truncado + valor a la derecha */
   .row-item {

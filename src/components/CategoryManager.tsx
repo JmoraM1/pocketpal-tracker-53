@@ -41,7 +41,7 @@ export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleC
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1">
+        <Button variant="outline" size="sm" className="btn-compact">
           <Settings2 className="h-4 w-4" />
           {t("Categorías")}
         </Button>

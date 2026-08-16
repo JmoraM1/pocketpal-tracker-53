@@ -91,8 +91,8 @@ export function SettingsView({
       transition={{ duration: 0.35 }}
       className="mx-auto max-w-2xl space-y-5"
     >
-      <Card className="rounded-2xl border shadow-soft">
-        <CardContent className="space-y-5 p-6">
+      <Card className="card-std">
+        <CardContent className="space-y-5 p-0">
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-primary" />
             <h3 className="font-display text-base font-semibold">{t("Perfil")}</h3>
@@ -146,8 +146,8 @@ export function SettingsView({
         </CardContent>
       </Card>
 
-      <Card className="rounded-2xl border shadow-soft">
-        <CardContent className="space-y-3 p-6">
+      <Card className="card-std">
+        <CardContent className="space-y-3 p-0">
           <h3 className="font-display text-base font-semibold">{t("Seguridad")}</h3>
 
           <div className="space-y-3 rounded-xl border px-3 py-3">

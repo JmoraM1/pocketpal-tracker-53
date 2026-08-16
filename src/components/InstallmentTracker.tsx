@@ -117,12 +117,16 @@ export function InstallmentTracker({
   return (
     <div className="app-section">
       {/* Month payments section */}
-      <Card>
-        <CardHeader className="section-head space-y-0">
-          <CardTitle className="section-head-text flex-row items-center gap-2 section-title">
-            <CreditCard className="h-5 w-5 shrink-0" />
-            <span className="truncate">{t("Cuotas del Mes")}</span>
-          </CardTitle>
+      <Card className="card-std p-0">
+        <CardHeader className="section-head space-y-0 p-4 pb-3">
+          <div className="section-head-text">
+            <CardTitle className="section-title-icon section-title">
+              <CreditCard className="h-5 w-5 shrink-0 text-primary" />
+              <span className="truncate">{t("Cuotas del Mes")}</span>
+            </CardTitle>
+            <p className="section-sub">{t("Controla tus deudas y sus cuotas mensuales.")}</p>
+          </div>
+          <div className="section-head-actions">
           <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="btn-compact">
@@ -195,6 +199,7 @@ export function InstallmentTracker({
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0">
           {monthPayments.length === 0 ? (

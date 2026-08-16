@@ -174,7 +174,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="control-rail rounded-full bg-muted p-1">
+        <div className="flex items-center gap-1 rounded-full bg-muted p-1">
           {(["todos", "pendientes", "pagados"] as const).map((f) => (
             <button
               key={f}
@@ -255,7 +255,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
                     )}
                   </div>
 
-                  <div className="financial-row__actions border-t pt-2">
+                  <div className="flex items-center justify-end gap-1 border-t pt-2">
                     <Button
                       size="sm"
                       variant="ghost"

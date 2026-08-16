@@ -66,9 +66,9 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
 
   if (mode === "goals") {
     return (
-      <Card className="module-container financial-container rounded-2xl border shadow-sm">
-        <CardHeader className="module-header flex-row space-y-0">
-          <div className="module-header__content">
+      <Card className="rounded-2xl border shadow-sm">
+        <CardHeader className="flex-row items-center justify-between space-y-0">
+          <div>
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
               {t("Metas")}
@@ -79,7 +79,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
           </div>
           <Dialog open={openGoal} onOpenChange={setOpenGoal}>
             <DialogTrigger asChild>
-              <Button size="sm" className="module-header__action"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
+              <Button size="sm"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>{t("Nueva meta de ahorro")}</DialogTitle></DialogHeader>
@@ -104,8 +104,8 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
           </Dialog>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="active" className="tabs-responsive-root w-full">
-            <TabsList className="tabs-responsive-list grid w-full grid-cols-2">
+          <Tabs defaultValue="active" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="active">{t("Activas")} ({s.activeGoals.length})</TabsTrigger>
               <TabsTrigger value="completed">{t("Completadas")} ({s.completedGoals.length})</TabsTrigger>
             </TabsList>
@@ -134,15 +134,15 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
                 <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes metas completadas.")}</p>
               )}
               {s.completedGoals.map((g) => (
-                <div key={g.id} className="financial-row rounded-xl border bg-muted/40 p-3">
-                  <div className="financial-row__identity flex items-center gap-2">
+                <div key={g.id} className="flex items-center justify-between rounded-xl border bg-muted/40 p-3">
+                  <div className="flex items-center gap-2">
                     <Trophy className="h-4 w-4 text-primary" />
                     <div>
                       <p className="font-medium text-sm">{g.name}</p>
                       <p className="text-xs text-muted-foreground">{t("Meta completada")}</p>
                     </div>
                   </div>
-                  <div className="financial-row__meta">
+                  <div className="flex items-center gap-2">
                     <span className="text-primary font-semibold text-sm">{formatCOP(s.goalTotal(g.id), g.currency)} / {formatCOP(Number(g.target_amount), g.currency)}</span>
                     <ConfirmDeleteButton onConfirm={() => s.deleteGoal(g.id)} />
                   </div>
@@ -157,9 +157,9 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
 
   // mode === "savings"
   return (
-    <Card className="module-container financial-container rounded-2xl border shadow-sm">
-      <CardHeader className="module-header flex-row space-y-0">
-        <div className="module-header__content">
+    <Card className="rounded-2xl border shadow-sm">
+      <CardHeader className="flex-row items-center justify-between space-y-0">
+        <div>
           <CardTitle className="flex items-center gap-2">
             <PiggyBank className="h-5 w-5 text-primary" />
             {t("Ahorros")}
@@ -170,7 +170,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
         </div>
         <Dialog open={openSaving} onOpenChange={setOpenSaving}>
           <DialogTrigger asChild>
-            <Button size="sm" className="module-header__action"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
+            <Button size="sm"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{t("Nuevo ahorro")}</DialogTitle></DialogHeader>
@@ -227,12 +227,12 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
 
   return (
     <div className="rounded-lg border bg-card/50 backdrop-blur-sm p-4 space-y-3">
-      <div className="financial-row">
-        <div className="financial-row__identity">
+      <div className="flex items-start justify-between gap-2">
+        <div>
           <h3 className="font-semibold">{goal.name}</h3>
           <p className="text-xs text-muted-foreground">{t("Objetivo:")} {formatCOP(target, goal.currency)}</p>
         </div>
-        <div className="financial-row__actions">
+        <div className="flex gap-1">
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
             <DialogTrigger asChild>
               <Button size="icon" variant="ghost" className="h-7 w-7"><Pencil className="h-3.5 w-3.5" /></Button>
@@ -253,13 +253,13 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
       </div>
 
       <Progress value={pct} className="h-2.5" />
-      <div className="financial-summary text-xs">
+      <div className="flex items-center justify-between text-xs">
         <span className="font-semibold text-primary">{formatCOP(total, goal.currency)} {t("ahorrado")}</span>
         <span className="text-muted-foreground">{pct.toFixed(0)}%</span>
         <span className="text-muted-foreground">{t("Faltan")} {formatCOP(Math.max(0, target - total), goal.currency)}</span>
       </div>
 
-      <div className="financial-row items-end border-t pt-2">
+      <div className="flex items-end gap-2 pt-2 border-t">
         <div className="flex-1">
           <Label className="text-xs">{t("Nuevo aporte")}</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
@@ -267,7 +267,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
             <p className="text-xs text-muted-foreground mt-1">{t("Aportado este mes:")} {formatCOP(monthAmount, goal.currency)}</p>
           )}
         </div>
-        <Button size="sm" className="financial-row__actions" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(goal.id, Number(amount)); setAmount(""); } }}>
+        <Button size="sm" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(goal.id, Number(amount)); setAmount(""); } }}>
           <Check className="mr-1 h-4 w-4" />{t("Guardar")}
         </Button>
       </div>
@@ -309,12 +309,12 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
 
   return (
     <div className="rounded-lg border bg-card/50 backdrop-blur-sm p-4 space-y-3">
-      <div className="financial-row">
-        <div className="financial-row__identity">
+      <div className="flex items-start justify-between gap-2">
+        <div>
           <h3 className="font-semibold">{saving.name}</h3>
           <p className="text-xs text-muted-foreground">{t("Acumulado:")} <span className="font-semibold text-primary">{formatCOP(total, saving.currency)}</span></p>
         </div>
-        <div className="financial-row__actions">
+        <div className="flex gap-1">
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
             <DialogTrigger asChild>
               <Button size="icon" variant="ghost" className="h-7 w-7"><Pencil className="h-3.5 w-3.5" /></Button>
@@ -331,7 +331,7 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
         </div>
       </div>
 
-      <div className="financial-row items-end border-t pt-2">
+      <div className="flex items-end gap-2 pt-2 border-t">
         <div className="flex-1">
           <Label className="text-xs">{t("Nuevo aporte")}</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
@@ -339,7 +339,7 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
             <p className="text-xs text-muted-foreground mt-1">{t("Aportado este mes:")} {formatCOP(monthAmount, saving.currency)}</p>
           )}
         </div>
-        <Button size="sm" className="financial-row__actions" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(saving.id, Number(amount)); setAmount(""); } }}>
+        <Button size="sm" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(saving.id, Number(amount)); setAmount(""); } }}>
           <Check className="mr-1 h-4 w-4" />{t("Guardar")}
         </Button>
       </div>

@@ -359,16 +359,16 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
   ];
 
   return (
-    <div className="module-container w-full min-w-0 space-y-4">
+    <div className="w-full min-w-0 space-y-4 overflow-x-hidden">
       {/* Encabezado */}
-      <div className="module-header items-start">
-        <div className="module-header__content">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
           <h2 className="font-display text-xl font-semibold tracking-tight">{t("Reportes")}</h2>
           <p className="text-sm text-muted-foreground">{t("Analiza tus finanzas con claridad")}</p>
         </div>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button size="sm" className="module-header__action gap-1.5">
+            <Button size="sm" className="gap-1.5">
               <Download className="h-4 w-4" /> {t("Exportar")} <ChevronDown className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
@@ -387,7 +387,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
           <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end">
-            <div className="control-rail w-full sm:justify-end">
+            <div className="flex w-full flex-wrap gap-2 sm:justify-end">
               {PERIODS.map((p) => (
                 <button
                   key={p.id}
@@ -438,7 +438,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
 
 
       {/* Resumen: mismo espacio siempre, skeleton interno al cargar */}
-      <div className="metric-grid">
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {cards.map((c) => {
           const Icon = c.icon;
           return (
@@ -581,7 +581,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
           <CardContent className="space-y-3 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-display text-base font-semibold">{t("Comparación por categoría")}</h3>
-              <div className="control-rail rounded-full bg-muted p-0.5 text-xs">
+              <div className="flex items-center gap-1 rounded-full bg-muted p-0.5 text-xs">
                 {(["monto", "porcentaje"] as const).map((m) => (
                   <button
                     key={m}

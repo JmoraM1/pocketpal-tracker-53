@@ -117,15 +117,15 @@ export function InstallmentTracker({
   return (
     <div className="space-y-4">
       {/* Month payments section */}
-      <Card className="module-container financial-container">
-        <CardHeader className="module-header flex-row">
-          <CardTitle className="module-header__content flex items-center gap-2 text-lg">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <CreditCard className="h-5 w-5" />
             {t("Cuotas del Mes")}
           </CardTitle>
           <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button size="sm" className="module-header__action gap-1">
+              <Button size="sm" className="gap-1">
                 <Plus className="h-4 w-4" />
                 {t("Nueva Deuda")}
               </Button>
@@ -204,17 +204,17 @@ export function InstallmentTracker({
             monthPayments.map((payment) => (
               <div
                 key={payment.id}
-                className={`financial-row rounded-lg border p-3 transition-colors ${
+                className={`flex flex-col gap-2 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center ${
                   payment.is_paid ? "border-success/30 bg-success/5" : "border-warning/30 bg-warning/5"
                 }`}
               >
-                <div className="financial-row__identity">
+                <div className="flex-1">
                   <p className="text-sm font-semibold">{payment.plan_name}</p>
                   <p className="text-xs text-muted-foreground">{t("Cuota {n}", { n: payment.payment_number })}</p>
                 </div>
-                <div className="financial-row__meta gap-3">
+                <div className="flex items-center gap-3">
                   {editingPaymentId === payment.id ? (
-                    <div className="financial-row__actions gap-1">
+                    <div className="flex items-center gap-1">
                       <MoneyInput
                         value={editAmount}
                         onChange={(v) => setEditAmount(v)}
@@ -233,14 +233,14 @@ export function InstallmentTracker({
                       </Button>
                     </div>
                   ) : (
-                    <div className="financial-row__actions gap-1">
+                    <div className="flex items-center gap-1">
                       <span className="text-sm font-bold tabular-nums">{formatCOP(Number(payment.amount))}</span>
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEditAmount(payment)}>
                         <Pencil className="h-3 w-3 text-muted-foreground" />
                       </Button>
                     </div>
                   )}
-                    <div className="financial-row__actions gap-1.5">
+                  <div className="flex items-center gap-1.5">
                     <Switch
                       checked={payment.is_paid}
                       onCheckedChange={(checked) => onTogglePayment(payment.id, checked)}
@@ -257,7 +257,7 @@ export function InstallmentTracker({
       </Card>
 
       {/* Tabs: Activas / Completadas */}
-      <Card className="financial-container">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <CalendarDays className="h-5 w-5" />
@@ -265,8 +265,8 @@ export function InstallmentTracker({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="active" className="tabs-responsive-root w-full">
-            <TabsList className="tabs-responsive-list grid w-full grid-cols-2">
+          <Tabs defaultValue="active" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="active">{t("Activas")} ({activePlans.length})</TabsTrigger>
               <TabsTrigger value="completed">{t("Completadas")} ({completedPlans.length})</TabsTrigger>
             </TabsList>
@@ -284,9 +284,9 @@ export function InstallmentTracker({
                 const progress = totalAmount > 0 ? Math.min((paidAmount / totalAmount) * 100, 100) : 0;
                 const remaining = Math.max(0, totalAmount - paidAmount);
                 return (
-                    <div key={plan.id} className="rounded-xl border bg-card/50 backdrop-blur-sm p-5 space-y-4 shadow-sm">
-                      <div className="financial-row">
-                      <div className="financial-row__identity space-y-1">
+                  <div key={plan.id} className="rounded-xl border bg-card/50 backdrop-blur-sm p-5 space-y-4 shadow-sm">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
                         <p className="text-base font-bold">{plan.name}</p>
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
@@ -295,12 +295,12 @@ export function InstallmentTracker({
                           <span className="text-xs text-muted-foreground">· {t("{amount}/mes", { amount: formatCOP(Number(plan.installment_amount), plan.currency) })}</span>
                         </div>
                       </div>
-                      <div className="financial-row__actions"><ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} /></div>
+                      <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />
                     </div>
 
                     <div className="space-y-2">
                       <Progress value={progress} className="h-3" />
-                      <div className="financial-summary text-sm">
+                      <div className="flex items-center justify-between text-sm">
                         <span className="font-semibold text-primary">
                           {formatCOP(paidAmount, plan.currency)} <span className="font-normal text-muted-foreground">{t("pagado")}</span>
                         </span>
@@ -327,8 +327,8 @@ export function InstallmentTracker({
                 <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes deudas completadas.")}</p>
               )}
               {completedPlans.map((plan) => (
-                <div key={plan.id} className="financial-row rounded-xl border border-success/20 bg-success/5 p-3">
-                  <div className="financial-row__identity flex items-center gap-2">
+                <div key={plan.id} className="flex items-center justify-between rounded-xl border border-success/20 bg-success/5 p-3">
+                  <div className="flex items-center gap-2">
                     <Trophy className="h-4 w-4 text-success" />
                     <div>
                       <p className="text-sm font-semibold">{plan.name}</p>
@@ -338,7 +338,7 @@ export function InstallmentTracker({
                       </p>
                     </div>
                   </div>
-                  <div className="financial-row__actions"><ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} /></div>
+                  <ConfirmDeleteButton onConfirm={() => onDeletePlan(plan.id)} />
                 </div>
               ))}
             </TabsContent>

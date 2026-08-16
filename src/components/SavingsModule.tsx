@@ -97,6 +97,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          <p className="col-span-2 text-sm text-muted-foreground">{t("Define objetivos y registra aportes múltiples cada mes.")}</p>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="active" className="w-full">
@@ -179,6 +180,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        <p className="col-span-2 text-sm text-muted-foreground">{t("Registra aportes libres y consulta el total acumulado.")}</p>
       </CardHeader>
       <CardContent className="space-y-3">
         {s.freeSavings.length === 0 && (

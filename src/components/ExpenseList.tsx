@@ -179,7 +179,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium capitalize transition-colors ${
+              className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-1.5 text-[11px] font-medium capitalize sm:px-3.5 sm:text-xs transition-colors ${
                 filter === f ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -191,7 +191,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="shrink-0 gap-1.5 whitespace-nowrap rounded-full">
+            <Button size="sm" className="shrink-0 gap-1 whitespace-nowrap rounded-full px-3 text-[11px] sm:gap-1.5 sm:px-4 sm:text-xs">
               <Plus className="h-4 w-4" /> {t("Nuevo")}
             </Button>
 

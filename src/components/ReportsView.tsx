@@ -361,17 +361,18 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
   return (
     <div className="w-full min-w-0 space-y-4 overflow-x-hidden">
       {/* Encabezado */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-nowrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-display text-xl font-semibold tracking-tight">{t("Reportes")}</h2>
           <p className="text-sm text-muted-foreground">{t("Analiza tus finanzas con claridad")}</p>
         </div>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button size="sm" className="gap-1.5">
+            <Button size="sm" className="shrink-0 gap-1.5 whitespace-nowrap">
               <Download className="h-4 w-4" /> {t("Exportar")} <ChevronDown className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end" sideOffset={6} className="z-50">
             <DropdownMenuItem onClick={exportPdf}>{t("Exportar PDF")}</DropdownMenuItem>
             <DropdownMenuItem onClick={exportExcel}>{t("Exportar Excel")}</DropdownMenuItem>

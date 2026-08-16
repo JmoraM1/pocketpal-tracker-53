@@ -278,9 +278,51 @@
 
   .metric-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
   }
+
+  @container (min-width: 46rem) {
+    .metric-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* Solo ante compresión realmente extrema se pasa a 1 columna */
+  @container (max-width: 15rem) {
+    .metric-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* Fila de filtros + acción: la acción no baja por diferencias pequeñas */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .filter-bar__scroll {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .filter-bar__action {
+    flex: 0 0 auto;
+  }
+
+  @container (max-width: 15rem) {
+    .filter-bar {
+      flex-wrap: wrap;
+    }
+
+    .filter-bar__action {
+      width: 100%;
+    }
+  }
+
 
   @container (max-width: 30rem) {
     .module-header {

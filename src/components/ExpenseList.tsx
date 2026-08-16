@@ -191,9 +191,10 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="gap-1.5 rounded-full">
+            <Button size="sm" className="shrink-0 gap-1.5 whitespace-nowrap rounded-full">
               <Plus className="h-4 w-4" /> {t("Nuevo")}
             </Button>
+
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{t("Nuevo gasto")}</DialogTitle></DialogHeader>

@@ -207,7 +207,7 @@ export default function Dashboard() {
                 <Card className="card-std">
                   <CardContent className="space-y-4 p-0">
                     <div>
-                      <h3 className="font-display text-base font-semibold">Exportar datos</h3>
+                      <h3 className="section-title text-base">Exportar datos</h3>
                       <p className="text-sm text-muted-foreground">Descarga el resumen del mes seleccionado.</p>
                     </div>
                     {exportButton}

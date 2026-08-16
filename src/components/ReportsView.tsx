@@ -465,7 +465,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
       <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2">
         <Card className="card-std">
           <CardContent className="space-y-3 p-0">
-            <h3 className="font-display text-base font-semibold">{t("Distribución de gastos")}</h3>
+            <h3 className="section-title text-base">{t("Distribución de gastos")}</h3>
             {loading ? (
               <div className="grid min-w-0 grid-cols-1 items-center gap-3 md:grid-cols-[200px_1fr]">
                 <Skeleton className="mx-auto h-[190px] w-[190px] rounded-full" />
@@ -571,7 +571,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
         <Card className="card-std">
           <CardContent className="space-y-3 p-0">
             <div className="row-item justify-between">
-              <h3 className="font-display text-base font-semibold">{t("Comparación por categoría")}</h3>
+              <h3 className="section-title text-base">{t("Comparación por categoría")}</h3>
               <div className="flex items-center gap-1 rounded-full bg-muted p-0.5 text-xs">
                 {(["monto", "porcentaje"] as const).map((m) => (
                   <button
@@ -630,7 +630,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
         <CardContent className="row-item items-start p-0">
           <Mascot mood={mood as any} className="hidden h-16 w-16 shrink-0 md:block" />
           <div className="row-item-body gap-2">
-            <h3 className="font-display text-base font-semibold">{t("Insights IA")}</h3>
+            <h3 className="section-title text-base">{t("Insights IA")}</h3>
             {loading ? (
               <div className="space-y-2">
                 <Skeleton className="h-3 w-4/5" />

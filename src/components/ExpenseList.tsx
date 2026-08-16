@@ -172,9 +172,9 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
   };
 
   return (
-    <div className="module-container space-y-4">
-      <div className="filter-bar">
-        <div className="control-rail filter-bar__scroll rounded-full bg-muted p-1">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="control-rail rounded-full bg-muted p-1">
           {(["todos", "pendientes", "pagados"] as const).map((f) => (
             <button
               key={f}
@@ -190,7 +190,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="filter-bar__action gap-1.5 rounded-full whitespace-nowrap">
+            <Button size="sm" className="gap-1.5 rounded-full">
               <Plus className="h-4 w-4" /> {t("Nuevo")}
             </Button>
           </DialogTrigger>

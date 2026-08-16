@@ -68,7 +68,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
     return (
       <Card className="rounded-2xl border shadow-sm">
         <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 space-y-0">
-          <CardTitle className="flex min-w-0 items-center gap-2">
+          <CardTitle className="flex min-w-0 items-center gap-2 text-lg">
             <Target className="h-5 w-5 shrink-0 text-primary" />
             <span className="truncate">{t("Metas")}</span>
           </CardTitle>
@@ -155,7 +155,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   return (
     <Card className="rounded-2xl border shadow-sm">
       <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 space-y-0">
-        <CardTitle className="flex min-w-0 items-center gap-2">
+        <CardTitle className="flex min-w-0 items-center gap-2 text-lg">
           <PiggyBank className="h-5 w-5 shrink-0 text-primary" />
           <span className="truncate">{t("Ahorros")}</span>
         </CardTitle>

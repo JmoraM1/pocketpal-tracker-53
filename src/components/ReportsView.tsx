@@ -361,17 +361,18 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
   return (
     <div className="w-full min-w-0 space-y-4 overflow-x-hidden">
       {/* Encabezado */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-nowrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-display text-xl font-semibold tracking-tight">{t("Reportes")}</h2>
           <p className="text-sm text-muted-foreground">{t("Analiza tus finanzas con claridad")}</p>
         </div>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button size="sm" className="gap-1.5">
+            <Button size="sm" className="shrink-0 gap-1.5 whitespace-nowrap">
               <Download className="h-4 w-4" /> {t("Exportar")} <ChevronDown className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end" sideOffset={6} className="z-50">
             <DropdownMenuItem onClick={exportPdf}>{t("Exportar PDF")}</DropdownMenuItem>
             <DropdownMenuItem onClick={exportExcel}>{t("Exportar Excel")}</DropdownMenuItem>
@@ -387,13 +388,14 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
             <span className="truncate capitalize">{periodLabel}</span>
           </div>
           <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end">
-            <div className="flex w-full flex-wrap gap-2 sm:justify-end">
+            <div className="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto sm:justify-end">
               {PERIODS.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => setPeriod(p.id)}
                   className={cn(
-                    "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                    "min-w-0 rounded-full px-2.5 py-2 text-center text-[11px] font-medium leading-tight transition-colors sm:whitespace-nowrap sm:px-3.5 sm:text-xs",
+
                     period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
                   )}
                 >

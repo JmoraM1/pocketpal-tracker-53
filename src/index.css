@@ -282,10 +282,19 @@
   }
 
   .section-title {
-    @apply truncate font-display text-lg font-semibold leading-tight text-foreground;
+    @apply truncate font-display font-semibold leading-tight text-foreground;
   }
-  .section-sub {
-    @apply text-xs leading-snug text-muted-foreground;
+  /* Doble clase: gana a utilidades locales (text-2xl de CardTitle, etc.)
+     para que todos los títulos de sección compartan tamaño y line-height. */
+  .section-title.section-title {
+    font-size: 1.0625rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .section-sub.section-sub {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: hsl(var(--muted-foreground));
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;

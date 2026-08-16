@@ -294,7 +294,7 @@ export function HomeView({
                 <div className="section-head-text">
                   <h3 className="section-title text-base">{t("Evolución de ingresos y gastos")}</h3>
                 </div>
-                <div className="section-head-actions gap-3 text-xs font-medium">
+                <div className="section-head-actions hidden gap-3 text-xs font-medium md:flex">
                   <span className="flex items-center gap-1.5">
                     <span className="h-2.5 w-2.5 rounded-full bg-success" /> {t("Ingresos")}
                   </span>

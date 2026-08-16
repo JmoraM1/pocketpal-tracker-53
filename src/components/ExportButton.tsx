@@ -64,7 +64,7 @@ export function ExportButton({ expenses, income, selectedMonth, totalExpenses, a
   return (
     <Button variant="outline" size="sm" className="gap-1" onClick={handleExport}>
       <Download className="h-3.5 w-3.5" />
-      <span className="hidden sm:inline">{t("Exportar CSV")}</span>
+      <span className="hidden md:inline">{t("Exportar CSV")}</span>
     </Button>
   );
 }

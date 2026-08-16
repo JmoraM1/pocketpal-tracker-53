@@ -433,7 +433,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
         {cards.map((c) => {
           const Icon = c.icon;
           return (
-            <Card key={c.label} className="card-stat border-0 shadow-none">
+            <Card key={c.label} className="card-stat">
               <CardContent className="space-y-1.5 p-0">
                 <div className="flex items-start gap-2">
                   <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-xl", c.tone)}>

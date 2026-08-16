@@ -179,7 +179,7 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-colors ${
+              className={`shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-colors ${
                 filter === f ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"
               }`}
             >

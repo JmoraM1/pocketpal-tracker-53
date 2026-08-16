@@ -40,19 +40,19 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button variant="outline" size="icon" onClick={goBack}>
+    <div className="flex w-full min-w-0 items-center gap-1.5 sm:w-auto sm:gap-2">
+      <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={goBack}>
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="min-w-[160px] gap-2 capitalize">
-            <CalendarDays className="h-4 w-4" />
-            {formatMonthLabel(getMonthKey(selectedMonth), locale)}
+          <Button variant="outline" className="h-9 min-w-0 flex-1 gap-1.5 px-2 text-xs capitalize sm:min-w-[160px] sm:flex-none sm:px-4 sm:text-sm">
+            <CalendarDays className="h-4 w-4 shrink-0" />
+            <span className="truncate">{formatMonthLabel(getMonthKey(selectedMonth), locale)}</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[280px] p-3" align="start">
+        <PopoverContent className="w-[min(280px,calc(100vw-2rem))] p-3" align="start">
           <div className="flex items-center justify-between mb-3">
             <Button variant="ghost" size="icon" onClick={() => setViewYear((y) => y - 1)}>
               <ChevronLeft className="h-4 w-4" />
@@ -82,11 +82,11 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
         </PopoverContent>
       </Popover>
 
-      <Button variant="outline" size="icon" onClick={goForward}>
+      <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={goForward}>
         <ChevronRight className="h-4 w-4" />
       </Button>
 
-      <Button variant="outline" size="sm" onClick={onCopyPrevious} className="ml-2 gap-1">
+      <Button variant="outline" size="sm" onClick={onCopyPrevious} className="h-9 shrink-0 gap-1 px-2.5 sm:ml-2 sm:px-3">
         <Copy className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">{t("Copiar mes anterior")}</span>
       </Button>

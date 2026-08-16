@@ -66,40 +66,45 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
 
   if (mode === "goals") {
     return (
-      <Card className="rounded-2xl border shadow-sm">
-        <CardHeader className="section-head space-y-0">
-          <CardTitle className="section-head-text flex-row items-center gap-2 section-title">
-            <Target className="h-5 w-5 shrink-0 text-primary" />
-            <span className="truncate">{t("Metas")}</span>
-          </CardTitle>
-          <Dialog open={openGoal} onOpenChange={setOpenGoal}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="btn-compact"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>{t("Nueva meta de ahorro")}</DialogTitle></DialogHeader>
-              <div className="space-y-3">
-                <div>
-                  <Label>{t("Nombre")}</Label>
-                  <Input value={newGoalName} onChange={(e) => setNewGoalName(e.target.value)} placeholder={t("Ej: Viaje a la costa")} />
+      <Card className="card-std p-0">
+        <CardHeader className="section-head space-y-0 p-4 pb-3">
+          <div className="section-head-text">
+            <CardTitle className="section-title-icon section-title">
+              <Target className="h-5 w-5 shrink-0 text-primary" />
+              <span className="truncate">{t("Metas")}</span>
+            </CardTitle>
+            <p className="section-sub">{t("Define objetivos y registra aportes múltiples cada mes.")}</p>
+          </div>
+          <div className="section-head-actions">
+            <Dialog open={openGoal} onOpenChange={setOpenGoal}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="btn-compact"><Plus className="h-4 w-4" />{t("Nueva meta")}</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader><DialogTitle>{t("Nueva meta de ahorro")}</DialogTitle></DialogHeader>
+                <div className="space-y-3">
+                  <div className="field-row">
+                    <Label>{t("Nombre")}</Label>
+                    <Input value={newGoalName} onChange={(e) => setNewGoalName(e.target.value)} placeholder={t("Ej: Viaje a la costa")} />
+                  </div>
+                  <div className="field-row">
+                    <Label>{t("Valor objetivo")}</Label>
+                    <MoneyInput value={newGoalTarget} onChange={(v) => setNewGoalTarget(v)} />
+                  </div>
+                  <div className="field-row">
+                    <Label>{t("Monto inicial (opcional)")}</Label>
+                    <MoneyInput value={newGoalInitial} onChange={(v) => setNewGoalInitial(v)} />
+                  </div>
                 </div>
-                <div>
-                  <Label>{t("Valor objetivo")}</Label>
-                  <MoneyInput value={newGoalTarget} onChange={(v) => setNewGoalTarget(v)} />
-                </div>
-                <div>
-                  <Label>{t("Monto inicial (opcional)")}</Label>
-                  <MoneyInput value={newGoalInitial} onChange={(v) => setNewGoalInitial(v)} />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button onClick={handleCreateGoal}>{t("Crear")}</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <p className="section-sub w-full">{t("Define objetivos y registra aportes múltiples cada mes.")}</p>
+                <DialogFooter>
+                  <Button onClick={handleCreateGoal}>{t("Crear")}</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0">
+
           <Tabs defaultValue="active" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="active">{t("Activas")} ({s.activeGoals.length})</TabsTrigger>

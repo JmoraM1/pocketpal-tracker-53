@@ -189,9 +189,8 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
         </div>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
-
           <DialogTrigger asChild>
-            <Button size="sm" className="gap-1.5 rounded-full">
+            <Button size="sm" className="filter-bar__action gap-1.5 rounded-full whitespace-nowrap">
               <Plus className="h-4 w-4" /> {t("Nuevo")}
             </Button>
           </DialogTrigger>

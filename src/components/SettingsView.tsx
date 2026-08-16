@@ -95,7 +95,7 @@ export function SettingsView({
         <CardContent className="space-y-5 p-0">
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-primary" />
-            <h3 className="font-display text-base font-semibold">{t("Perfil")}</h3>
+            <h3 className="section-title text-base">{t("Perfil")}</h3>
           </div>
 
           <div className="space-y-2">
@@ -148,7 +148,7 @@ export function SettingsView({
 
       <Card className="card-std">
         <CardContent className="space-y-3 p-0">
-          <h3 className="font-display text-base font-semibold">{t("Seguridad")}</h3>
+          <h3 className="section-title text-base">{t("Seguridad")}</h3>
 
           <div className="space-y-3 rounded-xl border px-3 py-3">
             <div className="row-item justify-between">

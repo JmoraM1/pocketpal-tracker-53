@@ -294,7 +294,7 @@ export function HomeView({
                 <div className="section-head-text">
                   <h3 className="section-title text-base">{t("Evolución de ingresos y gastos")}</h3>
                 </div>
-                <div className="section-head-actions gap-3 text-xs font-medium">
+                <div className="section-head-actions hidden gap-3 text-xs font-medium md:flex">
                   <span className="flex items-center gap-1.5">
                     <span className="h-2.5 w-2.5 rounded-full bg-success" /> {t("Ingresos")}
                   </span>
@@ -358,7 +358,7 @@ export function HomeView({
         <motion.div variants={item} className="min-w-0 lg:col-span-2">
           <Card className="card-std h-full">
             <CardContent className="p-0">
-              <h3 className="font-display text-base font-semibold">{t("Gastos por categoría")}</h3>
+              <h3 className="section-title text-base">{t("Gastos por categoría")}</h3>
 
               <div className="mt-5 space-y-4">
                 {categoryData.length === 0 && (
@@ -368,8 +368,8 @@ export function HomeView({
                   const visual = getCategoryVisual(c.label);
                   const Icon = visual.icon;
                   return (
-                    <div key={c.label} className="flex items-center gap-3">
-                      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${visual.tint}`}>
+                    <div key={c.label} className="row-item">
+                      <span className={`row-item-lead h-8 w-8 rounded-lg ${visual.tint}`}>
                         <Icon className="h-4 w-4" />
                       </span>
                       <div className="row-item-body">
@@ -387,7 +387,7 @@ export function HomeView({
                           />
                         </div>
                       </div>
-                      <span className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
+                      <span className="row-item-value w-20 text-xs font-medium tabular-nums text-muted-foreground">
                         {formatCOP(c.value)}
                       </span>
                     </div>
@@ -404,7 +404,7 @@ export function HomeView({
         <motion.div variants={item} className="min-w-0">
           <Card className="card-std h-full">
             <CardContent className="p-0">
-              <h3 className="font-display text-base font-semibold">{t("Actividad reciente")}</h3>
+              <h3 className="section-title text-base">{t("Actividad reciente")}</h3>
 
               <div className="mt-4 divide-y divide-border">
                 {activity.length === 0 && (

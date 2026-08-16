@@ -121,7 +121,7 @@ export default function Dashboard() {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-6xl space-y-5 px-4 py-6 pb-32 md:px-8 md:py-8 md:pb-12">
+        <main className="mx-auto w-full max-w-6xl space-y-5 px-4 py-6 app-scroll-pad md:px-8 md:py-8 md:pb-12">
           <AnimatePresence mode="wait">
             <motion.div
               key={view}
@@ -132,12 +132,15 @@ export default function Dashboard() {
               className="space-y-5"
             >
               {showMonthSelector && (
-                <div className="section-head flex-col items-start gap-3 md:flex-row md:items-center">
-                  <MonthSelector
-                    selectedMonth={selectedMonth}
-                    onChangeMonth={setSelectedMonth}
-                    onCopyPrevious={copyFromPreviousMonth}
-                  />
+                <div className="section-head">
+                  <div className="section-head-text">
+                    <MonthSelector
+                      selectedMonth={selectedMonth}
+                      onChangeMonth={setSelectedMonth}
+                      onCopyPrevious={copyFromPreviousMonth}
+                    />
+                  </div>
+                  <div className="section-head-actions">
                   {view === "expenses" && (
                     <CategoryManager
                       categories={categories}
@@ -147,6 +150,7 @@ export default function Dashboard() {
                       onToggleCumulative={toggleCumulativeSavings}
                     />
                   )}
+                  </div>
                 </div>
               )}
 

@@ -118,14 +118,14 @@ export function InstallmentTracker({
     <div className="space-y-4">
       {/* Month payments section */}
       <Card>
-        <CardHeader className="flex flex-col items-stretch gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
           <CardTitle className="flex min-w-0 items-center gap-2 text-lg">
             <CreditCard className="h-5 w-5 shrink-0" />
             <span className="truncate">{t("Cuotas del Mes")}</span>
           </CardTitle>
           <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button size="sm" className="w-full shrink-0 gap-1 whitespace-nowrap sm:w-auto">
+              <Button size="sm" className="shrink-0 gap-1 whitespace-nowrap">
                 <Plus className="h-4 w-4" />
                 {t("Nueva Deuda")}
               </Button>

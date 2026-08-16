@@ -67,14 +67,14 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   if (mode === "goals") {
     return (
       <Card className="rounded-2xl border shadow-sm">
-        <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 space-y-0">
-          <CardTitle className="flex min-w-0 items-center gap-2 text-lg">
+        <CardHeader className="section-head flex-wrap-none space-y-0">
+          <CardTitle className="section-head-text flex-row items-center gap-2 section-title">
             <Target className="h-5 w-5 shrink-0 text-primary" />
             <span className="truncate">{t("Metas")}</span>
           </CardTitle>
           <Dialog open={openGoal} onOpenChange={setOpenGoal}>
             <DialogTrigger asChild>
-              <Button size="sm" className="shrink-0 whitespace-nowrap"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
+              <Button size="sm" className="btn-compact"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>{t("Nueva meta de ahorro")}</DialogTitle></DialogHeader>
@@ -97,7 +97,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <p className="col-span-2 text-sm text-muted-foreground">{t("Define objetivos y registra aportes múltiples cada mes.")}</p>
+          <p className="section-sub w-full">{t("Define objetivos y registra aportes múltiples cada mes.")}</p>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="active" className="w-full">
@@ -130,15 +130,15 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
                 <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes metas completadas.")}</p>
               )}
               {s.completedGoals.map((g) => (
-                <div key={g.id} className="flex items-center justify-between rounded-xl border bg-muted/40 p-3">
-                  <div className="flex items-center gap-2">
-                    <Trophy className="h-4 w-4 text-primary" />
-                    <div>
+                <div key={g.id} className="row-item rounded-xl border bg-muted/40 p-3">
+                  <div className="row-item-body flex-row items-center gap-2">
+                    <Trophy className="h-4 w-4 shrink-0 text-primary" />
+                    <div className="min-w-0">
                       <p className="font-medium text-sm">{g.name}</p>
                       <p className="text-xs text-muted-foreground">{t("Meta completada")}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="row-item-value flex items-center gap-2">
                     <span className="text-primary font-semibold text-sm">{formatCOP(s.goalTotal(g.id), g.currency)} / {formatCOP(Number(g.target_amount), g.currency)}</span>
                     <ConfirmDeleteButton onConfirm={() => s.deleteGoal(g.id)} />
                   </div>
@@ -154,14 +154,14 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   // mode === "savings"
   return (
     <Card className="rounded-2xl border shadow-sm">
-      <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 space-y-0">
-        <CardTitle className="flex min-w-0 items-center gap-2 text-lg">
+      <CardHeader className="section-head space-y-0">
+        <CardTitle className="section-head-text flex-row items-center gap-2 section-title">
           <PiggyBank className="h-5 w-5 shrink-0 text-primary" />
           <span className="truncate">{t("Ahorros")}</span>
         </CardTitle>
         <Dialog open={openSaving} onOpenChange={setOpenSaving}>
           <DialogTrigger asChild>
-            <Button size="sm" className="shrink-0 whitespace-nowrap"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
+            <Button size="sm" className="btn-compact"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{t("Nuevo ahorro")}</DialogTitle></DialogHeader>
@@ -180,7 +180,7 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <p className="col-span-2 text-sm text-muted-foreground">{t("Registra aportes libres y consulta el total acumulado.")}</p>
+        <p className="section-sub w-full">{t("Registra aportes libres y consulta el total acumulado.")}</p>
       </CardHeader>
       <CardContent className="space-y-3">
         {s.freeSavings.length === 0 && (
@@ -219,7 +219,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
 
   return (
     <div className="rounded-lg border bg-card/50 backdrop-blur-sm p-4 space-y-3">
-      <div className="flex items-start justify-between gap-2">
+      <div className="row-item items-start">
         <div className="min-w-0">
           <h3 className="truncate font-semibold">{goal.name}</h3>
           <p className="text-xs text-muted-foreground">{t("Objetivo:")} {formatCOP(target, goal.currency)}</p>
@@ -245,7 +245,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
       </div>
 
       <Progress value={pct} className="h-2.5" />
-      <div className="flex min-w-0 flex-nowrap items-center justify-between gap-2 text-xs">
+      <div className="row-item justify-between text-xs">
         <span className="font-semibold text-primary">{formatCOP(total, goal.currency)} {t("ahorrado")}</span>
         <span className="text-muted-foreground">{pct.toFixed(0)}%</span>
         <span className="text-muted-foreground">{t("Faltan")} {formatCOP(Math.max(0, target - total), goal.currency)}</span>
@@ -273,7 +273,7 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
             <DialogHeader><DialogTitle>{t("Historial —")} {goal.name}</DialogTitle></DialogHeader>
             <div className="space-y-1 max-h-[45vh] overflow-y-auto">
               {[...contributions].sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).map((c: any) => (
-                <div key={c.id} className="flex items-center justify-between rounded p-2 hover:bg-muted/50">
+                <div key={c.id} className="row-item justify-between rounded p-2 hover:bg-muted/50">
                   <span className="min-w-0 truncate text-sm">{formatDateTime(c.created_at)}</span>
                   <div className="flex shrink-0 items-center gap-2">
                     <span className="font-semibold text-primary">{formatCOP(Number(c.amount), goal.currency)}</span>
@@ -301,7 +301,7 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
 
   return (
     <div className="rounded-lg border bg-card/50 backdrop-blur-sm p-4 space-y-3">
-      <div className="flex items-start justify-between gap-2">
+      <div className="row-item items-start">
         <div className="min-w-0">
           <h3 className="truncate font-semibold">{saving.name}</h3>
           <p className="text-xs text-muted-foreground">{t("Acumulado:")} <span className="font-semibold text-primary">{formatCOP(total, saving.currency)}</span></p>
@@ -345,7 +345,7 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
             <DialogHeader><DialogTitle>{t("Historial —")} {saving.name}</DialogTitle></DialogHeader>
             <div className="space-y-1 max-h-[45vh] overflow-y-auto">
               {[...contributions].sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).map((c: any) => (
-                <div key={c.id} className="flex items-center justify-between rounded p-2 hover:bg-muted/50">
+                <div key={c.id} className="row-item justify-between rounded p-2 hover:bg-muted/50">
                   <span className="min-w-0 truncate text-sm">{formatDateTime(c.created_at)}</span>
                   <div className="flex shrink-0 items-center gap-2">
                     <span className="font-semibold text-primary">{formatCOP(Number(c.amount), saving.currency)}</span>

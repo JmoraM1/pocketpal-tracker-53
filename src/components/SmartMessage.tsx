@@ -86,7 +86,7 @@ export function SmartMessage({ pct, hasIncome, insights = [] }: SmartMessageProp
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative flex items-center justify-between gap-4 overflow-hidden rounded-2xl border p-5 sm:p-6 ${cfg.wrap}`}
+      className={`row-item relative justify-between overflow-hidden rounded-2xl border p-4 md:p-6 ${cfg.wrap}`}
     >
       <div className="min-w-0 flex-1">
         <p className={`font-display text-lg font-semibold ${cfg.title_color}`}>
@@ -113,7 +113,7 @@ export function SmartMessage({ pct, hasIncome, insights = [] }: SmartMessageProp
         )}
       </div>
 
-      <Mascot mood={cfg.mood} className="h-24 w-24 shrink-0 sm:h-28 sm:w-28" />
+      <Mascot mood={cfg.mood} className="h-24 w-24 shrink-0 md:h-28 md:w-28" />
     </motion.div>
   );
 }

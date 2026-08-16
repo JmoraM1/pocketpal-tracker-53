@@ -20,7 +20,7 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
   const isHealthy = available >= 0;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {/* Ingreso */}
       <Card className="border-l-4 border-l-primary">
         <CardContent className="p-6">

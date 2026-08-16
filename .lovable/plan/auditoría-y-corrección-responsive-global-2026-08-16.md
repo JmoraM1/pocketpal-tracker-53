@@ -64,3 +64,5 @@ La implementación no se da por buena solo porque las pantallas revisadas se vea
 - Todo caso encontrado que no use el sistema global se migra al sistema global.
 - No se crean excepciones para una pantalla o un ancho concreto.
 - Si aparece un problema en un módulo, se corrige la regla compartida responsable, nunca con un parche local.
+
+IMPORTANTE: no interpretar "misma composición" como que todos los elementos deben tener exactamente los mismos píxeles en todos los dispositivos. La prioridad es mantener la misma estructura, proporciones, jerarquía, alineación y comportamiento. El contenido puede escalar o truncarse de forma controlada según el ancho disponible, pero nunca debe cambiar la composición por unos pocos píxeles de diferencia.

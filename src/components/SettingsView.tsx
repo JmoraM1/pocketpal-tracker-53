@@ -104,7 +104,7 @@ export function SettingsView({
             <p className="text-xs text-muted-foreground">{t("Se usa en el saludo del inicio.")}</p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>{t("Moneda")}</Label>
               <Select value={profile.currency} onValueChange={(v) => onSaveProfile({ currency: v })}>
@@ -140,7 +140,7 @@ export function SettingsView({
             <Input value={email ?? ""} readOnly className="bg-muted text-muted-foreground" />
           </div>
 
-          <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto">
+          <Button onClick={handleSave} disabled={saving} className="btn-compact w-full md:w-auto">
             {t("Guardar cambios")}
           </Button>
         </CardContent>
@@ -151,7 +151,7 @@ export function SettingsView({
           <h3 className="font-display text-base font-semibold">{t("Seguridad")}</h3>
 
           <div className="space-y-3 rounded-xl border px-3 py-3">
-            <div className="flex items-center justify-between gap-2">
+            <div className="row-item justify-between">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Fingerprint className="h-4 w-4 text-primary" /> {t("Biometría")}
               </div>
@@ -169,7 +169,7 @@ export function SettingsView({
                 {passkeys.length > 0 && (
                   <ul className="space-y-2">
                     {passkeys.map((p) => (
-                      <li key={p.id} className="flex items-center justify-between gap-2 rounded-lg bg-muted/50 px-3 py-2 text-xs">
+                      <li key={p.id} className="row-item justify-between rounded-lg bg-muted/50 px-3 py-2 text-xs">
                         <div>
                           <p className="font-medium text-foreground">{p.device_name ?? t("Biometría")}</p>
                           <p className="text-muted-foreground">

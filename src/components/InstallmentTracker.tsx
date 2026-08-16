@@ -115,17 +115,17 @@ export function InstallmentTracker({
   const completedPlans = plans.filter((p) => p.is_completed);
 
   return (
-    <div className="space-y-4">
+    <div className="app-section">
       {/* Month payments section */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-          <CardTitle className="flex min-w-0 items-center gap-2 text-lg">
+        <CardHeader className="section-head space-y-0">
+          <CardTitle className="section-head-text flex-row items-center gap-2 section-title">
             <CreditCard className="h-5 w-5 shrink-0" />
             <span className="truncate">{t("Cuotas del Mes")}</span>
           </CardTitle>
           <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button size="sm" className="shrink-0 gap-1 whitespace-nowrap">
+              <Button size="sm" className="btn-compact">
                 <Plus className="h-4 w-4" />
                 {t("Nueva Deuda")}
               </Button>
@@ -205,12 +205,12 @@ export function InstallmentTracker({
             monthPayments.map((payment) => (
               <div
                 key={payment.id}
-                className={`flex flex-col gap-2 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center ${
+                className={`row-item rounded-lg border p-3 transition-colors ${
                   payment.is_paid ? "border-success/30 bg-success/5" : "border-warning/30 bg-warning/5"
                 }`}
               >
-                <div className="flex-1">
-                  <p className="text-sm font-semibold">{payment.plan_name}</p>
+                <div className="row-item-body">
+                  <p className="truncate text-sm font-semibold">{payment.plan_name}</p>
                   <p className="text-xs text-muted-foreground">{t("Cuota {n}", { n: payment.payment_number })}</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -285,12 +285,12 @@ export function InstallmentTracker({
                 const progress = totalAmount > 0 ? Math.min((paidAmount / totalAmount) * 100, 100) : 0;
                 const remaining = Math.max(0, totalAmount - paidAmount);
                 return (
-                  <div key={plan.id} className="rounded-xl border bg-card/50 backdrop-blur-sm p-5 space-y-4 shadow-sm">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 space-y-1">
+                  <div key={plan.id} className="card-std space-y-4 bg-card/50 backdrop-blur-sm">
+                    <div className="row-item items-start">
+                      <div className="row-item-body gap-1">
                         <p className="truncate text-base font-bold">{plan.name}</p>
-                        <div className="scrollbar-none flex min-w-0 flex-nowrap items-center gap-2 overflow-x-auto">
-                          <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                        <div className="chip-row">
+                          <span className="chip border-transparent bg-primary/10 text-primary">
                             {t("Cuota {a} de {b}", { a: plan.paid_installments, b: plan.num_installments })}
                           </span>
                           <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">· {t("{amount}/mes", { amount: formatCOP(Number(plan.installment_amount), plan.currency) })}</span>
@@ -301,7 +301,7 @@ export function InstallmentTracker({
 
                     <div className="space-y-2">
                       <Progress value={progress} className="h-3" />
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="row-item justify-between text-sm">
                         <span className="font-semibold text-primary">
                           {formatCOP(paidAmount, plan.currency)} <span className="font-normal text-muted-foreground">{t("pagado")}</span>
                         </span>
@@ -328,11 +328,11 @@ export function InstallmentTracker({
                 <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes deudas completadas.")}</p>
               )}
               {completedPlans.map((plan) => (
-                <div key={plan.id} className="flex items-center justify-between rounded-xl border border-success/20 bg-success/5 p-3">
-                  <div className="flex items-center gap-2">
-                    <Trophy className="h-4 w-4 text-success" />
-                    <div>
-                      <p className="text-sm font-semibold">{plan.name}</p>
+                <div key={plan.id} className="row-item rounded-xl border border-success/20 bg-success/5 p-3">
+                  <div className="row-item-body flex-row items-center gap-2">
+                    <Trophy className="h-4 w-4 shrink-0 text-success" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold">{plan.name}</p>
                       <p className="text-xs text-muted-foreground">
                         {formatCOP(Number(plan.total_amount), plan.currency)} — {t("{n} cuotas", { n: plan.num_installments })}
                         {plan.completed_at ? ` · ${t("Completada el {date}", { date: formatDate(plan.completed_at) })}` : ""}
@@ -375,7 +375,7 @@ function ScheduleDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full gap-2">
+        <Button variant="outline" size="sm" className="btn-compact w-full">
           <ListChecks className="h-4 w-4" />
           {t("Ver cronograma")}
         </Button>
@@ -391,11 +391,11 @@ function ScheduleDialog({
           {payments.map((p) => (
             <div
               key={p.id}
-              className={`flex items-center justify-between gap-2 rounded-lg border p-2.5 ${
+              className={`row-item rounded-lg border p-2.5 ${
                 p.is_paid ? "border-success/30 bg-success/5" : "border-warning/30 bg-warning/5"
               }`}
             >
-              <div className="min-w-0 flex-1">
+              <div className="row-item-body">
                 <p className="text-sm font-medium">{t("Cuota {n}", { n: p.payment_number })}</p>
                 <p className="text-xs text-muted-foreground">{p.due_month}</p>
               </div>

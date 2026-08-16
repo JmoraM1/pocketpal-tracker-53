@@ -133,8 +133,8 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
                 <div key={g.id} className="row-item rounded-xl border bg-muted/40 p-3">
                   <div className="row-item-body flex-row items-center gap-2">
                     <Trophy className="h-4 w-4 shrink-0 text-primary" />
-                    <div className="min-w-0">
-                      <p className="font-medium text-sm">{g.name}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-sm">{g.name}</p>
                       <p className="text-xs text-muted-foreground">{t("Meta completada")}</p>
                     </div>
                   </div>
@@ -252,14 +252,14 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
       </div>
 
       <div className="row-item items-end border-t pt-2">
-        <div className="min-w-0 flex-1">
+        <div className="field-row flex-1">
           <Label className="text-xs">{t("Nuevo aporte")}</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
           {monthAmount > 0 && (
             <p className="text-xs text-muted-foreground mt-1">{t("Aportado este mes:")} {formatCOP(monthAmount, goal.currency)}</p>
           )}
         </div>
-        <Button size="sm" className="shrink-0 whitespace-nowrap" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(goal.id, Number(amount)); setAmount(""); } }}>
+        <Button size="sm" className="btn-compact" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(goal.id, Number(amount)); setAmount(""); } }}>
           <Check className="mr-1 h-4 w-4" />{t("Guardar")}
         </Button>
       </div>
@@ -324,14 +324,14 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
       </div>
 
       <div className="row-item items-end border-t pt-2">
-        <div className="min-w-0 flex-1">
+        <div className="field-row flex-1">
           <Label className="text-xs">{t("Nuevo aporte")}</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
           {monthAmount > 0 && (
             <p className="text-xs text-muted-foreground mt-1">{t("Aportado este mes:")} {formatCOP(monthAmount, saving.currency)}</p>
           )}
         </div>
-        <Button size="sm" className="shrink-0 whitespace-nowrap" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(saving.id, Number(amount)); setAmount(""); } }}>
+        <Button size="sm" className="btn-compact" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(saving.id, Number(amount)); setAmount(""); } }}>
           <Check className="mr-1 h-4 w-4" />{t("Guardar")}
         </Button>
       </div>

@@ -173,8 +173,8 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1 rounded-full bg-muted p-1">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto rounded-full bg-muted p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-none">
           {(["todos", "pendientes", "pagados"] as const).map((f) => (
             <button
               key={f}

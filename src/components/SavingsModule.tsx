@@ -67,16 +67,11 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   if (mode === "goals") {
     return (
       <Card className="rounded-2xl border shadow-sm">
-        <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
-          <div className="min-w-0">
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              {t("Metas")}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              {t("Define objetivos y registra aportes múltiples cada mes.")}
-            </p>
-          </div>
+        <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 space-y-0">
+          <CardTitle className="flex min-w-0 items-center gap-2">
+            <Target className="h-5 w-5 shrink-0 text-primary" />
+            <span className="truncate">{t("Metas")}</span>
+          </CardTitle>
           <Dialog open={openGoal} onOpenChange={setOpenGoal}>
             <DialogTrigger asChild>
               <Button size="sm" className="shrink-0 whitespace-nowrap"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
@@ -158,16 +153,11 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
   // mode === "savings"
   return (
     <Card className="rounded-2xl border shadow-sm">
-      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
-        <div className="min-w-0">
-          <CardTitle className="flex items-center gap-2">
-            <PiggyBank className="h-5 w-5 text-primary" />
-            {t("Ahorros")}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("Registra aportes libres y consulta el total acumulado.")}
-          </p>
-        </div>
+      <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 space-y-0">
+        <CardTitle className="flex min-w-0 items-center gap-2">
+          <PiggyBank className="h-5 w-5 shrink-0 text-primary" />
+          <span className="truncate">{t("Ahorros")}</span>
+        </CardTitle>
         <Dialog open={openSaving} onOpenChange={setOpenSaving}>
           <DialogTrigger asChild>
             <Button size="sm" className="shrink-0 whitespace-nowrap"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>

@@ -193,26 +193,3 @@
   }
 }
 
-
-@layer base {
-  /* Evita el salto de layout al abrir diálogos/menús (Radix bloquea el scroll
-     y compensa la barra con padding-right). Reservamos el espacio siempre. */
-  html {
-    scrollbar-gutter: stable;
-  }
-
-  body[data-scroll-locked],
-  body[data-scroll-locked] .sticky,
-  body[data-scroll-locked] .fixed {
-    padding-right: 0 !important;
-    margin-right: 0 !important;
-  }
-}
-
-@layer base {
-  /* Resiliencia ante escalado de fuente/pantalla del sistema (Xiaomi, Samsung):
-     el texto largo se parte en vez de desbordar el contenedor. */
-  h1, h2, h3, p, span, button, label, td, th {
-    overflow-wrap: anywhere;
-  }
-}

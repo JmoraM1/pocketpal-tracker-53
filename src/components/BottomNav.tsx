@@ -52,7 +52,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
                 />
               )}
               <Icon className={cn("h-5 w-5 transition-transform", isActive && "scale-110")} />
-              <span className="max-w-full truncate leading-none">{t(it.label)}</span>
+              <span>{t(it.label)}</span>
             </button>
           );
           // hueco central para el botón flotante (+)

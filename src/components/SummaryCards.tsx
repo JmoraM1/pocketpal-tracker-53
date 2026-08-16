@@ -30,7 +30,7 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-muted-foreground">Ingreso del mes</p>
-              <p className="mt-1 truncate text-xl font-bold tracking-tight sm:text-2xl">{formatCOP(income)}</p>
+              <p className="mt-1 text-2xl font-bold tracking-tight">{formatCOP(income)}</p>
             </div>
           </div>
         </CardContent>
@@ -45,7 +45,7 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-muted-foreground">Total gastos</p>
-              <p className="mt-1 truncate text-xl font-bold tracking-tight sm:text-2xl">{formatCOP(totalExpenses)}</p>
+              <p className="mt-1 text-2xl font-bold tracking-tight">{formatCOP(totalExpenses)}</p>
               {installmentMonthTotal > 0 && (
                 <p className="mt-1 text-xs text-muted-foreground">
                   Incluye {formatCOP(installmentMonthTotal)} en cuotas
@@ -65,7 +65,7 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-muted-foreground">Disponible ahorro</p>
-              <p className={`mt-1 truncate text-xl font-bold tracking-tight sm:text-2xl ${isHealthy ? "text-success" : "text-destructive"}`}>
+              <p className={`mt-1 text-2xl font-bold tracking-tight ${isHealthy ? "text-success" : "text-destructive"}`}>
                 {formatCOP(available)}
               </p>
             </div>
@@ -82,7 +82,7 @@ export function SummaryCards({ income, totalExpenses, available, paidCount, tota
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-muted-foreground">Gastos pagados</p>
-              <p className="mt-1 truncate text-xl font-bold tracking-tight sm:text-2xl">{paidCount}/{totalCount}</p>
+              <p className="mt-1 text-2xl font-bold tracking-tight">{paidCount}/{totalCount}</p>
             </div>
           </div>
           <Progress value={expenseRatio} className="mt-4 h-2.5" />

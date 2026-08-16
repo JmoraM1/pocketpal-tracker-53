@@ -288,11 +288,13 @@ export function HomeView({
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         {/* Gráfico de evolución */}
         <motion.div variants={item} className="min-w-0 lg:col-span-3">
-          <Card className="h-full overflow-hidden rounded-2xl border shadow-soft">
-            <CardContent className="p-4 md:p-6">
-              <div className="section-head flex-col items-start gap-2 md:flex-row md:items-center">
-                <h3 className="font-display text-base font-semibold">{t("Evolución de ingresos y gastos")}</h3>
-                <div className="flex items-center gap-4 text-xs font-medium">
+          <Card className="card-std h-full overflow-hidden">
+            <CardContent className="p-0">
+              <div className="section-head">
+                <div className="section-head-text">
+                  <h3 className="section-title text-base">{t("Evolución de ingresos y gastos")}</h3>
+                </div>
+                <div className="section-head-actions gap-3 text-xs font-medium">
                   <span className="flex items-center gap-1.5">
                     <span className="h-2.5 w-2.5 rounded-full bg-success" /> {t("Ingresos")}
                   </span>
@@ -354,8 +356,8 @@ export function HomeView({
 
         {/* Gastos por categoría */}
         <motion.div variants={item} className="min-w-0 lg:col-span-2">
-          <Card className="h-full rounded-2xl border shadow-soft">
-            <CardContent className="p-4 md:p-6">
+          <Card className="card-std h-full">
+            <CardContent className="p-0">
               <h3 className="font-display text-base font-semibold">{t("Gastos por categoría")}</h3>
 
               <div className="mt-5 space-y-4">
@@ -400,8 +402,8 @@ export function HomeView({
       <div className="grid grid-cols-1 gap-5">
         {/* Actividad reciente */}
         <motion.div variants={item} className="min-w-0">
-          <Card className="h-full rounded-2xl border shadow-soft">
-            <CardContent className="p-4 md:p-6">
+          <Card className="card-std h-full">
+            <CardContent className="p-0">
               <h3 className="font-display text-base font-semibold">{t("Actividad reciente")}</h3>
 
               <div className="mt-4 divide-y divide-border">

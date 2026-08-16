@@ -40,7 +40,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
               onClick={() => onChange(it.key)}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "relative flex min-h-[58px] min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-0.5 py-2 text-[10px] font-medium transition-colors press",
+                "relative flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-2xl py-2 text-[10px] font-medium transition-colors press",
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
               )}
             >
@@ -51,8 +51,8 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
                   className="absolute inset-x-2 inset-y-1.5 -z-10 rounded-2xl bg-accent"
                 />
               )}
-              <Icon className={cn("h-5 w-5 shrink-0 transition-transform", isActive && "scale-110")} />
-              <span className="max-w-full truncate leading-tight">{t(it.label)}</span>
+              <Icon className={cn("h-5 w-5 transition-transform", isActive && "scale-110")} />
+              <span>{t(it.label)}</span>
             </button>
           );
           // hueco central para el botón flotante (+)

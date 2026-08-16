@@ -111,15 +111,13 @@ export default function Dashboard() {
       <div className="min-w-0 flex-1 md:h-dvh md:overflow-y-auto">
         <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-xl md:hidden">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <div className="flex min-w-0 items-center gap-2.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-primary shadow-soft">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary shadow-soft">
                 <Wallet className="h-4.5 w-4.5 text-primary-foreground" />
               </span>
-              <h1 className="truncate font-display text-base font-semibold tracking-tight">{t(TITLES[view])}</h1>
+              <h1 className="font-display text-base font-semibold tracking-tight">{t(TITLES[view])}</h1>
             </div>
-            <div className="shrink-0">
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
           </div>
         </header>
 

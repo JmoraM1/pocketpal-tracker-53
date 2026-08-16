@@ -150,9 +150,6 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    /* Evita que palabras largas o fuentes escaladas desborden horizontalmente */
-    overflow-wrap: anywhere;
-    word-break: normal;
   }
 
   h1, h2, h3, h4, .font-display {
@@ -163,11 +160,6 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  /* Los botones no crecen indefinidamente ni empujan a sus vecinos
-     cuando el sistema aumenta el tamaño de fuente. */
-  button, [role="tab"], a[role="button"] {
-    max-width: 100%;
-  }
 }
 
 @layer components {
@@ -178,13 +170,6 @@
 
   .press {
     @apply transition-transform duration-150 active:scale-[0.97];
-  }
-}
-
-@layer base {
-  html, body, #root {
-    max-width: 100%;
-    overflow-x: hidden;
   }
 }
 
@@ -203,6 +188,146 @@
   @media (prefers-reduced-motion: reduce) {
     .responsive-dialog {
       transition: none;
+    }
+  }
+}
+
+@layer components {
+  /*
+   * Contratos de composición. Cada bloque se adapta a su propio espacio
+   * disponible (incluido el que se pierde por escala de fuente), no al modelo
+   * de teléfono ni a un breakpoint de viewport.
+   */
+  .module-container,
+  .financial-container {
+    container-type: inline-size;
+  }
+
+  .module-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .module-header__content,
+  .financial-row__identity {
+    min-width: 0;
+  }
+
+  .module-header__action {
+    flex: 0 0 auto;
+  }
+
+  .financial-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
+  }
+
+  .financial-row__meta,
+  .financial-row__actions {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .financial-summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .financial-summary > :last-child {
+    text-align: right;
+  }
+
+  .control-rail {
+    display: flex;
+    max-width: 100%;
+    gap: 0.25rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .control-rail > * {
+    flex: 0 0 auto;
+  }
+
+  .control-rail button,
+  .tabs-responsive-list [role="tab"] {
+    white-space: nowrap;
+  }
+
+  .tabs-responsive-root {
+    container-type: inline-size;
+  }
+
+  .tabs-responsive-list {
+    display: grid;
+    width: 100%;
+    height: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 0.75rem;
+  }
+
+  @container (max-width: 30rem) {
+    .module-header {
+      align-items: stretch;
+      flex-direction: column !important;
+    }
+
+    .module-header__action {
+      align-self: stretch;
+    }
+  }
+
+  @container (max-width: 28rem) {
+    .financial-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .financial-row__meta {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .financial-row__actions {
+      margin-left: auto;
+    }
+
+    .financial-summary {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .financial-summary > :last-child {
+      grid-column: 1 / -1;
+      text-align: left;
+    }
+  }
+
+  @container (max-width: 26rem) {
+    .tabs-responsive-list {
+      display: flex !important;
+      justify-content: flex-start;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: thin;
+    }
+
+    .tabs-responsive-list [role="tab"] {
+      flex: 0 0 auto;
     }
   }
 }

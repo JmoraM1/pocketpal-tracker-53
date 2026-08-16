@@ -40,20 +40,20 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
   };
 
   return (
-    <div className="row-item gap-2">
-      <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={goBack}>
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="icon" onClick={goBack}>
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="btn-compact btn-grow min-w-0 capitalize">
+          <Button variant="outline" className="min-w-[160px] gap-2 capitalize">
             <CalendarDays className="h-4 w-4" />
-            <span className="min-w-0 truncate">{formatMonthLabel(getMonthKey(selectedMonth), locale)}</span>
+            {formatMonthLabel(getMonthKey(selectedMonth), locale)}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[280px] p-3" align="start">
-          <div className="row-item mb-3 justify-between">
+          <div className="flex items-center justify-between mb-3">
             <Button variant="ghost" size="icon" onClick={() => setViewYear((y) => y - 1)}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -82,13 +82,13 @@ export function MonthSelector({ selectedMonth, onChangeMonth, onCopyPrevious }: 
         </PopoverContent>
       </Popover>
 
-      <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={goForward}>
+      <Button variant="outline" size="icon" onClick={goForward}>
         <ChevronRight className="h-4 w-4" />
       </Button>
 
-      <Button variant="outline" size="sm" onClick={onCopyPrevious} className="btn-compact">
+      <Button variant="outline" size="sm" onClick={onCopyPrevious} className="ml-2 gap-1">
         <Copy className="h-3.5 w-3.5" />
-        <span className="hidden md:inline">{t("Copiar mes anterior")}</span>
+        <span className="hidden sm:inline">{t("Copiar mes anterior")}</span>
       </Button>
     </div>
   );

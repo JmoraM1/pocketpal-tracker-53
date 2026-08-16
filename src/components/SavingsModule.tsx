@@ -66,45 +66,44 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
 
   if (mode === "goals") {
     return (
-      <Card className="card-std p-0">
-        <CardHeader className="section-head space-y-0 p-4 pb-3">
-          <div className="section-head-text">
-            <CardTitle className="section-title-icon section-title">
-              <Target className="h-5 w-5 shrink-0 text-primary" />
-              <span className="truncate">{t("Metas")}</span>
+      <Card className="rounded-2xl border shadow-sm">
+        <CardHeader className="flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              {t("Metas")}
             </CardTitle>
-            <p className="section-sub">{t("Define objetivos y registra aportes múltiples cada mes.")}</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {t("Define objetivos y registra aportes múltiples cada mes.")}
+            </p>
           </div>
-          <div className="section-head-actions">
-            <Dialog open={openGoal} onOpenChange={setOpenGoal}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="btn-compact"><Plus className="h-4 w-4" />{t("Nueva meta")}</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader><DialogTitle>{t("Nueva meta de ahorro")}</DialogTitle></DialogHeader>
-                <div className="space-y-3">
-                  <div className="field-row">
-                    <Label>{t("Nombre")}</Label>
-                    <Input value={newGoalName} onChange={(e) => setNewGoalName(e.target.value)} placeholder={t("Ej: Viaje a la costa")} />
-                  </div>
-                  <div className="field-row">
-                    <Label>{t("Valor objetivo")}</Label>
-                    <MoneyInput value={newGoalTarget} onChange={(v) => setNewGoalTarget(v)} />
-                  </div>
-                  <div className="field-row">
-                    <Label>{t("Monto inicial (opcional)")}</Label>
-                    <MoneyInput value={newGoalInitial} onChange={(v) => setNewGoalInitial(v)} />
-                  </div>
+          <Dialog open={openGoal} onOpenChange={setOpenGoal}>
+            <DialogTrigger asChild>
+              <Button size="sm"><Plus className="mr-1 h-4 w-4" />{t("Nueva meta")}</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>{t("Nueva meta de ahorro")}</DialogTitle></DialogHeader>
+              <div className="space-y-3">
+                <div>
+                  <Label>{t("Nombre")}</Label>
+                  <Input value={newGoalName} onChange={(e) => setNewGoalName(e.target.value)} placeholder={t("Ej: Viaje a la costa")} />
                 </div>
-                <DialogFooter>
-                  <Button onClick={handleCreateGoal}>{t("Crear")}</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
+                <div>
+                  <Label>{t("Valor objetivo")}</Label>
+                  <MoneyInput value={newGoalTarget} onChange={(v) => setNewGoalTarget(v)} />
+                </div>
+                <div>
+                  <Label>{t("Monto inicial (opcional)")}</Label>
+                  <MoneyInput value={newGoalInitial} onChange={(v) => setNewGoalInitial(v)} />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleCreateGoal}>{t("Crear")}</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </CardHeader>
-        <CardContent className="p-4 pt-0">
-
+        <CardContent>
           <Tabs defaultValue="active" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="active">{t("Activas")} ({s.activeGoals.length})</TabsTrigger>
@@ -135,15 +134,15 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
                 <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes metas completadas.")}</p>
               )}
               {s.completedGoals.map((g) => (
-                <div key={g.id} className="row-item rounded-xl border bg-muted/40 p-3">
-                  <div className="row-item-body flex-row items-center gap-2">
-                    <Trophy className="h-4 w-4 shrink-0 text-primary" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium text-sm">{g.name}</p>
+                <div key={g.id} className="flex items-center justify-between rounded-xl border bg-muted/40 p-3">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-4 w-4 text-primary" />
+                    <div>
+                      <p className="font-medium text-sm">{g.name}</p>
                       <p className="text-xs text-muted-foreground">{t("Meta completada")}</p>
                     </div>
                   </div>
-                  <div className="row-item-value flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                     <span className="text-primary font-semibold text-sm">{formatCOP(s.goalTotal(g.id), g.currency)} / {formatCOP(Number(g.target_amount), g.currency)}</span>
                     <ConfirmDeleteButton onConfirm={() => s.deleteGoal(g.id)} />
                   </div>
@@ -158,41 +157,40 @@ export function SavingsModule({ userId, selectedMonth, mode }: Props) {
 
   // mode === "savings"
   return (
-    <Card className="card-std p-0">
-      <CardHeader className="section-head space-y-0 p-4 pb-3">
-        <div className="section-head-text">
-          <CardTitle className="section-title-icon section-title">
-            <PiggyBank className="h-5 w-5 shrink-0 text-primary" />
-            <span className="truncate">{t("Ahorros")}</span>
+    <Card className="rounded-2xl border shadow-sm">
+      <CardHeader className="flex-row items-center justify-between space-y-0">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <PiggyBank className="h-5 w-5 text-primary" />
+            {t("Ahorros")}
           </CardTitle>
-          <p className="section-sub">{t("Registra aportes libres y consulta el total acumulado.")}</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {t("Registra aportes libres y consulta el total acumulado.")}
+          </p>
         </div>
-        <div className="section-head-actions">
-          <Dialog open={openSaving} onOpenChange={setOpenSaving}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="btn-compact"><Plus className="h-4 w-4" />{t("Nuevo ahorro")}</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>{t("Nuevo ahorro")}</DialogTitle></DialogHeader>
-              <div className="space-y-3">
-                <div className="field-row">
-                  <Label>{t("Nombre")}</Label>
-                  <Input value={newSavingName} onChange={(e) => setNewSavingName(e.target.value)} placeholder={t("Ej: Ahorro libre")} />
-                </div>
-                <div className="field-row">
-                  <Label>{t("Monto inicial (opcional)")}</Label>
-                  <MoneyInput value={newSavingInitial} onChange={(v) => setNewSavingInitial(v)} />
-                </div>
+        <Dialog open={openSaving} onOpenChange={setOpenSaving}>
+          <DialogTrigger asChild>
+            <Button size="sm"><Plus className="mr-1 h-4 w-4" />{t("Nuevo ahorro")}</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{t("Nuevo ahorro")}</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div>
+                <Label>{t("Nombre")}</Label>
+                <Input value={newSavingName} onChange={(e) => setNewSavingName(e.target.value)} placeholder={t("Ej: Ahorro libre")} />
               </div>
-              <DialogFooter>
-                <Button onClick={handleCreateSaving}>{t("Crear")}</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+              <div>
+                <Label>{t("Monto inicial (opcional)")}</Label>
+                <MoneyInput value={newSavingInitial} onChange={(v) => setNewSavingInitial(v)} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={handleCreateSaving}>{t("Crear")}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardHeader>
-      <CardContent className="space-y-3 p-4 pt-0">
-
+      <CardContent className="space-y-3">
         {s.freeSavings.length === 0 && (
           <p className="text-center text-sm text-muted-foreground py-6">{t("Aún no tienes ahorros registrados.")}</p>
         )}
@@ -228,13 +226,13 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
   const pct = target > 0 ? Math.min(100, (total / target) * 100) : 0;
 
   return (
-    <div className="card-std space-y-3 bg-card/50 backdrop-blur-sm">
-      <div className="row-item items-start">
-        <div className="row-item-body">
-          <h3 className="truncate font-semibold">{goal.name}</h3>
+    <div className="rounded-lg border bg-card/50 backdrop-blur-sm p-4 space-y-3">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="font-semibold">{goal.name}</h3>
           <p className="text-xs text-muted-foreground">{t("Objetivo:")} {formatCOP(target, goal.currency)}</p>
         </div>
-        <div className="row-item-value flex gap-1">
+        <div className="flex gap-1">
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
             <DialogTrigger asChild>
               <Button size="icon" variant="ghost" className="h-7 w-7"><Pencil className="h-3.5 w-3.5" /></Button>
@@ -255,21 +253,21 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
       </div>
 
       <Progress value={pct} className="h-2.5" />
-      <div className="row-item justify-between text-xs">
+      <div className="flex items-center justify-between text-xs">
         <span className="font-semibold text-primary">{formatCOP(total, goal.currency)} {t("ahorrado")}</span>
         <span className="text-muted-foreground">{pct.toFixed(0)}%</span>
         <span className="text-muted-foreground">{t("Faltan")} {formatCOP(Math.max(0, target - total), goal.currency)}</span>
       </div>
 
-      <div className="row-item items-end border-t pt-2">
-        <div className="field-row flex-1">
+      <div className="flex items-end gap-2 pt-2 border-t">
+        <div className="flex-1">
           <Label className="text-xs">{t("Nuevo aporte")}</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
           {monthAmount > 0 && (
             <p className="text-xs text-muted-foreground mt-1">{t("Aportado este mes:")} {formatCOP(monthAmount, goal.currency)}</p>
           )}
         </div>
-        <Button size="sm" className="btn-compact" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(goal.id, Number(amount)); setAmount(""); } }}>
+        <Button size="sm" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(goal.id, Number(amount)); setAmount(""); } }}>
           <Check className="mr-1 h-4 w-4" />{t("Guardar")}
         </Button>
       </div>
@@ -283,9 +281,9 @@ function GoalCard({ goal, total, monthAmount, contributions, onUpdate, onDelete,
             <DialogHeader><DialogTitle>{t("Historial —")} {goal.name}</DialogTitle></DialogHeader>
             <div className="space-y-1 max-h-[45vh] overflow-y-auto">
               {[...contributions].sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).map((c: any) => (
-                <div key={c.id} className="row-item justify-between rounded p-2 hover:bg-muted/50">
-                  <span className="min-w-0 truncate text-sm">{formatDateTime(c.created_at)}</span>
-                  <div className="flex shrink-0 items-center gap-2">
+                <div key={c.id} className="flex items-center justify-between rounded p-2 hover:bg-muted/50">
+                  <span className="text-sm">{formatDateTime(c.created_at)}</span>
+                  <div className="flex items-center gap-2">
                     <span className="font-semibold text-primary">{formatCOP(Number(c.amount), goal.currency)}</span>
                     <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => onDeleteContrib(c.id)}>
                       <Trash2 className="h-3 w-3" />
@@ -310,13 +308,13 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
   const [histOpen, setHistOpen] = useState(false);
 
   return (
-    <div className="card-std space-y-3 bg-card/50 backdrop-blur-sm">
-      <div className="row-item items-start">
-        <div className="row-item-body">
-          <h3 className="truncate font-semibold">{saving.name}</h3>
+    <div className="rounded-lg border bg-card/50 backdrop-blur-sm p-4 space-y-3">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="font-semibold">{saving.name}</h3>
           <p className="text-xs text-muted-foreground">{t("Acumulado:")} <span className="font-semibold text-primary">{formatCOP(total, saving.currency)}</span></p>
         </div>
-        <div className="row-item-value flex gap-1">
+        <div className="flex gap-1">
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
             <DialogTrigger asChild>
               <Button size="icon" variant="ghost" className="h-7 w-7"><Pencil className="h-3.5 w-3.5" /></Button>
@@ -333,15 +331,15 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
         </div>
       </div>
 
-      <div className="row-item items-end border-t pt-2">
-        <div className="field-row flex-1">
+      <div className="flex items-end gap-2 pt-2 border-t">
+        <div className="flex-1">
           <Label className="text-xs">{t("Nuevo aporte")}</Label>
           <MoneyInput value={amount} onChange={(v) => setAmount(v)} />
           {monthAmount > 0 && (
             <p className="text-xs text-muted-foreground mt-1">{t("Aportado este mes:")} {formatCOP(monthAmount, saving.currency)}</p>
           )}
         </div>
-        <Button size="sm" className="btn-compact" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(saving.id, Number(amount)); setAmount(""); } }}>
+        <Button size="sm" onClick={async () => { if (Number(amount) > 0) { await onSetMonth(saving.id, Number(amount)); setAmount(""); } }}>
           <Check className="mr-1 h-4 w-4" />{t("Guardar")}
         </Button>
       </div>
@@ -355,9 +353,9 @@ function FreeSavingCard({ saving, total, monthAmount, contributions, onUpdate, o
             <DialogHeader><DialogTitle>{t("Historial —")} {saving.name}</DialogTitle></DialogHeader>
             <div className="space-y-1 max-h-[45vh] overflow-y-auto">
               {[...contributions].sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).map((c: any) => (
-                <div key={c.id} className="row-item justify-between rounded p-2 hover:bg-muted/50">
-                  <span className="min-w-0 truncate text-sm">{formatDateTime(c.created_at)}</span>
-                  <div className="flex shrink-0 items-center gap-2">
+                <div key={c.id} className="flex items-center justify-between rounded p-2 hover:bg-muted/50">
+                  <span className="text-sm">{formatDateTime(c.created_at)}</span>
+                  <div className="flex items-center gap-2">
                     <span className="font-semibold text-primary">{formatCOP(Number(c.amount), saving.currency)}</span>
                     <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => onDeleteContrib(c.id)}>
                       <Trash2 className="h-3 w-3" />

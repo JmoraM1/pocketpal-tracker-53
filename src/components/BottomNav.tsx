@@ -30,7 +30,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
   const t = useT();
   return (
     <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-border bg-card/95 backdrop-blur-xl md:hidden">
-      <div className="app-bottom-nav mx-auto grid max-w-md grid-cols-5 items-stretch px-2">
+      <div className="mx-auto grid max-w-md grid-cols-5 items-stretch px-2 pb-[env(safe-area-inset-bottom)]">
         {ITEMS.map((it, idx) => {
           const Icon = it.icon;
           const isActive = active === it.key;
@@ -40,7 +40,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
               onClick={() => onChange(it.key)}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "relative flex h-full min-w-0 flex-col items-center justify-center gap-1 rounded-2xl py-1.5 text-[10px] font-medium leading-tight transition-colors press",
+                "relative flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-2xl py-2 text-[10px] font-medium transition-colors press",
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
               )}
             >
@@ -52,12 +52,12 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
                 />
               )}
               <Icon className={cn("h-5 w-5 transition-transform", isActive && "scale-110")} />
-              <span className="w-full truncate text-center">{t(it.label)}</span>
+              <span>{t(it.label)}</span>
             </button>
           );
           // hueco central para el botón flotante (+)
           if (idx === 2) {
-            return [<span key="fab-slot" aria-hidden className="h-full" />, button];
+            return [<span key="fab-slot" aria-hidden className="min-h-[58px]" />, button];
           }
           return button;
         })}

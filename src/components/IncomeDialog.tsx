@@ -93,7 +93,7 @@ export function IncomeDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t("Ingresos del mes")}</DialogTitle>
           <DialogDescription>{t("Gestiona tu salario y tus ingresos adicionales.")}</DialogDescription>
@@ -102,7 +102,7 @@ export function IncomeDialog({
         <div className="space-y-4">
           {/* Salario */}
           <div className="rounded-xl border bg-muted/40 p-4">
-            <div className="row-item justify-between">
+            <div className="flex items-center justify-between gap-3">
               <span className="flex items-center gap-2 text-sm font-medium">
                 <Wallet className="h-4 w-4 text-success" />
                 {t("Salario")}
@@ -154,7 +154,7 @@ export function IncomeDialog({
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="row-item justify-between pt-1">
+                  <div className="flex items-center justify-between gap-2 pt-1">
                     <Label className="text-xs text-muted-foreground">{t("Repetir todos los meses")}</Label>
                     <Switch
                       checked={inc.is_recurring}
@@ -164,7 +164,7 @@ export function IncomeDialog({
                 </div>
               ) : (
                 <div key={inc.id} className="flex items-center gap-2 rounded-xl border p-3">
-                  <div className="row-item-body">
+                  <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{inc.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {inc.is_recurring ? t("Todos los meses") : t("Solo este mes")}
@@ -224,7 +224,7 @@ export function IncomeDialog({
                   <Label className="text-xs">{t("Valor")}</Label>
                   <MoneyInput value={newAmount} onChange={setNewAmount} className="h-9" />
                 </div>
-                <div className="row-item justify-between pt-1">
+                <div className="flex items-center justify-between gap-2 pt-1">
                   <Label className="text-xs text-muted-foreground">{t("Repetir todos los meses")}</Label>
                   <Switch checked={newRecurring} onCheckedChange={setNewRecurring} />
                 </div>
@@ -238,14 +238,14 @@ export function IncomeDialog({
                 </div>
               </div>
             ) : (
-              <Button variant="outline" size="sm" className="btn-compact w-full" onClick={() => setAdding(true)}>
+              <Button variant="outline" size="sm" className="w-full gap-1.5" onClick={() => setAdding(true)}>
                 <Plus className="h-4 w-4" />
                 {t("Agregar ingreso")}
               </Button>
             )}
           </div>
 
-          <div className="row-item justify-between rounded-xl bg-success/10 px-4 py-3">
+          <div className="flex items-center justify-between rounded-xl bg-success/10 px-4 py-3">
             <span className="text-sm font-medium">{t("Ingresos totales")}</span>
             <span className="font-display text-lg font-semibold tabular-nums text-success">{formatCOP(total)}</span>
           </div>

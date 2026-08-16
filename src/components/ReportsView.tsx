@@ -359,89 +359,98 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
   ];
 
   return (
-    <div className="app-section overflow-x-hidden">
+    <div className="w-full min-w-0 space-y-4 overflow-x-hidden">
       {/* Encabezado */}
-      <div className="section-head">
-        <div className="section-head-text">
-          <h2 className="section-title">{t("Reportes")}</h2>
-          <p className="section-sub">{t("Analiza tus finanzas con claridad")}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="font-display text-xl font-semibold tracking-tight">{t("Reportes")}</h2>
+          <p className="text-sm text-muted-foreground">{t("Analiza tus finanzas con claridad")}</p>
         </div>
-        <div className="section-head-actions">
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button size="sm" className="btn-compact">
+            <Button size="sm" className="gap-1.5">
               <Download className="h-4 w-4" /> {t("Exportar")} <ChevronDown className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
-
           <DropdownMenuContent align="end" sideOffset={6} className="z-50">
             <DropdownMenuItem onClick={exportPdf}>{t("Exportar PDF")}</DropdownMenuItem>
             <DropdownMenuItem onClick={exportExcel}>{t("Exportar Excel")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        </div>
       </div>
 
-      {/* Filtros: patrón global único (chips en una línea con scroll contenido) */}
-      <div className="card-std space-y-3">
-        <div className="row-item text-sm font-medium">
-          <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
-          <span className="truncate capitalize">{periodLabel}</span>
-        </div>
-        <div className="filter-bar">
-          {PERIODS.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setPeriod(p.id)}
-              data-active={period === p.id}
-              className="filter-chip"
-            >
-              {t(p.label)}
-            </button>
-          ))}
-          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-            <PopoverTrigger asChild>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPeriod("custom");
-                  window.setTimeout(() => setCalendarOpen(true), 350);
-                }}
-                data-active={period === "custom"}
-                className="filter-chip"
-              >
-                {t("Personalizado")}
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-auto p-0">
-              <Calendar
-                mode="range"
-                selected={{ from: range.from, to: range.to }}
-                onSelect={(r: any) => {
-                  setRange({ from: r?.from, to: r?.to });
-                  if (r?.from) setPeriod("custom");
-                }}
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
+      {/* Filtros: slider táctil/arrastrable en celular, fila fija en desktop */}
+      <Card className="rounded-2xl border shadow-soft">
+        <CardContent className="flex flex-col gap-3 overflow-hidden p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex h-6 items-center gap-2 text-sm font-medium">
+            <CalendarRange className="h-4 w-4 shrink-0 text-primary" />
+            <span className="truncate capitalize">{periodLabel}</span>
+          </div>
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end">
+            <div className="flex w-full flex-wrap gap-2 sm:justify-end">
+              {PERIODS.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setPeriod(p.id)}
+                  className={cn(
+                    "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                    period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
+                  )}
+                >
+                  {t(p.label)}
+                </button>
+              ))}
+            </div>
+            <div className="flex w-full justify-center sm:justify-end">
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPeriod("custom");
+                      window.setTimeout(() => setCalendarOpen(true), 350);
+                    }}
+                    className={cn(
+                      "whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
+                      period === "custom" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
+                    )}
+                  >
+                    {t("Personalizado")}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-auto p-0">
+                  <Calendar
+                    mode="range"
+                    selected={{ from: range.from, to: range.to }}
+                    onSelect={(r: any) => {
+                      setRange({ from: r?.from, to: r?.to });
+                      if (r?.from) setPeriod("custom");
+                    }}
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+
 
       {/* Resumen: mismo espacio siempre, skeleton interno al cargar */}
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {cards.map((c) => {
           const Icon = c.icon;
           return (
-            <Card key={c.label} className="card-stat">
-              <CardContent className="space-y-1.5 p-0">
+            <Card key={c.label} className="min-w-0 rounded-2xl border shadow-soft">
+              <CardContent className="space-y-1.5 p-3.5">
                 <div className="flex items-start gap-2">
                   <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-xl", c.tone)}>
                     <Icon className="h-4 w-4" />
                   </span>
                   <div className="min-w-0">
                     <p className="text-xs font-medium leading-tight">{c.label}</p>
-                    <p className="truncate text-xs text-muted-foreground">{c.hint}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">{c.hint}</p>
                   </div>
                 </div>
                 {loading ? (
@@ -452,7 +461,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                 ) : (
                   <>
                     <p className="truncate text-lg font-semibold tracking-tight">{c.value}</p>
-                    <div className="text-xs">{c.delta}</div>
+                    <div className="text-[11px]">{c.delta}</div>
                   </>
                 )}
               </CardContent>
@@ -463,11 +472,11 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
 
       {/* Distribución + comparación (estructura estable) */}
       <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card className="card-std">
-          <CardContent className="space-y-3 p-0">
-            <h3 className="section-title text-base">{t("Distribución de gastos")}</h3>
+        <Card className="min-w-0 rounded-2xl border shadow-soft">
+          <CardContent className="space-y-3 p-4">
+            <h3 className="font-display text-base font-semibold">{t("Distribución de gastos")}</h3>
             {loading ? (
-              <div className="grid min-w-0 grid-cols-1 items-center gap-3 md:grid-cols-[200px_1fr]">
+              <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-[200px_1fr]">
                 <Skeleton className="mx-auto h-[190px] w-[190px] rounded-full" />
                 <div className="space-y-2">
                   {[0, 1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-4 w-full" />)}
@@ -479,7 +488,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
               </div>
             ) : (
               <>
-                <div className="grid min-w-0 grid-cols-1 items-center gap-3 md:grid-cols-[200px_1fr]">
+                <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-[200px_1fr]">
                   <div className="relative mx-auto h-[190px] w-full max-w-[220px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -512,7 +521,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
                       </PieChart>
                     </ResponsiveContainer>
                     <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xs text-muted-foreground">{t("Total")}</span>
+                      <span className="text-[11px] text-muted-foreground">{t("Total")}</span>
                       <span className="text-sm font-semibold">{formatCOP(totalOut)}</span>
                     </div>
                   </div>
@@ -568,10 +577,10 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
         </Card>
 
         {/* Comparación */}
-        <Card className="card-std">
-          <CardContent className="space-y-3 p-0">
-            <div className="row-item justify-between">
-              <h3 className="section-title text-base">{t("Comparación por categoría")}</h3>
+        <Card className="min-w-0 rounded-2xl border shadow-soft">
+          <CardContent className="space-y-3 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="font-display text-base font-semibold">{t("Comparación por categoría")}</h3>
               <div className="flex items-center gap-1 rounded-full bg-muted p-0.5 text-xs">
                 {(["monto", "porcentaje"] as const).map((m) => (
                   <button
@@ -588,7 +597,7 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
               </div>
             </div>
             {prevLabel && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 {t("Comparado con")} <span className="capitalize">{prevLabel}</span>
               </p>
             )}
@@ -626,11 +635,11 @@ export function ReportsView({ userId, selectedMonth }: ReportsViewProps) {
       </div>
 
       {/* Insights IA */}
-      <Card className="card-std border-primary/20 bg-primary/5">
-        <CardContent className="row-item items-start p-0">
-          <Mascot mood={mood as any} className="hidden h-16 w-16 shrink-0 md:block" />
-          <div className="row-item-body gap-2">
-            <h3 className="section-title text-base">{t("Insights IA")}</h3>
+      <Card className="rounded-2xl border border-primary/20 bg-primary/5 shadow-soft">
+        <CardContent className="flex min-w-0 items-start gap-3 p-4">
+          <Mascot mood={mood as any} className="hidden h-16 w-16 shrink-0 sm:block" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <h3 className="font-display text-base font-semibold">{t("Insights IA")}</h3>
             {loading ? (
               <div className="space-y-2">
                 <Skeleton className="h-3 w-4/5" />
@@ -682,7 +691,7 @@ function CompareRow({
             <div className="h-2 rounded-full bg-muted-foreground/30" style={{ width: `${Math.max(prevWidth, 1)}%` }} />
           </div>
         </div>
-        <div className="w-20 shrink-0 text-right text-xs tabular-nums md:w-24">
+        <div className="w-20 shrink-0 text-right text-[11px] tabular-nums sm:w-24">
           <p className="font-medium">{mode === "monto" ? formatCOP(item.amount) : `${share}%`}</p>
           <p className="text-muted-foreground">
             {mode === "monto"

@@ -88,7 +88,7 @@ function ExpenseForm({
         <MoneyInput value={amount} onChange={setAmount} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>{t("Fecha de vencimiento")}</Label>
           <Popover open={dateOpen} onOpenChange={setDateOpen}>
@@ -172,49 +172,43 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
   };
 
   return (
-    <div className="app-section">
-      <div className="section-head">
-        <div className="section-head-text">
-          <h2 className="section-title">{t("Gastos")}</h2>
-          <p className="section-sub">{t("Registra y controla tus gastos del mes.")}</p>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-1 rounded-full bg-muted p-1">
+          {(["todos", "pendientes", "pagados"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-colors ${
+                filter === f ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {filterLabels[f]}
+            </button>
+          ))}
         </div>
-        <div className="section-head-actions">
-          <Dialog open={addOpen} onOpenChange={setAddOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="btn-compact">
-                <Plus className="h-4 w-4" /> {t("Nuevo")}
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>{t("Nuevo gasto")}</DialogTitle></DialogHeader>
-              <ExpenseForm
-                categories={categories}
-                submitLabel={t("Agregar")}
-                onSubmit={(v) => {
-                  onAdd(v);
-                  setAddOpen(false);
-                }}
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
+
+        <Dialog open={addOpen} onOpenChange={setAddOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="gap-1.5 rounded-full">
+              <Plus className="h-4 w-4" /> {t("Nuevo")}
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{t("Nuevo gasto")}</DialogTitle></DialogHeader>
+            <ExpenseForm
+              categories={categories}
+              submitLabel={t("Agregar")}
+              onSubmit={(v) => {
+                onAdd(v);
+                setAddOpen(false);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <div className="filter-bar">
-        {(["todos", "pendientes", "pagados"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            data-active={filter === f}
-            className="filter-chip capitalize"
-          >
-            {filterLabels[f]}
-          </button>
-        ))}
-      </div>
-
-
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {visible.map((expense, i) => {
           const visual = getCategoryVisual(expense.category);
           const Icon = visual.icon;
@@ -227,45 +221,45 @@ export function ExpenseList({ expenses, categories, onUpdate, onAdd, onDelete }:
             >
               <Card className="h-full rounded-2xl border shadow-soft transition-shadow hover:shadow-card">
                 <CardContent className="space-y-3 p-4">
-                  <div className="row-item items-start">
+                  <div className="flex items-start gap-3">
                     <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${visual.tint}`}>
                       <Icon className="h-5 w-5" />
                     </span>
-                    <div className="row-item-body">
+                    <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">
                         {expense.description || expense.category}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">{expense.category}</p>
                     </div>
-                    <span className="row-item-value font-display text-sm font-semibold tabular-nums">
+                    <span className="shrink-0 font-display text-sm font-semibold tabular-nums">
                       {formatCOP(Number(expense.amount), expense.currency)}
                     </span>
                   </div>
 
-                  <div className="chip-row gap-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     <span
-                      className={`chip border-transparent ${
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
                         expense.is_paid ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
                       }`}
                     >
                       {expense.is_paid ? t("Pagado") : t("Pendiente")}
                     </span>
-                    <span className="chip border-transparent bg-muted text-muted-foreground">
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                       {t(frequencyLabel(expense.frequency))}
                     </span>
                     {expense.due_date && (
-                      <span className="chip border-transparent bg-muted text-muted-foreground">
+                      <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                         <CalendarIcon className="h-3 w-3" />
                         {formatShortDate(expense.due_date)}
                       </span>
                     )}
                   </div>
 
-                  <div className="row-item justify-end gap-1 border-t pt-2">
+                  <div className="flex items-center justify-end gap-1 border-t pt-2">
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="btn-compact min-w-0 shrink truncate"
+                      className="gap-1.5 text-xs"
                       onClick={() => onUpdate(expense.id, { is_paid: !expense.is_paid })}
                     >
                       <Check className={`h-4 w-4 ${expense.is_paid ? "text-success" : "text-muted-foreground"}`} />

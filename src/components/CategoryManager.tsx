@@ -41,7 +41,7 @@ export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleC
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="btn-compact">
+        <Button variant="outline" size="sm" className="gap-1">
           <Settings2 className="h-4 w-4" />
           {t("Categorías")}
         </Button>
@@ -70,7 +70,7 @@ export function CategoryManager({ categories, onAdd, onRemove, onEdit, onToggleC
               </div>
             )}
           </div>
-          <div className="chip-row gap-2">
+          <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
               editingCat === cat.name ? (
                 <div key={cat.name} className="flex items-center gap-1">

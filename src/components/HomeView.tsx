@@ -23,6 +23,13 @@ import type { InstallmentPayment } from "@/hooks/useInstallments";
 
 type Expense = Tables<"expenses">;
 
+export interface MovementItem {
+  id: string;
+  name: string;
+  amount: number;
+  date: string;
+}
+
 interface HomeViewProps {
   alias?: string;
   userEmail?: string;
@@ -36,6 +43,9 @@ interface HomeViewProps {
   monthPayments: (InstallmentPayment & { plan_name: string })[];
   installmentMonthTotal: number;
   savingsTotal?: number;
+  goalMovements?: MovementItem[];
+  savingMovements?: MovementItem[];
+  incomeMovements?: MovementItem[];
   onNavigate: (v: AppView) => void;
   onOpenIncome: () => void;
 }

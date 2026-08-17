@@ -88,6 +88,9 @@ export function HomeView({
   monthPayments,
   installmentMonthTotal,
   savingsTotal = 0,
+  goalMovements = [],
+  savingMovements = [],
+  incomeMovements = [],
   onNavigate,
   onOpenIncome,
 }: HomeViewProps) {

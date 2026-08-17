@@ -260,19 +260,33 @@ export function HomeView({
         date: p.paid_at ?? p.created_at,
         category: "deuda",
       }));
-    const list = [...fromExpenses, ...fromPayments];
-    if (income > 0) {
-      list.push({
-        id: "income",
-        title: t("Ingreso del mes"),
-        subtitle: t("Ingresos"),
-        amount: income,
-        date: new Date().toISOString(),
-        category: "ingreso",
-      });
-    }
-    return list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 6);
-  }, [expenses, monthPayments, income]);
+    const fromGoals = goalMovements.map((m) => ({
+      id: `goal-${m.id}`,
+      title: `${t("Aporte")} ${m.name}`,
+      subtitle: `${t("Metas")} · ${m.name}`,
+      amount: -Number(m.amount),
+      date: m.date,
+      category: "meta",
+    }));
+    const fromSavings = savingMovements.map((m) => ({
+      id: `sav-${m.id}`,
+      title: `${t("Aporte")} ${m.name}`,
+      subtitle: `${t("Ahorros")} · ${m.name}`,
+      amount: -Number(m.amount),
+      date: m.date,
+      category: "ahorro",
+    }));
+    const fromIncomes = incomeMovements.map((m) => ({
+      id: `inc-${m.id}`,
+      title: m.name,
+      subtitle: t("Ingresos"),
+      amount: Number(m.amount),
+      date: m.date,
+      category: "ingreso",
+    }));
+    const list = [...fromExpenses, ...fromPayments, ...fromGoals, ...fromSavings, ...fromIncomes];
+    return list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 12);
+  }, [expenses, monthPayments, goalMovements, savingMovements, incomeMovements, t]);
 
 
 

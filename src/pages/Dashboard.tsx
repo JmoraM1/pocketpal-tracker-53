@@ -184,6 +184,14 @@ export default function Dashboard() {
                   monthPayments={monthPayments}
                   installmentMonthTotal={monthlyInstallmentTotal}
                   savingsTotal={savingsTotal}
+                  goalMovements={goalMovements}
+                  savingMovements={savingMovements}
+                  incomeMovements={[
+                    ...(salary > 0
+                      ? [{ id: "salary", name: t("Ingreso del mes"), amount: salary, date: budget?.updated_at ?? budget?.created_at ?? new Date().toISOString() }]
+                      : []),
+                    ...additionalIncomes.map((i) => ({ id: i.id, name: i.name, amount: Number(i.amount), date: i.updated_at ?? i.created_at })),
+                  ]}
                   onNavigate={setView}
                   onOpenIncome={() => setIncomeOpen(true)}
                 />

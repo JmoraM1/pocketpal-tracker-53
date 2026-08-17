@@ -72,11 +72,28 @@ export default function Dashboard() {
   } = useWebAuthn();
   const { profile, saveProfile } = useProfile(user?.id);
 
-  const { freeContribs, goalContribs, monthKey: savingsMonthKey } = useSavings(user?.id, selectedMonth);
+  const { goals, freeSavings, freeContribs, goalContribs, monthKey: savingsMonthKey } = useSavings(user?.id, selectedMonth);
   const savingsTotal = freeContribs.reduce((sum, c) => sum + Number(c.amount), 0);
   const goalContribsThisMonth = goalContribs
     .filter((c) => c.month === savingsMonthKey)
     .reduce((sum, c) => sum + Number(c.amount), 0);
+
+  const goalMovements = goalContribs
+    .filter((c) => c.month === savingsMonthKey)
+    .map((c) => ({
+      id: c.id,
+      name: goals.find((g) => g.id === c.goal_id)?.name ?? "",
+      amount: Number(c.amount),
+      date: c.created_at,
+    }));
+  const savingMovements = freeContribs
+    .filter((c) => c.month === savingsMonthKey)
+    .map((c) => ({
+      id: c.id,
+      name: freeSavings.find((s) => s.id === c.saving_id)?.name ?? "",
+      amount: Number(c.amount),
+      date: c.created_at,
+    }));
 
   const { incomes: additionalIncomes, additionalTotal, addIncome, updateIncomeItem, deleteIncome } =
     useAdditionalIncomes(user?.id, selectedMonth);
@@ -167,6 +184,14 @@ export default function Dashboard() {
                   monthPayments={monthPayments}
                   installmentMonthTotal={monthlyInstallmentTotal}
                   savingsTotal={savingsTotal}
+                  goalMovements={goalMovements}
+                  savingMovements={savingMovements}
+                  incomeMovements={[
+                    ...(salary > 0
+                      ? [{ id: "salary", name: t("Ingreso del mes"), amount: salary, date: budget?.updated_at ?? budget?.created_at ?? new Date().toISOString() }]
+                      : []),
+                    ...additionalIncomes.map((i) => ({ id: i.id, name: i.name, amount: Number(i.amount), date: i.updated_at ?? i.created_at })),
+                  ]}
                   onNavigate={setView}
                   onOpenIncome={() => setIncomeOpen(true)}
                 />

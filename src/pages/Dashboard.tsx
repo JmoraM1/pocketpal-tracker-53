@@ -72,13 +72,16 @@ export default function Dashboard() {
   } = useWebAuthn();
   const { profile, saveProfile } = useProfile(user?.id);
 
-  const { freeContribs } = useSavings(user?.id, selectedMonth);
+  const { freeContribs, goalContribs, monthKey: savingsMonthKey } = useSavings(user?.id, selectedMonth);
   const savingsTotal = freeContribs.reduce((sum, c) => sum + Number(c.amount), 0);
+  const goalContribsThisMonth = goalContribs
+    .filter((c) => c.month === savingsMonthKey)
+    .reduce((sum, c) => sum + Number(c.amount), 0);
 
   const { incomes: additionalIncomes, additionalTotal, addIncome, updateIncomeItem, deleteIncome } =
     useAdditionalIncomes(user?.id, selectedMonth);
 
-  const combinedTotalExpenses = totalExpenses + monthlyInstallmentTotal;
+  const combinedTotalExpenses = totalExpenses + monthlyInstallmentTotal + goalContribsThisMonth;
   const salary = Number(budget?.income ?? 0);
   const income = salary + additionalTotal;
   const combinedAvailable = income - combinedTotalExpenses;

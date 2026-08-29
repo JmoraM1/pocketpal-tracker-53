@@ -13,6 +13,11 @@ const corsHeaders = {
 
 const CHALLENGE_TTL_MS = 5 * 60 * 1000;
 
+// Fixed official domain: credentials must always be bound to this RP ID so a
+// passkey registered here can be used by webauthn-authenticate (same values).
+const EXPECTED_ORIGIN = "https://pocketpal-tracker-53.lovable.app";
+const EXPECTED_RP_ID = "pocketpal-tracker-53.lovable.app";
+
 function getOrigin(req: Request): string | null {
   const raw = req.headers.get("origin") || req.headers.get("referer");
   if (!raw) return null;
@@ -63,15 +68,16 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { action, credential, deviceName } = body;
 
-    const origin = getOrigin(req);
-    if (!origin) {
-      console.error("[webauthn-register] missing or invalid origin header");
+    const receivedOrigin = getOrigin(req);
+    if (!receivedOrigin || receivedOrigin !== EXPECTED_ORIGIN) {
+      console.error("[webauthn-register] invalid or mismatched origin header", receivedOrigin);
       return new Response(JSON.stringify({ error: "Invalid request origin" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const rpId = new URL(origin).hostname;
+    const origin = EXPECTED_ORIGIN;
+    const rpId = EXPECTED_RP_ID;
 
     if (action === "options") {
       const { data: existing } = await supabaseAdmin

@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.95.3";
 import {
   generateRegistrationOptions,
   verifyRegistrationResponse,
-} from "https://esm.sh/@simplewebauthn/server@10.0.1?target=deno";
+} from "https://esm.sh/@simplewebauthn/server@13.1.1?target=deno";
 import { isoBase64URL } from "https://esm.sh/@simplewebauthn/server@13.1.1/helpers?target=deno";
 
 const corsHeaders = {

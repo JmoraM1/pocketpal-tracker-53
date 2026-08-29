@@ -251,9 +251,14 @@ export function useWebAuthn() {
         });
         return false;
       }
+      const detail = err?.message === "Invalid request origin"
+        ? "Abre la aplicación publicada directamente en pocketpal-tracker-53.lovable.app, no desde la vista previa."
+        : err?.message === "Verification failed"
+          ? "La validación biométrica no coincidió. Elimina cualquier registro anterior del dispositivo e inténtalo nuevamente."
+          : "No se pudo activar la biometría. Inténtalo de nuevo.";
       toast({
         title: t("Error de registro"),
-        description: t("No se pudo activar la biometría. Inténtalo de nuevo."),
+        description: t(detail),
         variant: "destructive",
       });
       return false;

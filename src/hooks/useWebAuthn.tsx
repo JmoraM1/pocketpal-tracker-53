@@ -23,6 +23,21 @@ export function isWebAuthnSupported(): boolean {
   return !!(window.PublicKeyCredential && navigator.credentials);
 }
 
+// Passkeys are bound to the official published domain (see the edge functions).
+export const OFFICIAL_ORIGIN = "https://pocketpal-tracker-53.lovable.app";
+
+export function isInIframe(): boolean {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+}
+
+export function isOfficialOrigin(): boolean {
+  return window.location.origin === OFFICIAL_ORIGIN;
+}
+
 function getWebAuthnErrorMessage(err: any): string | null {
   if (!err) return "Error desconocido.";
   
@@ -106,6 +121,17 @@ export function useWebAuthn() {
       toast({
         title: t("No soportado"),
         description: t("Este dispositivo o navegador no admite autenticación biométrica."),
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (isInIframe() || !isOfficialOrigin()) {
+      toast({
+        title: t("Biometría no disponible aquí"),
+        description: t(
+          "Abre la aplicación en su dirección oficial (fuera de la vista previa) para usar la biometría."
+        ),
         variant: "destructive",
       });
       return false;
@@ -241,6 +267,17 @@ export function useWebAuthn() {
       toast({
         title: t("No soportado"),
         description: t("Este dispositivo o navegador no admite autenticación biométrica."),
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (isInIframe() || !isOfficialOrigin()) {
+      toast({
+        title: t("Biometría no disponible aquí"),
+        description: t(
+          "Abre la aplicación en su dirección oficial (fuera de la vista previa) para usar la biometría."
+        ),
         variant: "destructive",
       });
       return false;

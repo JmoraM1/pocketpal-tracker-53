@@ -105,6 +105,17 @@ export function useWebAuthn() {
     }
   }, []);
 
+  // Keep the registered passkey list in sync with the current session so the
+  // settings screen reflects the real state instead of always "Desactivada".
+  useEffect(() => {
+    loadCredentials();
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+      loadCredentials();
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [loadCredentials]);
+
+
   const removePasskey = useCallback(async (id: string) => {
     const { error } = await supabase.from("webauthn_credentials").delete().eq("id", id);
     if (error) {

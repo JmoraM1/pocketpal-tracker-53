@@ -160,13 +160,7 @@ export function useWebAuthn() {
     }
 
     if (isInIframe() || !isOfficialOrigin()) {
-      toast({
-        title: t("Biometría no disponible aquí"),
-        description: t(
-          "Abre la aplicación en su dirección oficial (fuera de la vista previa) para usar la biometría."
-        ),
-        variant: "destructive",
-      });
+      showWrongOriginToast(t);
       return false;
     }
 
@@ -311,13 +305,7 @@ export function useWebAuthn() {
     }
 
     if (isInIframe() || !isOfficialOrigin()) {
-      toast({
-        title: t("Biometría no disponible aquí"),
-        description: t(
-          "Abre la aplicación en su dirección oficial (fuera de la vista previa) para usar la biometría."
-        ),
-        variant: "destructive",
-      });
+      showWrongOriginToast(t);
       return false;
     }
 
@@ -421,7 +409,7 @@ export function useWebAuthn() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   return {
     loading,

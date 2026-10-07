@@ -1,4 +1,8 @@
 export const EN_AUTH: Record<string, string> = {
+  "Biometría no disponible aquí": "Biometrics not available here",
+  "Tu huella está registrada en la app oficial. Ábrela para iniciar sesión con biometría.":
+    "Your fingerprint is registered in the official app. Open it to sign in with biometrics.",
+  "Abrir app oficial": "Open official app",
   "El correo electrónico es obligatorio.": "Email is required.",
   "El formato del correo no es válido.": "The email format is not valid.",
   "La contraseña es obligatoria.": "Password is required.",

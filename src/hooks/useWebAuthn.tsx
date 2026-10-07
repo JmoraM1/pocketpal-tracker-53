@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { useT } from "@/lib/i18n";
 
 function base64UrlToBuffer(base64url: string): ArrayBuffer {
@@ -36,6 +37,27 @@ export function isInIframe(): boolean {
 
 export function isOfficialOrigin(): boolean {
   return window.location.origin === OFFICIAL_ORIGIN;
+}
+
+function openOfficialApp() {
+  const target = `${OFFICIAL_ORIGIN}${window.location.pathname}`;
+  const win = window.open(target, "_blank", "noopener");
+  if (!win) window.location.href = target;
+}
+
+function showWrongOriginToast(t: (s: string) => string) {
+  toast({
+    title: t("Biometría no disponible aquí"),
+    description: t(
+      "Tu huella está registrada en la app oficial. Ábrela para iniciar sesión con biometría."
+    ),
+    variant: "destructive",
+    action: (
+      <ToastAction altText={t("Abrir app oficial")} onClick={openOfficialApp}>
+        {t("Abrir app oficial")}
+      </ToastAction>
+    ),
+  });
 }
 
 function getWebAuthnErrorMessage(err: any): string | null {
